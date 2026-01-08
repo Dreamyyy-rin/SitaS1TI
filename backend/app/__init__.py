@@ -21,6 +21,10 @@ def create_app() -> Flask:
     register_blueprints(app)
 
     # Health check endpoint
+    @app.get("/health")
+    def health_check():
+        try:
+            db = get_db()
             return {"status": "ok", "db": db.name}
         except Exception as e:
             return {"status": "error", "message": str(e)}, 500
