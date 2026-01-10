@@ -1,0 +1,239 @@
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const navigate = useNavigate();
+
+  const menuItems = [
+    { key: "home", label: "Dashboard", view: "home", icon: "dashboard" },
+    {
+      key: "upload-ttu",
+      label: "Upload TTU",
+      view: "upload-ttu",
+      icon: "upload",
+    },
+    { key: "review", label: "Review", view: "review", icon: "chat" },
+    {
+      key: "upload-berkas",
+      label: "Upload Berkas",
+      view: "upload-berkas",
+      icon: "folder",
+    },
+  ];
+
+  //logic tombol
+  const handleLogoutClick = () => {
+    setShowLogoutDialog(true);
+  };
+
+  const handleCancel = () => {
+    setShowLogoutDialog(false);
+  };
+
+  const handleConfirmLogout = () => {
+    if (onLogout) onLogout();
+
+    navigate("/");
+  };
+
+  const Icon = ({ name, className }) => {
+    const icons = {
+      dashboard: (
+        <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
+      ),
+      upload: (
+        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+      ),
+      chat: (
+        <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+      ),
+      folder: (
+        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+      ),
+      logout: (
+        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      ),
+
+      user: (
+        <path
+          fillRule="evenodd"
+          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+          clipRule="evenodd"
+        />
+      ),
+    };
+    return (
+      <svg
+        className={className}
+        fill="currentColor"
+        viewBox="0 0 20 20"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        {icons[name]}
+      </svg>
+    );
+  };
+
+  return (
+    <>
+      <aside className="w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)]">
+        <div className="px-8 py-8 flex items-center gap-4">
+          <img
+            src="/fti.png"
+            alt="Logo FTI"
+            className="w-10 h-10 rounded-full object-cover shadow-md border border-white"
+          />
+
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+            SITA <span className="text-[#0B2F7F]">S1 TI</span>
+          </h1>
+        </div>
+
+        {/*menu navigasi*/}
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+          <div className="px-4 mb-2 mt-2">
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Menu
+            </span>
+          </div>
+
+          {menuItems.map((m) => {
+            const isActive = activeMenu === m.key;
+            return (
+              <button
+                key={m.key}
+                onClick={() => onMenuClick(m.key, m.view)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                  isActive
+                    ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <svg
+                  className={`w-5 h-5 ${
+                    isActive
+                      ? "text-[#0B2F7F]"
+                      : "text-slate-400 group-hover:text-slate-600"
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {m.icon === "dashboard" && (
+                    <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
+                  )}
+                  {m.icon === "upload" && (
+                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+                  )}
+                  {m.icon === "chat" && (
+                    <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                  )}
+                  {m.icon === "folder" && (
+                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                  )}
+                </svg>
+                <span>{m.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/*profile section*/}
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between p-3 rounded-xl  cursor-pointer group border border-transparent">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
+                <Icon name="user" className="w-6 h-6" />
+              </div>
+
+              <div className="text-left overflow-hidden">
+                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
+                  {student?.name || "Felicia Wijaya"}
+                </p>
+
+                <p className="text-xs text-slate-500 font-mono">
+                  {student?.nim || "672023009"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogoutClick}
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+              title="Keluar"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/*logout confirmation*/}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={handleCancel}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-red-50/50">
+                <svg
+                  className="w-8 h-8 text-red-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Apakah Anda Yakin untuk Keluar?
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Anda akan diarahkan kembali ke halaman utama.
+              </p>
+
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={handleCancel}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleConfirmLogout}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all transform active:scale-95"
+                >
+                  Ya, Keluar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default SidebarMahasiswa;

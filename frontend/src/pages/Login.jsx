@@ -28,14 +28,23 @@ const Login = () => {
 
   const config = roleConfig[role] || roleConfig.mahasiswa;
 
+ 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     console.log("Login attempt:", {
       role: role || "unknown",
       username: formData.username,
       password: formData.password,
     });
+
+   
+    if (role === "mahasiswa" || !role) {
+      navigate("/mahasiswa");
+    }
+   
   };
+ 
 
   const handleChange = (e) => {
     setFormData({
