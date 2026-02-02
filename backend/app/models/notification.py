@@ -10,13 +10,11 @@ from .base import BaseModel
 class Notification(BaseModel):
     """Model untuk Notification/Email Queue"""
     COLLECTION = "notifications"
-    DB_NAME = "sita_users"
     
     @classmethod
     def collection(cls):
         """Get notifications collection"""
-        from ..db import get_db
-        db = get_db(cls.DB_NAME)
+        db = BaseModel.db()
         return db[cls.COLLECTION]
     
     @classmethod

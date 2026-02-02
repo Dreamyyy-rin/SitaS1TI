@@ -10,13 +10,11 @@ from .base import BaseModel
 class Mahasiswa(BaseModel):
     """Model untuk Mahasiswa"""
     COLLECTION = "mahasiswa"
-    DB_NAME = "sita_mahasiswa"
     
     @classmethod
     def collection(cls):
         """Get mahasiswa collection"""
-        from ..db import get_db
-        db = get_db(cls.DB_NAME)
+        db = BaseModel.db()
         return db[cls.COLLECTION]
     
     @classmethod

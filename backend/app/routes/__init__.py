@@ -10,11 +10,11 @@ from .superadmin import superadmin_bp
 
 def register_blueprints(app):
     """Register semua blueprint ke app"""
-    app.register_blueprint(auth_bp, url_prefix="/api")
-    app.register_blueprint(mahasiswa_bp, url_prefix="/api")
-    app.register_blueprint(dosen_bp, url_prefix="/api")
-    app.register_blueprint(kaprodi_bp, url_prefix="/api")
-    app.register_blueprint(superadmin_bp, url_prefix="/api")
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(mahasiswa_bp)
+    app.register_blueprint(dosen_bp)
+    app.register_blueprint(kaprodi_bp)
+    app.register_blueprint(superadmin_bp)
 
 
 __all__ = [

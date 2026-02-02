@@ -6,7 +6,7 @@ from ..auth import token_required, role_required
 from ..models import Mahasiswa, User
 from ..utils import Sanitizer, ResponseFormatter
 
-kaprodi_bp = Blueprint("kaprodi", __name__, url_prefix="/kaprodi")
+kaprodi_bp = Blueprint("kaprodi", __name__, url_prefix="/api/kaprodi")
 
 
 @kaprodi_bp.get("/mahasiswa")

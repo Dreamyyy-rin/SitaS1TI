@@ -17,15 +17,11 @@ class UserRole(str, Enum):
 class User(BaseModel):
     """Model untuk User (Superadmin, Kaprodi, Dosen)"""
     COLLECTION = "users"
-    DB_NAME = "sita_users"
     
     @classmethod
     def collection(cls):
         """Get users collection"""
         db = BaseModel.db()
-        if db.name != cls.DB_NAME:
-            from ..db import get_db
-            db = get_db(cls.DB_NAME)
         return db[cls.COLLECTION]
     
     @classmethod

@@ -12,7 +12,5 @@ def init_mongo(uri: str) -> MongoClient:
 def get_db(db_name: str = None):
     if _mongo_client is None:
         raise RuntimeError("Mongo client is not initialized. Call init_mongo first.")
-    if db_name:
-        return _mongo_client[db_name]
-    default_db = _mongo_client.get_default_database()
-    return default_db if default_db else _mongo_client["sita"]
+    # Use provided db_name or default to "sita"
+    return _mongo_client[db_name or "sita"]

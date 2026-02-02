@@ -6,7 +6,7 @@ from ..auth import token_required, role_required
 from ..models import Submission
 from ..utils import Sanitizer, ResponseFormatter
 
-dosen_bp = Blueprint("dosen", __name__, url_prefix="/dosen")
+dosen_bp = Blueprint("dosen", __name__, url_prefix="/api/dosen")
 
 
 @dosen_bp.get("/submissions")

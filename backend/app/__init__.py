@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 from .config import settings
 from .db import init_mongo, get_db
@@ -11,14 +11,28 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = settings.secret_key
     
-    # Enable CORS
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # Enable CORS with proper configuration
+    CORS(app, 
+         resources={r"/*": {"origins": "*"}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"])
 
     # Initialize MongoDB
     init_mongo(settings.mongo_uri)
 
     # Register all blueprints
     register_blueprints(app)
+
+    # Global OPTIONS handler for CORS preflight
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            response = jsonify({"status": "ok"})
+            response.headers.add("Access-Control-Allow-Origin", "*")
+            response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+            response.headers.add("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS,PATCH")
+            return response, 200
 
     # Health check endpoint
     @app.get("/health")

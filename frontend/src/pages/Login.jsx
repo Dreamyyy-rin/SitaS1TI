@@ -14,14 +14,14 @@ const Login = () => {
   const roleConfig = {
     mahasiswa: {
       title: "Login sebagai Mahasiswa",
-      usernameLabel: "NIM",
-      usernamePlaceholder: "Masukkan NIM Anda",
+      usernameLabel: "Email",
+      usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-[#0B2F7F] hover:bg-indigo-900",
     },
     dosen: {
       title: "Login sebagai Dosen",
-      usernameLabel: "Username",
-      usernamePlaceholder: "Masukkan Username / NIP Anda",
+      usernameLabel: "Email",
+      usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-orange-600 hover:bg-orange-700",
     },
   };
@@ -29,20 +29,59 @@ const Login = () => {
   const config = roleConfig[role] || roleConfig.mahasiswa;
 
  
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    console.log("Login attempt:", {
-      role: role || "unknown",
-      username: formData.username,
-      password: formData.password,
-    });
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    const endpoint =
+      role === "dosen" ? "/api/auth/login" : "/api/auth/login-mahasiswa";
 
-   
-    if (role === "mahasiswa" || !role) {
-      navigate("/mahasiswa");
+    try {
+      setIsSubmitting(true);
+      const response = await fetch(`${baseUrl}${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || "Login gagal");
+      }
+
+      const token = result?.data?.token;
+      const user = result?.data?.user;
+      if (token) {
+        localStorage.setItem("sita_token", token);
+      }
+      if (user) {
+        localStorage.setItem("sita_user", JSON.stringify(user));
+      }
+
+      // Navigate berdasarkan role
+      if (role === "mahasiswa") {
+        navigate("/mahasiswa");
+      } else if (role === "dosen") {
+        navigate("/dosen");
+      } else {
+        // Default to home
+        navigate("/");
+      }
+    } catch (err) {
+      setError(err.message || "Login gagal");
+    } finally {
+      setIsSubmitting(false);
     }
-   
   };
  
 
@@ -120,6 +159,12 @@ const Login = () => {
             <p className="text-slate-500">Sistem Informasi Tugas Akhir S1 TI</p>
           </div>
 
+          {error && (
+            <div className="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -159,11 +204,12 @@ const Login = () => {
 
             <button
               type="submit"
+              disabled={isSubmitting}
               className={`w-full ${
                 config.buttonColor || "bg-blue-600"
               } text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2`}
             >
-              Login
+              {isSubmitting ? "Memproses..." : "Login"}
             </button>
           </form>
         </div>

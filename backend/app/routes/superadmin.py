@@ -6,7 +6,7 @@ from ..auth import AuthService, token_required, role_required
 from ..models import User, UserRole
 from ..utils import Sanitizer, Validator, ResponseFormatter
 
-superadmin_bp = Blueprint("superadmin", __name__, url_prefix="/superadmin")
+superadmin_bp = Blueprint("superadmin", __name__, url_prefix="/api/superadmin")
 
 
 @superadmin_bp.post("/register-user")

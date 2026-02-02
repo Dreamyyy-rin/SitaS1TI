@@ -8,7 +8,7 @@ from ..auth import AuthService, token_required, role_required
 from ..models import Mahasiswa, Submission, Notification
 from ..utils import Sanitizer, Validator, ResponseFormatter
 
-mahasiswa_bp = Blueprint("mahasiswa", __name__, url_prefix="/mahasiswa")
+mahasiswa_bp = Blueprint("mahasiswa", __name__, url_prefix="/api/mahasiswa")
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf", "docx", "doc", "txt", "pptx"}

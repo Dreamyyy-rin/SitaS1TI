@@ -10,20 +10,17 @@ from .base import BaseModel
 class Submission(BaseModel):
     """Model untuk Submission/Upload"""
     COLLECTION = "submissions"
-    DB_NAME = "sita_mahasiswa"
     
     @classmethod
     def collection(cls):
         """Get submissions collection"""
-        from ..db import get_db
-        db = get_db(cls.DB_NAME)
+        db = BaseModel.db()
         return db[cls.COLLECTION]
     
     @classmethod
     def mahasiswa_collection(cls):
         """Get mahasiswa collection (for updates)"""
-        from ..db import get_db
-        db = get_db(cls.DB_NAME)
+        db = BaseModel.db()
         return db["mahasiswa"]
     
     @classmethod

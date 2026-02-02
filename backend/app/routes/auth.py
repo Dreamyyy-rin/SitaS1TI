@@ -6,7 +6,7 @@ from ..auth import AuthService, token_required, role_required
 from ..models import User, Mahasiswa
 from ..utils import Sanitizer, Validator, ResponseFormatter
 
-auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
 
 @auth_bp.post("/login")

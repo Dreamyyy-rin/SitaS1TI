@@ -1,16 +1,68 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import SidebarMahasiswa from "../components/SidebarMahasiswa";
 
 export default function MahasiswaDashboard() {
-  //data mahasiswa dummy
-  const student = {
-    name: "Budi Santoso",
-    nim: "672022001",
-    prodi: "Teknik Informatika",
-    email: "budi.santoso@student.uksw.edu",
-    stage: "TTU 2",
-    supervisor: "Dr. Indonesia Raya, S.Kom., M.T.",
-  };
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) {
+      navigate("/login?role=mahasiswa");
+      return;
+    }
+
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+    const loadProfile = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`${baseUrl}/api/mahasiswa/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success === false) {
+          throw new Error(result.error || "Gagal memuat profil");
+        }
+        setProfile(result.data || null);
+      } catch (err) {
+        setError(err.message || "Gagal memuat profil");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [navigate]);
+
+  const student = useMemo(() => {
+    const fallback = {
+      name: "Mahasiswa",
+      nim: "-",
+      prodi: "-",
+      email: "-",
+      stage: "TTU 1",
+      supervisor: "Belum ditetapkan",
+    };
+
+    if (!profile) {
+      return fallback;
+    }
+
+    return {
+      ...fallback,
+      name: profile.nama || fallback.name,
+      nim: profile.nim || fallback.nim,
+      prodi: profile.prodi || fallback.prodi,
+      email: profile.email || fallback.email,
+    };
+  }, [profile]);
 
   const [view, setView] = useState("home");
   const [activeMenu, setActiveMenu] = useState("home");
@@ -360,14 +412,27 @@ export default function MahasiswaDashboard() {
           setView(viewName);
         }}
         onLogout={() => {
+          localStorage.removeItem("sita_token");
+          localStorage.removeItem("sita_user");
           setView("home");
           setActiveMenu("home");
+          navigate("/login?role=mahasiswa");
         }}
         student={student}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
+          {isLoading && (
+            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">
+              Memuat data...
+            </div>
+          )}
+          {error && !isLoading && (
+            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">
+              {error}
+            </div>
+          )}
           {view === "home" && <HomeView />}
           {view === "upload-ttu" && <UploadTTUView />}
           {view === "review" && (
