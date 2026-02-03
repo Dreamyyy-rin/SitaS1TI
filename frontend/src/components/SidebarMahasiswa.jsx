@@ -5,24 +5,46 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
 
-  const menuItems = [
-    { key: "home", label: "Dashboard", view: "home", icon: "dashboard" },
+
+  const menuSections = [
     {
-      key: "upload-ttu",
-      label: "Upload TTU",
-      view: "upload-ttu",
-      icon: "upload",
+      label: "MENU UTAMA",
+      items: [
+        { key: "home", label: "Dashboard", view: "home", icon: "dashboard" },
+        {
+          key: "upload-ttu",
+          label: "Upload TTU",
+          view: "upload-ttu",
+          icon: "upload",
+        },
+        { key: "review", label: "Review", view: "review", icon: "chat" },
+        {
+          key: "upload-berkas",
+          label: "Upload Berkas",
+          view: "upload-berkas",
+          icon: "folder",
+        },
+      ],
     },
-    { key: "review", label: "Review", view: "review", icon: "chat" },
     {
-      key: "upload-berkas",
-      label: "Upload Berkas",
-      view: "upload-berkas",
-      icon: "folder",
+      label: "PENGATURAN",
+      items: [
+        {
+          key: "data-akun",
+          label: "Data Akun",
+          view: "data-akun",
+          icon: "user-cog",
+        },
+      ],
+    },
+    {
+      label: "BANTUAN",
+      items: [
+        { key: "panduan", label: "Panduan", view: "panduan", icon: "book" },
+      ],
     },
   ];
 
-  //logic tombol
   const handleLogoutClick = () => {
     setShowLogoutDialog(true);
   };
@@ -51,10 +73,18 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
       folder: (
         <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
       ),
+      "user-cog": (
+        <>
+          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
+          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+        </>
+      ),
+      book: (
+        <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
+      ),
       logout: (
         <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
       ),
-
       user: (
         <path
           fillRule="evenodd"
@@ -90,56 +120,68 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           </h1>
         </div>
 
-        {/*menu navigasi*/}
         <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          <div className="px-4 mb-2 mt-2">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Menu
-            </span>
-          </div>
+          {menuSections.map((section, sectionIndex) => (
+            <div key={section.label}>
+              <div className="px-4 mb-2 mt-4">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                  {section.label}
+                </span>
+              </div>
 
-          {menuItems.map((m) => {
-            const isActive = activeMenu === m.key;
-            return (
-              <button
-                key={m.key}
-                onClick={() => onMenuClick(m.key, m.view)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
-                  isActive
-                    ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
-                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                }`}
-              >
-                <svg
-                  className={`w-5 h-5 ${
-                    isActive
-                      ? "text-[#0B2F7F]"
-                      : "text-slate-400 group-hover:text-slate-600"
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  {m.icon === "dashboard" && (
-                    <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
-                  )}
-                  {m.icon === "upload" && (
-                    <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
-                  )}
-                  {m.icon === "chat" && (
-                    <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                  )}
-                  {m.icon === "folder" && (
-                    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                  )}
-                </svg>
-                <span>{m.label}</span>
-              </button>
-            );
-          })}
+              {section.items.map((item) => {
+                const isActive = activeMenu === item.key;
+                return (
+                  <button
+                    key={item.key}
+                    onClick={() => onMenuClick(item.key, item.view)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                      isActive
+                        ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                    }`}
+                  >
+                    <svg
+                      className={`w-5 h-5 ${
+                        isActive
+                          ? "text-[#0B2F7F]"
+                          : "text-slate-400 group-hover:text-slate-600"
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      {item.icon === "dashboard" && (
+                        <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
+                      )}
+                      {item.icon === "upload" && (
+                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
+                      )}
+                      {item.icon === "chat" && (
+                        <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      )}
+                      {item.icon === "folder" && (
+                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      )}
+                      {item.icon === "user-cog" && (
+                        <>
+                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
+                          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+                        </>
+                      )}
+                      {item.icon === "book" && (
+                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
+                      )}
+                    </svg>
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/*profile section*/}
@@ -182,7 +224,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
         </div>
       </aside>
 
-      {/*logout confirmation*/}
+      
       {showLogoutDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
