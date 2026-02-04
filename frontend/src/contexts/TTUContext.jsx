@@ -32,10 +32,10 @@ export const TTUProvider = ({ children }) => {
     },
   ]);
 
-  // Currently submitted file for current stage
+ 
   const [submittedFile, setSubmittedFile] = useState(null);
 
-  // Add message to chat history
+  
   const addMessage = (message) => {
     const newMessage = {
       id: chatHistory.length + 1,
@@ -46,7 +46,7 @@ export const TTUProvider = ({ children }) => {
     return newMessage;
   };
 
-  // Submit file (adds to chat and marks as submitted)
+ 
   const submitFile = (file) => {
     setSubmittedFile(file);
     addMessage({
@@ -57,12 +57,11 @@ export const TTUProvider = ({ children }) => {
     });
   };
 
-  // Cancel submission
   const cancelSubmission = () => {
     setSubmittedFile(null);
   };
 
-  // Move to next stage
+  
   const nextStage = () => {
     if (currentStage < 3) {
       setCurrentStage(currentStage + 1);

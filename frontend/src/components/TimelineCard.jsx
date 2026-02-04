@@ -92,7 +92,7 @@ const TimelineCard = ({ student }) => {
         </div>
       </div>
 
-      {/* Recent Activities */}
+   
       <div className="mt-4 pt-6 border-t border-slate-50">
         <h4 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
           <svg

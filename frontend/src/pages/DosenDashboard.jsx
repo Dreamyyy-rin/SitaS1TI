@@ -65,7 +65,7 @@ export default function DosenDashboard() {
 
       <main className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Submissions Card */}
+        
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center">
@@ -97,7 +97,6 @@ export default function DosenDashboard() {
             </button>
           </div>
 
-          {/* Mahasiswa Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">

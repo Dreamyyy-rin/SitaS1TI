@@ -71,11 +71,11 @@ const UploadTTU = ({ onSwitchToReview }) => {
 
   const handlePreview = () => {
     if (selectedFile && selectedFile.file) {
-      // Create a URL for the file and open it in a new window
+
       const fileURL = URL.createObjectURL(selectedFile.file);
       window.open(fileURL, "_blank");
 
-      // Clean up the URL after a delay to prevent memory leaks
+    
       setTimeout(() => URL.revokeObjectURL(fileURL), 100);
     }
   };
@@ -87,7 +87,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-      // Switch to review tab automatically
+     
       if (onSwitchToReview) {
         onSwitchToReview();
       }

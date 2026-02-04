@@ -1,47 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
+const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
-
 
   const menuSections = [
     {
       label: "MENU UTAMA",
       items: [
-        { key: "home", label: "Dashboard", view: "home", icon: "dashboard" },
-        {
-          key: "upload-ttu",
-          label: "Upload TTU",
-          view: "upload-ttu",
-          icon: "upload",
-        },
-        { key: "review", label: "Review", view: "review", icon: "chat" },
-        {
-          key: "upload-berkas",
-          label: "Upload Berkas",
-          view: "upload-berkas",
-          icon: "folder",
-        },
-      ],
-    },
-    {
-      label: "PENGATURAN",
-      items: [
-        {
-          key: "data-akun",
-          label: "Data Akun",
-          view: "data-akun",
-          icon: "user-cog",
-        },
+        { key: "dashboard", label: "Dashboard", icon: "dashboard" },
+        { key: "dosen", label: "Manajemen Dosen", icon: "user-check" },
+        { key: "mahasiswa", label: "Manajemen Mahasiswa", icon: "users" },
       ],
     },
     {
       label: "BANTUAN",
-      items: [
-        { key: "panduan", label: "Panduan", view: "panduan", icon: "book" },
-      ],
+      items: [{ key: "panduan", label: "Panduan", icon: "book" }],
     },
   ];
 
@@ -55,7 +30,6 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
 
   const handleConfirmLogout = () => {
     if (onLogout) onLogout();
-
     navigate("/");
   };
 
@@ -64,19 +38,19 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
       dashboard: (
         <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
       ),
-      upload: (
-        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
-      ),
-      chat: (
-        <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-      ),
-      folder: (
-        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-      ),
-      "user-cog": (
+      "user-check": (
         <>
-          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="8.5" cy="7" r="4" />
+          <polyline points="17 11 19 13 23 9" />
+        </>
+      ),
+      users: (
+        <>
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 00-3-3.87" />
+          <path d="M16 3.13a4 4 0 010 7.75" />
         </>
       ),
       book: (
@@ -134,7 +108,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                 return (
                   <button
                     key={item.key}
-                    onClick={() => onMenuClick(item.key, item.view)}
+                    onClick={() => onMenuClick(item.key)}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                       isActive
                         ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
@@ -157,19 +131,19 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                       {item.icon === "dashboard" && (
                         <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
                       )}
-                      {item.icon === "upload" && (
-                        <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4-4m0 0l-4 4m4-4v12" />
-                      )}
-                      {item.icon === "chat" && (
-                        <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                      )}
-                      {item.icon === "folder" && (
-                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
-                      )}
-                      {item.icon === "user-cog" && (
+                      {item.icon === "user-check" && (
                         <>
-                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-                          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+                          <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                          <circle cx="8.5" cy="7" r="4" />
+                          <polyline points="17 11 19 13 23 9" />
+                        </>
+                      )}
+                      {item.icon === "users" && (
+                        <>
+                          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                          <path d="M16 3.13a4 4 0 010 7.75" />
                         </>
                       )}
                       {item.icon === "book" && (
@@ -184,9 +158,9 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           ))}
         </nav>
 
- 
+
         <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-between p-3 rounded-xl  cursor-pointer group border border-transparent">
+          <div className="flex items-center justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
                 <Icon name="user" className="w-6 h-6" />
@@ -194,11 +168,11 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
 
               <div className="text-left overflow-hidden">
                 <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
-                  {student?.name || "Felicia Wijaya"}
+                  {admin?.name || "Superadmin"}
                 </p>
 
                 <p className="text-xs text-slate-500 font-mono">
-                  {student?.nim || "672023009"}
+                  Administrator
                 </p>
               </div>
             </div>
@@ -224,7 +198,6 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
         </div>
       </aside>
 
-      
       {showLogoutDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -278,4 +251,4 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   );
 };
 
-export default SidebarMahasiswa;
+export default AdminSidebar;

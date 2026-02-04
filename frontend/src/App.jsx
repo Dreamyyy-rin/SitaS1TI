@@ -4,6 +4,7 @@ import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import MahasiswaDashboard from "./pages/MahasiswaDashboard.jsx";
 import DosenDashboard from "./pages/DosenDashboard.jsx";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/mahasiswa" element={<MahasiswaDashboard />} />
         <Route path="/dosen" element={<DosenDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

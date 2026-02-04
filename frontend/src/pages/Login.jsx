@@ -28,7 +28,6 @@ const Login = () => {
 
   const config = roleConfig[role] || roleConfig.mahasiswa;
 
- 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -69,13 +68,18 @@ const Login = () => {
         localStorage.setItem("sita_user", JSON.stringify(user));
       }
 
-      // Navigate berdasarkan role
+     
       if (role === "mahasiswa") {
         navigate("/mahasiswa");
       } else if (role === "dosen") {
-        navigate("/dosen");
+    
+        if (user?.role === "superadmin") {
+          navigate("/admin");
+        } else {
+          navigate("/dosen");
+        }
       } else {
-        // Default to home
+    
         navigate("/");
       }
     } catch (err) {
@@ -84,7 +88,6 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
- 
 
   const handleChange = (e) => {
     setFormData({
