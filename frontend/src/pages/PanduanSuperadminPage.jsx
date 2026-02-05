@@ -4,7 +4,7 @@ import { BookOpen, UserCheck, Users, AlertCircle, Shield } from "lucide-react";
 const PanduanSuperadminPage = () => {
   return (
     <div className="space-y-6">
-      {/* Header */}
+     
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <BookOpen className="w-7 h-7 text-blue-600" />
@@ -15,7 +15,7 @@ const PanduanSuperadminPage = () => {
         </p>
       </div>
 
-      {/* Introduction Card */}
+     
       <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
         <div className="flex items-start gap-4">
           <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -34,7 +34,7 @@ const PanduanSuperadminPage = () => {
         </div>
       </div>
 
-      {/* Dashboard Section */}
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           📊 Dashboard
@@ -64,7 +64,7 @@ const PanduanSuperadminPage = () => {
         </div>
       </div>
 
-      {/* Manajemen Dosen Section */}
+  
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <UserCheck className="w-5 h-5 text-blue-600" />
@@ -135,7 +135,7 @@ const PanduanSuperadminPage = () => {
         </div>
       </div>
 
-      {/* Manajemen Mahasiswa Section */}
+    
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
           <Users className="w-5 h-5 text-green-600" />

@@ -71,11 +71,9 @@ const UploadTTU = ({ onSwitchToReview }) => {
 
   const handlePreview = () => {
     if (selectedFile && selectedFile.file) {
-
       const fileURL = URL.createObjectURL(selectedFile.file);
       window.open(fileURL, "_blank");
 
-    
       setTimeout(() => URL.revokeObjectURL(fileURL), 100);
     }
   };
@@ -87,7 +85,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
-     
+
       if (onSwitchToReview) {
         onSwitchToReview();
       }
@@ -114,13 +112,12 @@ const UploadTTU = ({ onSwitchToReview }) => {
 
   return (
     <div className="space-y-6">
-     
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Upload TTU - Tahap {currentStage}
+          Upload Tugas Talenta  Unggul {currentStage}
         </h2>
         <p className="text-gray-600">
-          Silakan upload draf untuk tahap TTU {currentStage}
+          Silakan upload draf untuk TTU {currentStage}
         </p>
         <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
           <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
@@ -130,9 +127,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </div>
       </div>
 
-     
       {submittedFile ? (
-       
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-start gap-4 mb-6">
             <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -149,7 +144,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </div>
           </div>
 
-       
           <div className="bg-gray-50 rounded-lg p-4 mb-4">
             <div className="flex items-center gap-3">
               <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -166,7 +160,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </div>
           </div>
 
-        
           <button
             onClick={handleCancelSubmission}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors"
@@ -180,9 +173,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
           </p>
         </div>
       ) : (
-     
         <>
-          
           <div
             className={`bg-white rounded-xl shadow-sm border-2 border-dashed transition-all ${
               isDragging
@@ -234,7 +225,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </div>
           </div>
 
-       
           {selectedFile && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -264,7 +254,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 </div>
               </div>
 
-          
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handlePreview}
