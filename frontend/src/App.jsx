@@ -4,6 +4,7 @@ import Landing from "./pages/Landing.jsx";
 import Login from "./pages/Login.jsx";
 import MahasiswaDashboard from "./pages/MahasiswaDashboard.jsx";
 import DosenDashboard from "./pages/DosenDashboard.jsx";
+import KaprodiDashboard from "./pages/KaprodiDashboard.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/mahasiswa" element={<MahasiswaDashboard />} />
         <Route path="/dosen" element={<DosenDashboard />} />
+        <Route path="/kaprodi" element={<KaprodiDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>

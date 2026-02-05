@@ -68,18 +68,18 @@ const Login = () => {
         localStorage.setItem("sita_user", JSON.stringify(user));
       }
 
-     
       if (role === "mahasiswa") {
         navigate("/mahasiswa");
       } else if (role === "dosen") {
-    
+        // Check if user is superadmin, kaprodi, or regular dosen
         if (user?.role === "superadmin") {
           navigate("/admin");
+        } else if (user?.jabatan === "kaprodi" || user?.role === "kaprodi") {
+          navigate("/kaprodi");
         } else {
           navigate("/dosen");
         }
       } else {
-    
         navigate("/");
       }
     } catch (err) {
