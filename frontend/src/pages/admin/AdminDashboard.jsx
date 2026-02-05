@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AdminSidebar from "../components/AdminSidebar";
+import AdminSidebar from "../../components/admin/AdminSidebar";
 import DosenManagementPage from "./DosenManagementPage";
 import MahasiswaManagementPage from "./MahasiswaManagementPage";
 import PanduanSuperadminPage from "./PanduanSuperadminPage";
-import { mockUsers } from "../data/mockUsers";
+import { mockUsers } from "../../data/mockUsers";
 import { UserCheck, Users, CheckCircle } from "lucide-react";
 
 const AdminDashboard = () => {
@@ -20,7 +20,6 @@ const AdminDashboard = () => {
     navigate("/");
   };
 
-
   const totalDosen = mockUsers.filter((user) => user.role === "dosen").length;
   const totalMahasiswa = mockUsers.filter(
     (user) => user.role === "mahasiswa",
@@ -32,7 +31,6 @@ const AdminDashboard = () => {
       case "dashboard":
         return (
           <div className="space-y-6">
-          
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
                 Dashboard Superadmin
@@ -42,9 +40,7 @@ const AdminDashboard = () => {
               </p>
             </div>
 
-    
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-             
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -61,7 +57,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-             
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -78,7 +73,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-            
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -96,7 +90,6 @@ const AdminDashboard = () => {
               </div>
             </div>
 
-          
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
                 Akses Cepat

@@ -4,41 +4,18 @@ import { BookOpen, UserCheck, Users, AlertCircle, Shield } from "lucide-react";
 const PanduanSuperadminPage = () => {
   return (
     <div className="space-y-6">
-     
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <BookOpen className="w-7 h-7 text-blue-600" />
           Panduan Superadmin
         </h1>
         <p className="text-gray-600 mt-1">
-          Panduan lengkap penggunaan sistem manajemen SITA S1 TI
+          Panduan penggunaan sistem manajemen SITA S1 TI
         </p>
       </div>
 
-     
-      <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Shield className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-blue-900 mb-2">
-              Selamat Datang, Superadmin!
-            </h2>
-            <p className="text-blue-800 text-sm leading-relaxed">
-              Sebagai superadmin, Anda memiliki akses penuh untuk mengelola
-              seluruh data pengguna dalam sistem SITA S1 TI. Silakan gunakan
-              panduan berikut untuk memaksimalkan penggunaan sistem.
-            </p>
-          </div>
-        </div>
-      </div>
-
-
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          📊 Dashboard
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Dashboard</h3>
         <div className="space-y-3 text-sm text-gray-700">
           <p>
             Dashboard adalah halaman utama yang menampilkan ringkasan statistik
@@ -64,10 +41,8 @@ const PanduanSuperadminPage = () => {
         </div>
       </div>
 
-  
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <UserCheck className="w-5 h-5 text-blue-600" />
           Manajemen Dosen
         </h3>
         <div className="space-y-4 text-sm text-gray-700">
@@ -135,10 +110,8 @@ const PanduanSuperadminPage = () => {
         </div>
       </div>
 
-    
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-green-600" />
           Manajemen Mahasiswa
         </h3>
         <div className="space-y-4 text-sm text-gray-700">
@@ -209,44 +182,6 @@ const PanduanSuperadminPage = () => {
           </div>
         </div>
       </div>
-
-     
-      <div className="bg-yellow-50 rounded-lg p-6 border border-yellow-200">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-lg font-semibold text-yellow-900 mb-3">
-              Tips & Best Practices
-            </h3>
-            <ul className="space-y-2 text-sm text-yellow-800">
-              <li>
-                ✓ Gunakan <strong>Soft Delete</strong> untuk penghapusan
-                sementara, sehingga data dapat dipulihkan jika diperlukan
-              </li>
-              <li>
-                ✓ Pastikan password yang dibuat aman dan mudah diingat oleh
-                pengguna
-              </li>
-              <li>
-                ✓ Verifikasi data sebelum menyimpan untuk menghindari kesalahan
-              </li>
-              <li>
-                ✓ Gunakan fitur pencarian untuk menemukan data dengan cepat
-              </li>
-              <li>
-                ✓ Perhatikan status pengguna (Aktif/Nonaktif) saat mengelola
-                akun
-              </li>
-              <li>
-                ✓ Lakukan backup data secara berkala untuk keamanan sistem
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      
-     
     </div>
   );
 };

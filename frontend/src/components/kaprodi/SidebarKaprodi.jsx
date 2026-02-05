@@ -1,5 +1,20 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  Users,
+  FileCheck,
+  UserPlus,
+  GitBranch,
+  History,
+  UsersRound,
+  CalendarClock,
+  UserCog,
+  BookOpen,
+  LogOut,
+  User,
+} from "lucide-react";
 
 const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -13,44 +28,56 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           key: "dashboard",
           label: "Dashboard",
           view: "dashboard",
-          icon: "dashboard",
+          icon: LayoutDashboard,
+        },
+        {
+          key: "request-bimbingan",
+          label: "Request Bimbingan",
+          view: "request-bimbingan",
+          icon: ClipboardList,
+          badge: 2,
         },
         {
           key: "mahasiswa-bimbingan",
           label: "Mahasiswa Bimbingan",
           view: "mahasiswa-bimbingan",
-          icon: "users",
+          icon: Users,
         },
         {
           key: "review",
           label: "Review",
           view: "review",
-          icon: "clipboard-check",
+          icon: FileCheck,
         },
+      ],
+    },
+    {
+      label: "MANAJEMEN",
+      items: [
         {
           key: "request-dosen",
           label: "Request Dosen",
           view: "request-dosen",
-          icon: "user-plus",
+          icon: UserPlus,
           badge: 3,
         },
         {
           key: "plotting",
           label: "Plotting Reviewer",
           view: "plotting",
-          icon: "git-branch",
+          icon: GitBranch,
         },
         {
           key: "riwayat",
           label: "Riwayat Bimbingan",
           view: "riwayat",
-          icon: "history",
+          icon: History,
         },
         {
           key: "data-dosen",
           label: "Manajemen Dosen",
           view: "data-dosen",
-          icon: "users-round",
+          icon: UsersRound,
         },
       ],
     },
@@ -61,13 +88,13 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           key: "deadline",
           label: "Deadline TTU",
           view: "deadline",
-          icon: "calendar-clock",
+          icon: CalendarClock,
         },
         {
           key: "data-akun",
           label: "Data Akun",
           view: "data-akun",
-          icon: "user-cog",
+          icon: UserCog,
         },
       ],
     },
@@ -78,7 +105,7 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           key: "panduan",
           label: "Panduan",
           view: "panduan",
-          icon: "book",
+          icon: BookOpen,
         },
       ],
     },
@@ -96,50 +123,6 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
     if (onLogout) onLogout();
 
     navigate("/");
-  };
-
-  const Icon = ({ name, className }) => {
-    const icons = {
-      dashboard: (
-        <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
-      ),
-      "user-plus": (
-        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" />
-      ),
-      users: (
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-      ),
-      history: <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0zM12 7v5l3 3" />,
-      "user-cog": (
-        <>
-          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
-        </>
-      ),
-      book: (
-        <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
-      ),
-      logout: (
-        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-      ),
-      user: (
-        <path
-          fillRule="evenodd"
-          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-          clipRule="evenodd"
-        />
-      ),
-    };
-    return (
-      <svg
-        className={className}
-        fill="currentColor"
-        viewBox="0 0 20 20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {icons[name]}
-      </svg>
-    );
   };
 
   return (
@@ -167,85 +150,31 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
               </div>
 
               {section.items.map((item) => {
+                const IconComponent = item.icon;
                 const isActive = activeMenu === item.key;
                 return (
                   <button
                     key={item.key}
                     onClick={() => onMenuClick(item.key, item.view)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-left ${
                       isActive
                         ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
-                    <svg
-                      className={`w-5 h-5 ${
+                    <IconComponent
+                      className={`w-5 h-5 flex-shrink-0 ${
                         isActive
                           ? "text-[#0B2F7F]"
                           : "text-slate-400 group-hover:text-slate-600"
                       }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
                       strokeWidth={2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      {item.icon === "dashboard" && (
-                        <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
-                      )}
-                      {item.icon === "user-plus" && (
-                        <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" />
-                      )}
-                      {item.icon === "git-branch" && (
-                        <path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9l-6 6" />
-                      )}
-                      {item.icon === "users" && (
-                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
-                      )}
-                      {item.icon === "users-round" && (
-                        <>
-                          <path d="M18 21a8 8 0 00-16 0M14 11a4 4 0 11-8 0 4 4 0 018 0zM23 21a8 8 0 00-6.927-7.932" />
-                          <path d="M18.5 11a3.5 3.5 0 110-7 3.5 3.5 0 010 7z" />
-                        </>
-                      )}
-                      {item.icon === "history" && (
-                        <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0zM12 7v5l3 3" />
-                      )}
-                      {item.icon === "clipboard-check" && (
-                        <>
-                          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
-                          <rect
-                            x="8"
-                            y="2"
-                            width="8"
-                            height="4"
-                            rx="1"
-                            ry="1"
-                          />
-                          <path d="M9 12l2 2 4-4" />
-                        </>
-                      )}
-                      {item.icon === "calendar-clock" && (
-                        <>
-                          <path d="M21 7.5V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h3.5M16 2v4M8 2v4M3 10h18" />
-                          <circle cx="17.5" cy="17.5" r="5" />
-                          <path d="M17.5 15v2.5L19 19" />
-                        </>
-                      )}
-                      {item.icon === "user-cog" && (
-                        <>
-                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-                          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
-                        </>
-                      )}
-                      {item.icon === "book" && (
-                        <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
-                      )}
-                    </svg>
-                    <span>{item.label}</span>
+                    />
+                    <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                      {item.label}
+                    </span>
                     {item.badge && (
-                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full ml-auto">
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">
                         {item.badge}
                       </span>
                     )}
@@ -260,7 +189,7 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           <div className="flex items-center justify-between p-3 rounded-xl  cursor-pointer group border border-transparent">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
-                <Icon name="user" className="w-6 h-6" />
+                <User className="w-6 h-6" />
               </div>
 
               <div className="text-left overflow-hidden">
@@ -279,17 +208,7 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
               className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
               title="Keluar"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              <LogOut className="w-5 h-5" strokeWidth={2} />
             </button>
           </div>
         </div>
@@ -305,17 +224,7 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-red-50/50">
-                <svg
-                  className="w-8 h-8 text-red-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <LogOut className="w-8 h-8 text-red-500" strokeWidth={2} />
               </div>
 
               <h3 className="text-lg font-bold text-slate-800 mb-2">

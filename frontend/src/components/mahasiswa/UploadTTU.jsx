@@ -7,7 +7,7 @@ import {
   Trash2,
   CheckCircle,
 } from "lucide-react";
-import { useTTU } from "../contexts/TTUContext";
+import { useTTU } from "../../contexts/TTUContext";
 
 const UploadTTU = ({ onSwitchToReview }) => {
   const { currentStage, submittedFile, submitFile, cancelSubmission } =
@@ -114,7 +114,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Upload Tugas Talenta  Unggul {currentStage}
+          Upload Tugas Talenta Unggul {currentStage}
         </h2>
         <p className="text-gray-600">
           Silakan upload draf untuk TTU {currentStage}

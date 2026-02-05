@@ -44,7 +44,6 @@ const Landing = () => {
       <div className="absolute top-1/4 -left-20 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
       <div className="absolute top-1/4 -right-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 
- 
       <div className="relative z-10 w-full max-w-5xl flex flex-col items-center text-center font-outfit">
         <h2 className="text-2xl md:text-3xl font-medium text-slate-900 tracking-widest uppercase mb-2">
           Selamat Datang di
@@ -64,7 +63,7 @@ const Landing = () => {
                   "bg-uksw",
                   "flex",
                   "items-center",
-                  "justify-center"
+                  "justify-center",
                 );
               }}
             />
@@ -72,17 +71,16 @@ const Landing = () => {
 
           <div className="flex flex-col items-center text-center">
             <h1 className="text-6xl md:text-7xl font-bold text-slate-800 leading-none tracking-tighter">
-              SITA S1 TI
+              SITA S1 TI UKSW
             </h1>
 
             <div className="h-2 w-full bg-uksw rounded-full my-2"></div>
             <p className="text-lg md:text-xl font-bold text-uksw tracking-[0.2em] uppercase">
-              Sistem Informasi Tugas Akhir S1 TI
+              Sistem Informasi Tugas Akhir S1 TI UKSW
             </p>
           </div>
         </div>
 
-  
         <div className="w-full max-w-3xl overflow-hidden py-3 mb-12 border-y border-slate-200 bg-white/50 backdrop-blur-sm">
           <div className="whitespace-nowrap animate-marquee">
             <span className="text-slate-500 font-medium tracking-wide mx-4">
@@ -92,9 +90,7 @@ const Landing = () => {
           </div>
         </div>
 
-    
         <div className="flex flex-col md:flex-row gap-5 justify-center w-full">
-          
           <button
             onClick={() => handleRoleClick("mahasiswa")}
             className="group flex items-center justify-center gap-4 px-8 py-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm hover:bg-[#0B2F7F] hover:border-[#0B2F7F] hover:-translate-y-0.5 transition-all duration-300 min-w-[320px]"
@@ -109,7 +105,6 @@ const Landing = () => {
             </span>
           </button>
 
-        
           <button
             onClick={() => handleRoleClick("dosen")}
             className="group flex items-center justify-center gap-4 px-8 py-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm hover:bg-orange-600 hover:border-orange-600 hover:-translate-y-0.5 transition-all duration-300 min-w-[320px]"
@@ -125,9 +120,8 @@ const Landing = () => {
           </button>
         </div>
 
-      
         <p className="mt-12 text-slate-400 text-sm font-medium">
-          © 2026 FTI UKSW Salatiga
+          © 2026 Fakultas Teknologi Informasi Universitas Kristen Satya Wacana Salatiga
         </p>
       </div>
     </div>

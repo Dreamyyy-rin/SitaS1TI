@@ -8,6 +8,7 @@ import {
   BookOpen,
   LogOut,
   User,
+  FileCheck,
 } from "lucide-react";
 
 const SidebarDosen = ({ activeMenu, onMenuClick, onLogout, user }) => {
@@ -29,13 +30,19 @@ const SidebarDosen = ({ activeMenu, onMenuClick, onLogout, user }) => {
           label: "Request Bimbingan",
           view: "request-bimbingan",
           icon: ClipboardList,
-          badge: 1,
+          badge: 2,
         },
         {
-          key: "mahasiswa-saya",
-          label: "Mahasiswa Saya",
-          view: "mahasiswa-saya",
+          key: "mahasiswa-bimbingan",
+          label: "Mahasiswa Bimbingan",
+          view: "mahasiswa-bimbingan",
           icon: Users,
+        },
+        {
+          key: "review",
+          label: "Review",
+          view: "review",
+          icon: FileCheck,
         },
       ],
     },

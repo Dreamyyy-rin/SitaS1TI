@@ -48,6 +48,7 @@ const KaprodiManajemenDosen = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [selectedDosen, setSelectedDosen] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     nip: "",
@@ -118,8 +119,17 @@ const KaprodiManajemenDosen = () => {
     setShowModal(true);
   };
 
+
+  const filteredDosenList = dosenList.filter((dosen) => {
+    const query = searchQuery.toLowerCase();
+    return (
+      dosen.name.toLowerCase().includes(query) ||
+      dosen.nip.toLowerCase().includes(query)
+    );
+  });
+
   return (
-    <div className="p-8">
+    <div className="space-y-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <div className="flex items-center right justify-between mb-6">
@@ -130,6 +140,30 @@ const KaprodiManajemenDosen = () => {
               <Plus className="w-5 h-5" />
               Tambah Dosen
             </button>
+          </div>
+
+
+          <div className="relative mb-6">
+            <input
+              type="text"
+              placeholder="Cari berdasarkan nama atau NIP..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B2F7F] focus:border-transparent"
+            />
+            <svg
+              className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
           </div>
         </div>
 
@@ -165,7 +199,7 @@ const KaprodiManajemenDosen = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md p-6">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
@@ -191,7 +225,7 @@ const KaprodiManajemenDosen = () => {
                 </tr>
               </thead>
               <tbody>
-                {dosenList.map((dosen, index) => (
+                {filteredDosenList.map((dosen, index) => (
                   <tr
                     key={dosen.id}
                     className="border-t hover:bg-gray-50 transition-colors"
@@ -226,6 +260,16 @@ const KaprodiManajemenDosen = () => {
               </tbody>
             </table>
           </div>
+
+          {filteredDosenList.length === 0 && dosenList.length > 0 && (
+            <div className="text-center py-16">
+              <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 text-lg">Data tidak ditemukan</p>
+              <p className="text-slate-400 text-sm mt-2">
+                Tidak ada dosen yang cocok dengan pencarian "{searchQuery}"
+              </p>
+            </div>
+          )}
 
           {dosenList.length === 0 && (
             <div className="text-center py-16">

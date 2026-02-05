@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Send, CheckCircle } from "lucide-react";
-import AccessDenied from "../components/AccessDenied";
-import FileUploadField from "../components/FileUploadField";
+import AccessDenied from "../../components/shared/AccessDenied";
+import FileUploadField from "../../components/shared/FileUploadField";
 
 const UploadBerkasPage = () => {
   //dummy

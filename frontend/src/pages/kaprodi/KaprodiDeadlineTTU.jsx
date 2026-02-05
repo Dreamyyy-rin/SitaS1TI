@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Save, Calendar, FileText, CheckCircle2 } from "lucide-react";
-import DeadlineCard from "../components/DeadlineCard";
-import DeadlineSummaryTable from "../components/DeadlineSummaryTable";
-import SuccessToast from "../components/SuccessToast";
+import DeadlineCard from "../../components/kaprodi/DeadlineCard";
+import DeadlineSummaryTable from "../../components/kaprodi/DeadlineSummaryTable";
+import SuccessToast from "../../components/shared/SuccessToast";
 
 const KaprodiDeadlineTTU = () => {
   const [deadlines, setDeadlines] = useState({
@@ -53,7 +53,6 @@ const KaprodiDeadlineTTU = () => {
     },
   ];
 
-  
   const handleDateChange = (stage, value) => {
     setDeadlines((prev) => ({
       ...prev,
@@ -68,7 +67,6 @@ const KaprodiDeadlineTTU = () => {
     }));
   };
 
-  
   const isApproaching = (dateString) => {
     if (!dateString) return false;
     const deadline = new Date(dateString);
@@ -77,7 +75,6 @@ const KaprodiDeadlineTTU = () => {
     return daysUntil > 0 && daysUntil <= 30;
   };
 
- 
   const isPassed = (dateString) => {
     if (!dateString) return false;
     const deadline = new Date(dateString);
@@ -85,7 +82,6 @@ const KaprodiDeadlineTTU = () => {
     return deadline < today;
   };
 
- 
   const getDaysUntil = (dateString) => {
     if (!dateString) return null;
     const deadline = new Date(dateString);
@@ -94,7 +90,6 @@ const KaprodiDeadlineTTU = () => {
     return daysUntil;
   };
 
-  
   const formatDate = (dateString) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -106,9 +101,7 @@ const KaprodiDeadlineTTU = () => {
     });
   };
 
-  
   const handleSave = () => {
-    
     console.log("Saving deadlines:", deadlines);
     setShowSuccess(true);
     setTimeout(() => setShowSuccess(false), 3000);
@@ -144,7 +137,6 @@ const KaprodiDeadlineTTU = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
-      
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {ttuStages.map((stage) => {
             const colors = getColorClasses(stage.color);
@@ -169,7 +161,6 @@ const KaprodiDeadlineTTU = () => {
           })}
         </div>
 
-       
         <DeadlineSummaryTable
           ttuStages={ttuStages}
           deadlines={deadlines}
@@ -180,7 +171,6 @@ const KaprodiDeadlineTTU = () => {
           getColorClasses={getColorClasses}
         />
 
-     
         <div className="sticky bottom-6 flex justify-center">
           <button
             onClick={handleSave}

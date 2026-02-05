@@ -1,13 +1,13 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import SidebarMahasiswa from "../components/SidebarMahasiswa";
-import { TTUProvider } from "../contexts/TTUContext";
-import ProfileCard from "../components/ProfileCard";
-import TimelineCard from "../components/TimelineCard";
+import SidebarMahasiswa from "../../components/mahasiswa/SidebarMahasiswa";
+import { TTUProvider } from "../../contexts/TTUContext";
+import ProfileCard from "../../components/mahasiswa/ProfileCard";
+import TimelineCard from "../../components/mahasiswa/TimelineCard";
 import UploadTTUPage from "./UploadTTUPage";
 import PembimbingPage from "./PembimbingPage";
 import UploadBerkasPage from "./UploadBerkasPage";
-import DataAkunPage from "./DataAkunPage";
+import DataAkunPage from "../shared/DataAkunPage";
 import PanduanPage from "./PanduanPage";
 
 export default function MahasiswaDashboard() {

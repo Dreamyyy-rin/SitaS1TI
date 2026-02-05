@@ -55,9 +55,7 @@ export default function DataAkunPage({ student }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Data Akun</h2>
-      </div>
+    
 
       {showSuccess && (
         <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm animate-fade-in">
@@ -94,7 +92,7 @@ export default function DataAkunPage({ student }) {
                 d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
               />
             </svg>
-            Profil Mahasiswa
+            Profil Dosen
           </h3>
 
           <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg mb-6">
@@ -114,7 +112,7 @@ export default function DataAkunPage({ student }) {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-blue-200 mb-1">
-                  Nama Mahasiswa
+                  Nama Dosen
                 </p>
                 <p className="text-xl font-bold">
                   {student?.name || "Budi Santoso"}
@@ -270,7 +268,7 @@ export default function DataAkunPage({ student }) {
 
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 mt-6"
+              className="w-full bg-[#0B2F7F] hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2 mt-6"
             >
               <svg
                 className="w-5 h-5"

@@ -184,7 +184,7 @@ const Login = () => {
                 value={formData.username}
                 onChange={handleChange}
                 placeholder={config.usernamePlaceholder}
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2F7F] focus:border-transparent outline-none transition-all"
+                className={`w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 ${role === "mahasiswa" ? "focus:ring-blue-500" : "focus:ring-orange-500"} focus:border-transparent outline-none transition-all`}
               />
             </div>
 
@@ -203,7 +203,7 @@ const Login = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Masukkan password Anda"
-                  className="w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#0B2F7F] focus:border-transparent outline-none transition-all"
+                  className={`w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 ${role === "mahasiswa" ? "focus:ring-blue-500" : "focus:ring-orange-500"} focus:border-transparent outline-none transition-all`}
                 />
                 <button
                   type="button"

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, FileText, Download, User, GraduationCap } from "lucide-react";
-import { useTTU } from "../contexts/TTUContext";
+import { useTTU } from "../../contexts/TTUContext";
 
 const ReviewChat = ({ student }) => {
   const { chatHistory, addMessage, currentStage } = useTTU();

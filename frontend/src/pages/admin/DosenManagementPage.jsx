@@ -1,18 +1,18 @@
 import React, { useState, useMemo } from "react";
-import { mockUsers } from "../data/mockUsers";
-import UserTable from "../components/UserTable";
-import UserFormModal from "../components/UserFormModal";
-import { Users, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
+import { mockUsers } from "../../data/mockUsers";
+import UserTable from "../../components/admin/UserTable";
+import UserFormModal from "../../components/admin/UserFormModal";
+import { UserCheck, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
 
-const MahasiswaManagementPage = () => {
+const DosenManagementPage = () => {
   const [users, setUsers] = useState(
-    mockUsers.filter((user) => user.role === "mahasiswa"),
+    mockUsers.filter((user) => user.role === "dosen"),
   );
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingUser, setDeletingUser] = useState(null);
-  const [deleteType, setDeleteType] = useState("soft"); 
+  const [deleteType, setDeleteType] = useState("soft");
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleAddUser = () => {
@@ -32,25 +32,23 @@ const MahasiswaManagementPage = () => {
 
   const handleSaveUser = (userData) => {
     if (editingUser) {
-      // Edit existing user
       setUsers((prev) =>
         prev.map((u) =>
           u.id === editingUser.id
             ? {
                 ...u,
                 ...userData,
-                // Keep old password if new password is not provided
+
                 password: userData.password || u.password,
               }
             : u,
         ),
       );
     } else {
-      // Add new user
       const newUser = {
         ...userData,
         id: Math.max(...users.map((u) => u.id), 0) + 1,
-        role: "mahasiswa",
+        role: "dosen",
       };
       setUsers((prev) => [...prev, newUser]);
     }
@@ -62,14 +60,12 @@ const MahasiswaManagementPage = () => {
     if (!deletingUser) return;
 
     if (deleteType === "soft") {
-      // Soft delete: Change status to inactive
       setUsers((prev) =>
         prev.map((u) =>
           u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
         ),
       );
     } else {
-      // Hard delete: Remove from list
       setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
     }
 
@@ -78,7 +74,6 @@ const MahasiswaManagementPage = () => {
     setDeleteType("soft");
   };
 
-  // Filter users based on search query
   const filteredUsers = useMemo(() => {
     if (!searchQuery.trim()) return users;
 
@@ -86,62 +81,58 @@ const MahasiswaManagementPage = () => {
     return users.filter(
       (user) =>
         user.name.toLowerCase().includes(query) ||
-        user.idNumber.toLowerCase().includes(query) ||
-        user.prodi.toLowerCase().includes(query),
+        user.idNumber.toLowerCase().includes(query),
     );
   }, [users, searchQuery]);
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Users className="w-7 h-7 text-green-600" />
-            Manajemen Mahasiswa
+            <UserCheck className="w-7 h-7 text-blue-600" />
+            Manajemen Dosen
           </h1>
           <p className="text-gray-600 mt-1">
-            Kelola data mahasiswa dengan mudah dan efisien
+            Kelola data dosen dengan mudah dan efisien
           </p>
         </div>
         <button
           onClick={handleAddUser}
-          className="inline-flex items-center px-4 py-2.5 bg-green-600 text-white text-sm font-semibold rounded-lg hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all"
+          className="inline-flex items-center px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Tambah Mahasiswa
+          Tambah Dosen
         </button>
       </div>
 
-      {/* Search Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           <input
             type="text"
-            placeholder="Cari Mahasiswa berdasarkan Nama atau NIM..."
+            placeholder="Cari Dosen berdasarkan Nama atau NIP..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
           />
         </div>
       </div>
 
-      {/* Stats Card */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600">Total Mahasiswa</p>
+            <p className="text-sm text-gray-600">Total Dosen</p>
             <p className="text-2xl font-bold text-gray-900">{users.length}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Mahasiswa Aktif</p>
+            <p className="text-sm text-gray-600">Dosen Aktif</p>
             <p className="text-2xl font-bold text-green-600">
               {users.filter((u) => u.status === "active").length}
             </p>
           </div>
           <div>
-            <p className="text-sm text-gray-600">Mahasiswa Nonaktif</p>
+            <p className="text-sm text-gray-600">Dosen Nonaktif</p>
             <p className="text-2xl font-bold text-gray-400">
               {users.filter((u) => u.status === "inactive").length}
             </p>
@@ -149,17 +140,16 @@ const MahasiswaManagementPage = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <UserTable
           data={filteredUsers}
           onEdit={handleEditUser}
           onDelete={handleDeleteUser}
-          idLabel="NIM"
+          hideProdi={true}
+          idLabel="NIP"
         />
       </div>
 
-      {/* Form Modal */}
       <UserFormModal
         isOpen={showModal}
         onClose={() => {
@@ -168,10 +158,9 @@ const MahasiswaManagementPage = () => {
         }}
         onSave={handleSaveUser}
         initialData={editingUser}
-        defaultRole="mahasiswa"
+        defaultRole="dosen"
       />
 
-      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -190,7 +179,6 @@ const MahasiswaManagementPage = () => {
               </div>
             </div>
 
-            {/* Delete Type Selection */}
             <div className="space-y-3 mb-6">
               <label className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
                 <input
@@ -202,9 +190,9 @@ const MahasiswaManagementPage = () => {
                   className="mt-1"
                 />
                 <div>
-                  <p className="font-medium text-gray-900">Soft Delete</p>
+                  <p className="font-medium text-gray-900">Nonaktif</p>
                   <p className="text-sm text-gray-500">
-                    Nonaktifkan pengguna (dapat diaktifkan kembali)
+                    Pengguna dapat diaktifkan kembali
                   </p>
                 </div>
               </label>
@@ -218,15 +206,14 @@ const MahasiswaManagementPage = () => {
                   className="mt-1"
                 />
                 <div>
-                  <p className="font-medium text-red-900">Hard Delete</p>
+                  <p className="font-medium text-red-900">Hapus Permanen</p>
                   <p className="text-sm text-red-600">
-                    Hapus permanen (tidak dapat dikembalikan)
+                    Pengguna tidak dapat diaktifkan kembali
                   </p>
                 </div>
               </label>
             </div>
 
-            {/* Actions */}
             <div className="flex space-x-3 justify-end">
               <button
                 onClick={() => {
@@ -257,4 +244,4 @@ const MahasiswaManagementPage = () => {
   );
 };
 
-export default MahasiswaManagementPage;
+export default DosenManagementPage;
