@@ -2,12 +2,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, FileText, CheckCircle, Clock } from "lucide-react";
 import SidebarKaprodi from "../components/SidebarKaprodi";
+import KaprodiManajemenDosen from "./KaprodiManajemenDosen";
+import KaprodiDeadlineTTU from "./KaprodiDeadlineTTU";
 
 const KaprodiDashboard = () => {
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [userData, setUserData] = useState(null);
   const [selectedDosen, setSelectedDosen] = useState({});
+  const [selectedReviewers, setSelectedReviewers] = useState({});
 
   useEffect(() => {
     const storedUser = localStorage.getItem("sita_user");
@@ -106,6 +109,7 @@ const KaprodiDashboard = () => {
       nim: "200411100003",
       judul: "Implementasi Machine Learning untuk Prediksi",
       dosen: "Dr. Ahmad Fauzi, M.Kom",
+      reviewer: "Dr. Sri Wahyuni, M.T",
       ttu1: true,
       ttu2: false,
       ttu3: false,
@@ -117,6 +121,7 @@ const KaprodiDashboard = () => {
       nim: "200411100007",
       judul: "Sistem E-Commerce dengan React",
       dosen: "Dr. Sri Wahyuni, M.T",
+      reviewer: "",
       ttu1: true,
       ttu2: true,
       ttu3: false,
@@ -128,6 +133,7 @@ const KaprodiDashboard = () => {
       nim: "200411100009",
       judul: "Aplikasi IoT untuk Smart Home",
       dosen: "Dr. Budi Hartono, M.Kom",
+      reviewer: "Dr. Dewi Lestari, M.Kom",
       ttu1: true,
       ttu2: true,
       ttu3: true,
@@ -139,6 +145,7 @@ const KaprodiDashboard = () => {
       nim: "200411100011",
       judul: "Blockchain untuk Sistem Voting",
       dosen: "Dr. Ahmad Fauzi, M.Kom",
+      reviewer: "",
       ttu1: false,
       ttu2: false,
       ttu3: false,
@@ -210,10 +217,18 @@ const KaprodiDashboard = () => {
         return "Dashboard Kaprodi";
       case "request-dosen":
         return "Request Dosen";
+      case "plotting":
+        return "Plotting Reviewer";
       case "mahasiswa-bimbingan":
         return "Mahasiswa Bimbingan";
       case "riwayat":
         return "Riwayat Bimbingan";
+      case "data-dosen":
+        return "Manajemen Dosen";
+      case "review":
+        return "Review";
+      case "deadline":
+        return "Deadline TTU";
       case "data-akun":
         return "Data Akun";
       case "panduan":
@@ -454,84 +469,123 @@ const KaprodiDashboard = () => {
     </div>
   );
 
-  const MahasiswaBimbinganView = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Mahasiswa Bimbingan
-      </h3>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Nama
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                NIM
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Judul
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Dosen Pembimbing
-              </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                TTU 1
-              </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                TTU 2
-              </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                TTU 3
-              </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                Aksi
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {mahasiswaBimbingan.map((mhs) => (
-              <tr key={mhs.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm">{mhs.nama}</td>
-                <td className="px-4 py-3 text-sm">{mhs.nim}</td>
-                <td className="px-4 py-3 text-sm">{mhs.judul}</td>
-                <td className="px-4 py-3 text-sm">{mhs.dosen}</td>
-                <td className="px-4 py-3 text-center">
-                  {mhs.ttu1 ? (
-                    <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
-                  ) : (
-                    <Clock className="w-5 h-5 text-gray-400 mx-auto" />
-                  )}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {mhs.ttu2 ? (
-                    <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
-                  ) : (
-                    <Clock className="w-5 h-5 text-gray-400 mx-auto" />
-                  )}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {mhs.ttu3 ? (
-                    <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
-                  ) : (
-                    <Clock className="w-5 h-5 text-gray-400 mx-auto" />
-                  )}
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <button
-                    onClick={() => handleAccept(mhs.id)}
-                    className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800"
-                  >
-                    Accept
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  const MahasiswaBimbinganView = () => {
+    // Filter mahasiswa berdasarkan dosen yang login (userData)
+    // Untuk demo, kita asumsikan userData.name adalah nama dosen
+    const dosenLogin = userData?.name || "Dr. Ahmad Fauzi, M.Kom"; // Default untuk demo
+    const filteredMahasiswa = mahasiswaBimbingan.filter(
+      (mhs) => mhs.dosen === dosenLogin,
+    );
+
+    const handlePreviewFile = (mahasiswa, ttuType) => {
+      alert(`Preview file ${ttuType} untuk ${mahasiswa.nama}`);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="mb-8">
+          <p className="text-slate-600">
+            Daftar mahasiswa yang Anda bimbing: <b>{dosenLogin}</b>
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Nama
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    NIM
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Judul
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    TTU 1
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    TTU 2
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    TTU 3
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    File
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredMahasiswa.map((mhs) => (
+                  <tr key={mhs.id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm font-semibold">
+                      {mhs.nama}
+                    </td>
+                    <td className="px-4 py-3 text-sm">{mhs.nim}</td>
+                    <td className="px-4 py-3 text-sm">{mhs.judul}</td>
+                    <td className="px-4 py-3 text-center">
+                      {mhs.ttu1 ? (
+                        <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-gray-400 mx-auto" />
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {mhs.ttu2 ? (
+                        <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-gray-400 mx-auto" />
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {mhs.ttu3 ? (
+                        <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-gray-400 mx-auto" />
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handlePreviewFile(mhs, "TTU")}
+                        className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                      >
+                        Lihat File
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleAccept(mhs.id)}
+                        className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
+                      >
+                        Accept
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {filteredMahasiswa.length === 0 && (
+            <div className="text-center py-16">
+              <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 text-lg">
+                Belum ada mahasiswa bimbingan
+              </p>
+              <p className="text-slate-400 text-sm mt-2">
+                Mahasiswa yang Anda bimbing akan muncul di sini
+              </p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const DataAkunKaprodiView = () => {
     const [passwordData, setPasswordData] = useState({
@@ -797,7 +851,7 @@ const KaprodiDashboard = () => {
 
               <button
                 type="submit"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 mt-6"
+                className="w-full bg-[#0B2F7F] hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2 mt-6"
               >
                 <svg
                   className="w-5 h-5"
@@ -859,27 +913,67 @@ const KaprodiDashboard = () => {
       },
       {
         number: "02",
+        title: "Mahasiswa Bimbingan",
+        description: "Lihat progres mahasiswa yang sedang bimbingan",
+        details:
+          "Monitor progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Gunakan fitur pencarian untuk menemukan mahasiswa tertentu. Tombol Accept untuk memvalidasi penyelesaian bimbingan.",
+        color: "purple",
+      },
+      {
+        number: "03",
+        title: "Review",
+        description: "Review dan beri komentar pada berkas TTU mahasiswa",
+        details:
+          "Lihat berkas TTU 2 yang telah diunggah mahasiswa. Preview file untuk melihat isi dokumen. Berikan komentar dan feedback pada setiap berkas. Gunakan tombol 'Kirim' untuk mengirim komentar atau 'Accept' untuk menyetujui berkas.",
+        color: "green",
+      },
+      {
+        number: "04",
         title: "Request Dosen",
         description: "Kelola pengajuan dan perubahan dosen pembimbing",
         details:
           "Terdapat dua jenis request: (1) Request Dosen Pembimbing - pengajuan dosen pembimbing baru dari mahasiswa, dan (2) Request Ganti Dosen Pembimbing - permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap request sesuai pertimbangan akademik.",
-        color: "green",
+        color: "orange",
       },
       {
-        number: "03",
-        title: "Mahasiswa Bimbingan",
-        description: "Lihat progres mahasiswa yang sedang bimbingan",
+        number: "05",
+        title: "Plotting Reviewer",
+        description: "Tetapkan dosen reviewer untuk mahasiswa",
         details:
-          "Monitor progres tugas akhir setiap mahasiswa. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Gunakan fitur pencarian untuk menemukan mahasiswa tertentu. Tombol Accept untuk memvalidasi penyelesaian bimbingan.",
-        color: "purple",
+          "Pilih dosen reviewer untuk setiap mahasiswa yang akan mengikuti TTU. Sistem secara otomatis tidak menampilkan dosen pembimbing pada dropdown pilihan reviewer. Pastikan reviewer memiliki keahlian yang sesuai dengan topik penelitian mahasiswa.",
+        color: "indigo",
       },
       {
-        number: "04",
+        number: "06",
         title: "Riwayat Bimbingan",
         description: "Arsip mahasiswa yang telah menyelesaikan bimbingan",
         details:
           "Lihat data historis mahasiswa yang telah menyelesaikan seluruh tahapan TTU. Informasi meliputi nama mahasiswa, judul tugas akhir, dosen pembimbing, dan tanggal penyelesaian. Berguna untuk evaluasi dan pelaporan program studi.",
-        color: "orange",
+        color: "slate",
+      },
+      {
+        number: "07",
+        title: "Manajemen Dosen",
+        description: "Kelola data dosen pembimbing program studi",
+        details:
+          "Tambah dosen pembimbing baru dengan data lengkap (nama, NIP, email). Lihat jumlah mahasiswa bimbingan aktif setiap dosen. Hapus data dosen yang sudah tidak aktif. Monitor total dosen dan total mahasiswa bimbingan di program studi.",
+        color: "teal",
+      },
+      {
+        number: "08",
+        title: "Deadline TTU",
+        description: "Atur jadwal deadline untuk setiap tahap TTU",
+        details:
+          "Tentukan tanggal deadline untuk TTU 1 (Ujian Proposal), TTU 2 (Ujian Hasil), dan TTU 3 (Ujian Review). Sistem akan menampilkan status deadline (terlewat, mendekati, atau masih lama). Lihat ringkasan semua deadline dalam satu tabel.",
+        color: "red",
+      },
+      {
+        number: "09",
+        title: "Data Akun",
+        description: "Kelola informasi akun Kaprodi",
+        details:
+          "Lihat dan edit informasi profil Kaprodi seperti nama, email, dan nomor telepon. Update foto profil untuk personalisasi akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
+        color: "cyan",
       },
     ];
 
@@ -912,24 +1006,46 @@ const KaprodiDashboard = () => {
         number: "text-orange-600",
         gradient: "from-orange-500 to-orange-600",
       },
+      indigo: {
+        bg: "bg-indigo-50",
+        border: "border-indigo-200",
+        icon: "text-indigo-600",
+        number: "text-indigo-600",
+        gradient: "from-indigo-500 to-indigo-600",
+      },
+      slate: {
+        bg: "bg-slate-50",
+        border: "border-slate-200",
+        icon: "text-slate-600",
+        number: "text-slate-600",
+        gradient: "from-slate-500 to-slate-600",
+      },
+      teal: {
+        bg: "bg-teal-50",
+        border: "border-teal-200",
+        icon: "text-teal-600",
+        number: "text-teal-600",
+        gradient: "from-teal-500 to-teal-600",
+      },
+      red: {
+        bg: "bg-red-50",
+        border: "border-red-200",
+        icon: "text-red-600",
+        number: "text-red-600",
+        gradient: "from-red-500 to-red-600",
+      },
+      cyan: {
+        bg: "bg-cyan-50",
+        border: "border-cyan-200",
+        icon: "text-cyan-600",
+        number: "text-cyan-600",
+        gradient: "from-cyan-500 to-cyan-600",
+      },
     };
 
     return (
       <div className="space-y-6 animate-fade-in">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-          <div className="flex items-start gap-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                Panduan Sistem SITA S1 TI untuk Kaprodi
-              </h2>
-              <p className="text-slate-600 leading-relaxed">
-                Panduan lengkap penggunaan sistem informasi tugas akhir untuk
-                Kepala Program Studi. Kelola pengajuan dosen pembimbing dan
-                monitor progres mahasiswa dengan efisien.
-              </p>
-            </div>
-          </div>
-        </div>
+       
 
         <div className="space-y-4">
           {steps.map((step, index) => {
@@ -963,63 +1079,13 @@ const KaprodiDashboard = () => {
           })}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-          <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <svg
-              className="w-5 h-5 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            Informasi Penting
-          </h3>
-          <ul className="space-y-2 text-slate-600">
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 mt-1">•</span>
-              <span>
-                Pastikan mengevaluasi setiap request dosen pembimbing dengan
-                cermat sebelum menyetujui atau menolak
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 mt-1">•</span>
-              <span>
-                Gunakan fitur pencarian pada menu Mahasiswa Bimbingan untuk
-                menemukan mahasiswa dengan cepat
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 mt-1">•</span>
-              <span>
-                Data riwayat bimbingan dapat digunakan untuk evaluasi dan
-                pelaporan kinerja program studi
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 mt-1">•</span>
-              <span>
-                Hubungi admin sistem jika mengalami kendala teknis atau
-                membutuhkan bantuan
-              </span>
-            </li>
-          </ul>
-        </div>
+       
       </div>
     );
   };
 
   const RiwayatBimbinganView = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Riwayat Bimbingan
-      </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -1075,16 +1141,277 @@ const KaprodiDashboard = () => {
     </div>
   );
 
+
+  const PlottingReviewerView = () => {
+    const handleReviewerChange = (mahasiswaId, reviewerName) => {
+      setSelectedReviewers((prev) => ({
+        ...prev,
+        [mahasiswaId]: reviewerName,
+      }));
+    };
+
+    const handleSavePlotting = () => {
+      const plottedCount = Object.keys(selectedReviewers).filter(
+        (key) => selectedReviewers[key],
+      ).length;
+      alert(
+        `Berhasil menyimpan plotting reviewer untuk ${plottedCount} mahasiswa`,
+      );
+      console.log("Plotting data:", selectedReviewers);
+    };
+
+    const getAvailableReviewers = (dosenPembimbing) => {
+      return availableDosen.filter((dosen) => dosen !== dosenPembimbing);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    No
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Mahasiswa
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Judul Penelitian
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Dosen Pembimbing
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Dosen Reviewer
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {mahasiswaBimbingan.map((mhs, index) => {
+                  const availableReviewers = getAvailableReviewers(mhs.dosen);
+                  const currentReviewer =
+                    selectedReviewers[mhs.id] || mhs.reviewer || "";
+                  const hasReviewer = currentReviewer !== "";
+
+                  return (
+                    <tr key={mhs.id} className="border-t hover:bg-gray-50">
+                      <td className="px-4 py-3 text-sm">{index + 1}</td>
+                      <td className="px-4 py-3 text-sm">
+                        <div>
+                          <p className="font-semibold text-slate-800">
+                            {mhs.nama}
+                          </p>
+                          <p className="text-xs text-slate-500">{mhs.nim}</p>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm">{mhs.judul}</td>
+                      <td className="px-4 py-3 text-sm">{mhs.dosen}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          value={currentReviewer}
+                          onChange={(e) =>
+                            handleReviewerChange(mhs.id, e.target.value)
+                          }
+                          className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]"
+                        >
+                          <option value="">Belum dipilih</option>
+                          {availableReviewers.map((dosen, idx) => (
+                            <option key={idx} value={dosen}>
+                              {dosen}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {hasReviewer ? (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                            ✓ Sudah Diplot
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700">
+                            ⚠ Belum Diplot
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {mahasiswaBimbingan.length > 0 && (
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleSavePlotting}
+              className="bg-[#0B2F7F] text-white px-6 py-2 rounded hover:bg-blue-800 font-semibold"
+            >
+              Simpan
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const ReviewView = () => {
+    const [reviewComments, setReviewComments] = useState({});
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    //filter mahasiswa yang sudah upload TTU 2
+    const mahasiswaForReview = mahasiswaBimbingan.filter((mhs) => mhs.ttu2);
+
+    const handleCommentChange = (mahasiswaId, comment) => {
+      setReviewComments((prev) => ({
+        ...prev,
+        [mahasiswaId]: comment,
+      }));
+    };
+
+    const handleAcceptReview = (mahasiswa) => {
+      const comment = reviewComments[mahasiswa.id] || "";
+      alert(
+        `Review untuk ${mahasiswa.nama} diterima!\nKomentar: ${comment || "Tidak ada komentar"}`,
+      );
+    };
+
+    const handlePreviewFile = (mahasiswa) => {
+      setSelectedFile(mahasiswa);
+      alert(`Preview file TTU 2 untuk ${mahasiswa.nama}`);
+    };
+
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    No
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Mahasiswa
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Judul
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    File TTU 2
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Komentar Review
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {mahasiswaForReview.map((mhs, index) => (
+                  <tr key={mhs.id} className="border-t hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm">{index + 1}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-slate-800">
+                          {mhs.nama}
+                        </p>
+                        <p className="text-xs text-slate-500">{mhs.nim}</p>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm">{mhs.judul}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handlePreviewFile(mhs)}
+                        className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                      >
+                        Lihat File
+                      </button>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2 items-center">
+                        {" "}
+                 
+                        <textarea
+                          value={reviewComments[mhs.id] || ""}
+                          onChange={(e) =>
+                            handleCommentChange(mhs.id, e.target.value)
+                          }
+                          placeholder="Tulis komentar review..."
+                          rows={2}
+                          className="flex-1 px-3 py-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                        />
+                        <button
+                          onClick={() => {
+                            const comment = reviewComments[mhs.id] || "";
+                            if (comment.trim()) {
+                              alert(
+                                `Komentar untuk ${mhs.nama} terkirim: "${comment}"`,
+                              );
+                            } else {
+                              alert("Silakan tulis komentar terlebih dahulu");
+                            }
+                          }}
+                          className="bg-[#0B2F7F] text-white px-3 py-2 rounded hover:bg-blue-800 text-sm font-medium whitespace-nowrap h-fit"
+                        >
+                          Kirim
+                        </button>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => handleAcceptReview(mhs)}
+                        className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
+                      >
+                        Accept
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {mahasiswaForReview.length === 0 && (
+            <div className="text-center py-16">
+              <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 text-lg">
+                Belum ada submission untuk direview
+              </p>
+              <p className="text-slate-400 text-sm mt-2">
+                Mahasiswa yang sudah upload TTU 2 akan muncul di sini
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
         return <DashboardView />;
       case "request-dosen":
         return <RequestDosenView />;
+      case "plotting":
+        return <PlottingReviewerView />;
       case "mahasiswa-bimbingan":
         return <MahasiswaBimbinganView />;
       case "riwayat":
         return <RiwayatBimbinganView />;
+      case "data-dosen":
+        return <KaprodiManajemenDosen />;
+      case "review":
+        return <ReviewView />;
+      case "deadline":
+        return <KaprodiDeadlineTTU />;
       case "data-akun":
         return <DataAkunKaprodiView />;
       case "panduan":

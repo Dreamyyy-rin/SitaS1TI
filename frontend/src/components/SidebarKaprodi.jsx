@@ -16,6 +16,18 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           icon: "dashboard",
         },
         {
+          key: "mahasiswa-bimbingan",
+          label: "Mahasiswa Bimbingan",
+          view: "mahasiswa-bimbingan",
+          icon: "users",
+        },
+        {
+          key: "review",
+          label: "Review",
+          view: "review",
+          icon: "clipboard-check",
+        },
+        {
           key: "request-dosen",
           label: "Request Dosen",
           view: "request-dosen",
@@ -23,10 +35,10 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           badge: 3,
         },
         {
-          key: "mahasiswa-bimbingan",
-          label: "Mahasiswa Bimbingan",
-          view: "mahasiswa-bimbingan",
-          icon: "users",
+          key: "plotting",
+          label: "Plotting Reviewer",
+          view: "plotting",
+          icon: "git-branch",
         },
         {
           key: "riwayat",
@@ -34,11 +46,23 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           view: "riwayat",
           icon: "history",
         },
+        {
+          key: "data-dosen",
+          label: "Manajemen Dosen",
+          view: "data-dosen",
+          icon: "users-round",
+        },
       ],
     },
     {
       label: "PENGATURAN",
       items: [
+        {
+          key: "deadline",
+          label: "Deadline TTU",
+          view: "deadline",
+          icon: "calendar-clock",
+        },
         {
           key: "data-akun",
           label: "Data Akun",
@@ -173,11 +197,41 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
                       {item.icon === "user-plus" && (
                         <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM20 8v6M23 11h-6" />
                       )}
+                      {item.icon === "git-branch" && (
+                        <path d="M6 3v12M18 9a3 3 0 100-6 3 3 0 000 6zM6 21a3 3 0 100-6 3 3 0 000 6zM18 9l-6 6" />
+                      )}
                       {item.icon === "users" && (
                         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
                       )}
+                      {item.icon === "users-round" && (
+                        <>
+                          <path d="M18 21a8 8 0 00-16 0M14 11a4 4 0 11-8 0 4 4 0 018 0zM23 21a8 8 0 00-6.927-7.932" />
+                          <path d="M18.5 11a3.5 3.5 0 110-7 3.5 3.5 0 010 7z" />
+                        </>
+                      )}
                       {item.icon === "history" && (
                         <path d="M3 12a9 9 0 1018 0 9 9 0 00-18 0zM12 7v5l3 3" />
+                      )}
+                      {item.icon === "clipboard-check" && (
+                        <>
+                          <path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" />
+                          <rect
+                            x="8"
+                            y="2"
+                            width="8"
+                            height="4"
+                            rx="1"
+                            ry="1"
+                          />
+                          <path d="M9 12l2 2 4-4" />
+                        </>
+                      )}
+                      {item.icon === "calendar-clock" && (
+                        <>
+                          <path d="M21 7.5V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h3.5M16 2v4M8 2v4M3 10h18" />
+                          <circle cx="17.5" cy="17.5" r="5" />
+                          <path d="M17.5 15v2.5L19 19" />
+                        </>
                       )}
                       {item.icon === "user-cog" && (
                         <>
