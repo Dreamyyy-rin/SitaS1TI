@@ -5,13 +5,14 @@ from flask import Blueprint, request, g
 from werkzeug.utils import secure_filename
 import os
 from ..auth import AuthService, token_required, role_required
-from ..models import Mahasiswa, Submission, Notification
+from ..models import Mahasiswa, Submission, Notification, User, PembimbingRequest, TTU3Requirement
 from ..utils import Sanitizer, Validator, ResponseFormatter
 
 mahasiswa_bp = Blueprint("mahasiswa", __name__, url_prefix="/api/mahasiswa")
 
 UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf", "docx", "doc", "txt", "pptx"}
+ALLOWED_REQUIREMENT_EXTENSIONS = {"pdf", "docx", "doc"}
 MAX_FILE_SIZE_MB = 50
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -76,6 +77,156 @@ def profile():
     return ResponseFormatter.success(data=mahasiswa, message="Profile")
 
 
+@mahasiswa_bp.get("/dosen-list")
+@token_required
+@role_required("mahasiswa")
+def list_dosen():
+    """List dosen untuk pilihan pembimbing"""
+    dosen_list = User.get_all(role="dosen")
+    return ResponseFormatter.success(data=dosen_list, message=f"Total dosen: {len(dosen_list)}")
+
+
+@mahasiswa_bp.get("/pembimbing")
+@token_required
+@role_required("mahasiswa")
+def get_pembimbing():
+    """Get pembimbing 1 & 2 mahasiswa"""
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    pembimbing_1 = User.find_by_id(mahasiswa.get("pembimbing_1_id")) if mahasiswa.get("pembimbing_1_id") else None
+    pembimbing_2 = User.find_by_id(mahasiswa.get("pembimbing_2_id")) if mahasiswa.get("pembimbing_2_id") else None
+
+    if pembimbing_1:
+        pembimbing_1.pop("password_hash", None)
+    if pembimbing_2:
+        pembimbing_2.pop("password_hash", None)
+
+    return ResponseFormatter.success(
+        data={
+            "pembimbing_1": pembimbing_1,
+            "pembimbing_2": pembimbing_2,
+        },
+        message="Pembimbing"
+    )
+
+
+@mahasiswa_bp.get("/pembimbing-request/status")
+@token_required
+@role_required("mahasiswa")
+def pembimbing_request_status():
+    """Cek status request pembimbing"""
+    request_type = request.args.get("type")
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    pending_request = PembimbingRequest.find_pending_by_mahasiswa(mahasiswa_id, request_type=request_type)
+    return ResponseFormatter.success(
+        data=pending_request,
+        message="Status request"
+    )
+
+
+@mahasiswa_bp.post("/pembimbing-request/initial")
+@token_required
+@role_required("mahasiswa")
+def create_initial_request():
+    """Request pembimbing pertama kali"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    pembimbing_1_id = data.get("pembimbing_1_id", "").strip()
+    pembimbing_2_id = data.get("pembimbing_2_id", "").strip() or None
+    judul = data.get("judul", "").strip() or None
+
+    if not pembimbing_1_id:
+        return ResponseFormatter.error("Pembimbing 1 wajib dipilih", 400)
+
+    if pembimbing_2_id and pembimbing_2_id == pembimbing_1_id:
+        return ResponseFormatter.error("Pembimbing 2 tidak boleh sama dengan Pembimbing 1", 400)
+
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    if mahasiswa.get("onboarding_status") == "approved":
+        return ResponseFormatter.error("Pembimbing sudah ditetapkan", 400)
+
+    if PembimbingRequest.find_pending_by_mahasiswa(mahasiswa_id, request_type="initial"):
+        return ResponseFormatter.error("Request pembimbing sedang diproses", 400)
+
+    if not User.find_by_id(pembimbing_1_id):
+        return ResponseFormatter.error("Pembimbing 1 tidak ditemukan", 404)
+    if pembimbing_2_id and not User.find_by_id(pembimbing_2_id):
+        return ResponseFormatter.error("Pembimbing 2 tidak ditemukan", 404)
+
+    request_doc = PembimbingRequest.create_initial(
+        mahasiswa_id=mahasiswa_id,
+        pembimbing_1_id=pembimbing_1_id,
+        pembimbing_2_id=pembimbing_2_id,
+        judul=judul,
+    )
+
+    return ResponseFormatter.success(
+        data=request_doc,
+        message="Request pembimbing berhasil dikirim",
+        status_code=201
+    )
+
+
+@mahasiswa_bp.post("/pembimbing-request")
+@token_required
+@role_required("mahasiswa")
+def create_change_request():
+    """Request pergantian pembimbing"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    requested_pembimbing_id = data.get("newPembimbingId", "").strip()
+    alasan = data.get("alasan", "").strip()
+    requested_slot = data.get("slot", "pembimbing_1").strip()
+
+    if not requested_pembimbing_id or not alasan:
+        return ResponseFormatter.error("Dosen dan alasan wajib diisi", 400)
+
+    if requested_pembimbing_id == "kaprodi_choice":
+        return ResponseFormatter.error("Silakan pilih dosen pembimbing", 400)
+
+    if requested_slot not in ["pembimbing_1", "pembimbing_2"]:
+        return ResponseFormatter.error("Slot pembimbing tidak valid", 400)
+
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    if PembimbingRequest.find_pending_by_mahasiswa(mahasiswa_id, request_type="change"):
+        return ResponseFormatter.error("Request pergantian sedang diproses", 400)
+
+    if not User.find_by_id(requested_pembimbing_id):
+        return ResponseFormatter.error("Dosen pembimbing tidak ditemukan", 404)
+
+    current_slot_id = mahasiswa.get("pembimbing_1_id") if requested_slot == "pembimbing_1" else mahasiswa.get("pembimbing_2_id")
+    if current_slot_id == requested_pembimbing_id:
+        return ResponseFormatter.error("Dosen pembimbing baru tidak boleh sama dengan pembimbing saat ini", 400)
+
+    request_doc = PembimbingRequest.create_change(
+        mahasiswa_id=mahasiswa_id,
+        requested_pembimbing_id=requested_pembimbing_id,
+        requested_slot=requested_slot,
+        alasan=alasan,
+        current_pembimbing_1_id=mahasiswa.get("pembimbing_1_id"),
+        current_pembimbing_2_id=mahasiswa.get("pembimbing_2_id"),
+    )
+
+    return ResponseFormatter.success(
+        data=request_doc,
+        message="Request pergantian pembimbing dikirim",
+        status_code=201
+    )
+
+
 @mahasiswa_bp.post("/upload/<ttu_number>")
 @token_required
 @role_required("mahasiswa")
@@ -106,6 +257,18 @@ def upload(ttu_number):
     file.save(file_path)
     
     mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    ttu_status = (mahasiswa.get("ttu_status") or {}).get(ttu_number, {})
+    if ttu_status.get("status") != "open":
+        return ResponseFormatter.error("TTU belum dibuka atau sudah selesai", 400)
+
+    if ttu_number == "ttu_3":
+        ttu3_req = mahasiswa.get("ttu3_requirement", {})
+        if ttu3_req.get("status") != "approved":
+            return ResponseFormatter.error("Persyaratan TTU 3 belum disetujui superadmin", 400)
     
     submission = Submission.create(
         mahasiswa_id=mahasiswa_id,
@@ -127,6 +290,62 @@ def upload(ttu_number):
         data={"submission_id": submission["_id"]},
         message=f"Upload {ttu_number} berhasil",
         status_code=201
+    )
+
+
+@mahasiswa_bp.post("/upload-ttu3-requirement")
+@token_required
+@role_required("mahasiswa")
+def upload_ttu3_requirement():
+    """Upload berkas persyaratan TTU3"""
+    if "file" not in request.files:
+        return ResponseFormatter.error("File tidak ada", 400)
+
+    file = request.files["file"]
+    if file.filename == "":
+        return ResponseFormatter.error("File tidak dipilih", 400)
+
+    if not Validator.validate_file_extension(file.filename, ALLOWED_REQUIREMENT_EXTENSIONS):
+        return ResponseFormatter.error(f"File harus: {', '.join(ALLOWED_REQUIREMENT_EXTENSIONS)}", 400)
+
+    file_size = len(file.read())
+    file.seek(0)
+
+    if not Validator.validate_file_size(file_size, MAX_FILE_SIZE_MB):
+        return ResponseFormatter.error(f"File max {MAX_FILE_SIZE_MB}MB", 400)
+
+    filename = secure_filename(file.filename)
+    filename = Sanitizer.sanitize_filename(filename)
+    file_path = os.path.join(UPLOAD_FOLDER, f"ttu3_req_{filename}")
+    file.save(file_path)
+
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    requirement = TTU3Requirement.create(
+        mahasiswa_id=mahasiswa_id,
+        file_path=file_path,
+        file_name=filename,
+        file_size=file_size,
+    )
+
+    Mahasiswa.update_ttu3_requirement_status(mahasiswa_id, "submitted")
+
+    return ResponseFormatter.success(
+        data={"requirement_id": requirement["_id"]},
+        message="Upload persyaratan TTU3 berhasil",
+        status_code=201
+    )
+
+
+@mahasiswa_bp.get("/ttu3-requirement/status")
+@token_required
+@role_required("mahasiswa")
+def ttu3_requirement_status():
+    """Status berkas persyaratan TTU3"""
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    requirement = TTU3Requirement.get_by_mahasiswa(mahasiswa_id)
+    return ResponseFormatter.success(
+        data=requirement,
+        message="Status persyaratan TTU3"
     )
 
 

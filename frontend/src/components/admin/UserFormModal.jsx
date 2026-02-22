@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 
 const emptyForm = {
   name: "",
+  email: "",
   idNumber: "",
   role: "mahasiswa",
   prodi: "Teknik Informatika",
@@ -26,6 +27,7 @@ const UserFormModal = ({
     if (initialData) {
       setFormData({
         name: initialData.name || "",
+        email: initialData.email || "",
         idNumber: initialData.idNumber || "",
         role: initialData.role || defaultRole,
         prodi: initialData.prodi || "Teknik Informatika",
@@ -100,6 +102,24 @@ const UserFormModal = ({
                 required
               />
             </div>
+            <div>
+              <label className="text-sm font-semibold text-slate-600">
+                Email
+              </label>
+              <input
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+                placeholder="Masukkan email"
+                required={!initialData}
+                disabled={!!initialData}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-slate-600">
                 NIM/NIDN

@@ -3,11 +3,16 @@ import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import DashboardView from "../../components/dosen/DashboardView";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 export default function DosenDashboard() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [stats, setStats] = useState({ total_mahasiswa: 0, total_request: 0, ttu_selesai: 0 });
+  const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
+  const [requestBimbingan, setRequestBimbingan] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -19,98 +24,38 @@ export default function DosenDashboard() {
     }
 
     try {
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        setProfile(parsedUser);
-      }
-    } catch (err) {
-      setError("Error memuat data user");
-    } finally {
-      setIsLoading(false);
-    }
+      if (userData) setProfile(JSON.parse(userData));
+    } catch { /* ignore */ }
+
+    const headers = { Authorization: `Bearer ${token}` };
+
+    Promise.all([
+      fetch(`${API}/api/dosen/dashboard-stats`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/api/dosen/mahasiswa-bimbingan`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/api/dosen/pembimbing-requests`, { headers }).then(r => r.json()).catch(() => ({})),
+    ])
+      .then(([statsRes, mhsRes, reqRes]) => {
+        if (statsRes.success) setStats(statsRes.data);
+        if (mhsRes.success) setMahasiswaBimbingan(mhsRes.data || []);
+        if (reqRes.success) setRequestBimbingan(reqRes.data || []);
+      })
+      .catch((err) => setError("Gagal memuat data dashboard"))
+      .finally(() => setIsLoading(false));
   }, [navigate]);
 
   const user = {
     name: profile?.nama || "Dosen",
-    nip: profile?.nip || "-",
+    nip: profile?.nip || profile?.nidn || "-",
     email: profile?.email || "-",
   };
 
-  // Dummy data untuk dashboard
-  const requestBimbingan = [
-    {
-      id: 1,
-      nama: "Andi Wijaya",
-      nim: "200411100001",
-      judul: "Sistem Informasi Akademik Berbasis Web",
-      tanggal: "2024-02-05",
-    },
-    {
-      id: 2,
-      nama: "Maya Kusuma",
-      nim: "200411100012",
-      judul: "Aplikasi Mobile untuk Manajemen Tugas",
-      tanggal: "2024-02-06",
-    },
-  ];
-
-  // Dummy data untuk mahasiswa bimbingan
-  const mahasiswaBimbingan = [
-    {
-      id: 1,
-      nama: "Rudi Setiawan",
-      nim: "200411100003",
-      judul: "Implementasi Machine Learning untuk Prediksi",
-      reviewer: "Dr. Sri Wahyuni, M.T",
-      ttu1: true,
-      ttu2: false,
-      ttu3: false,
-      status: "active",
-    },
-    {
-      id: 2,
-      nama: "Dewi Lestari",
-      nim: "200411100007",
-      judul: "Sistem E-Commerce dengan React",
-      reviewer: "Dr. Budi Hartono, M.Kom",
-      ttu1: true,
-      ttu2: true,
-      ttu3: false,
-      status: "active",
-    },
-    {
-      id: 3,
-      nama: "Linda Wijaya",
-      nim: "200411100011",
-      judul: "Blockchain untuk Sistem Voting",
-      reviewer: "Dr. Siti Aminah, M.Kom",
-      ttu1: false,
-      ttu2: false,
-      ttu3: false,
-      status: "active",
-    },
-  ];
-
-  // Aktivitas terbaru
   const recentActivities = [
-    {
-      id: 1,
+    ...requestBimbingan.slice(0, 5).map((r, i) => ({
+      id: `req-${i}`,
       type: "request",
-      message: "Andi Wijaya mengajukan request bimbingan",
-      time: "2 jam yang lalu",
-    },
-    {
-      id: 2,
-      type: "upload",
-      message: "Dewi Lestari mengunggah TTU 2",
-      time: "5 jam yang lalu",
-    },
-    {
-      id: 3,
-      type: "complete",
-      message: "Rudi Setiawan menyelesaikan TTU 1",
-      time: "1 hari yang lalu",
-    },
+      message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request pembimbing`,
+      time: r.created_at ? new Date(r.created_at).toLocaleDateString("id-ID") : "-",
+    })),
   ];
 
   const handleLogout = () => {
@@ -125,8 +70,7 @@ export default function DosenDashboard() {
         activeMenu="dashboard"
         onMenuClick={(key) => {
           if (key === "request-bimbingan") navigate("/dosen-request-bimbingan");
-          else if (key === "mahasiswa-bimbingan")
-            navigate("/dosen-mahasiswa-bimbingan");
+          else if (key === "mahasiswa-bimbingan") navigate("/dosen-mahasiswa-bimbingan");
           else if (key === "review") navigate("/dosen-review");
           else if (key === "data-akun") navigate("/data-akun");
           else if (key === "panduan") navigate("/dosen-panduan");
@@ -138,26 +82,19 @@ export default function DosenDashboard() {
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">
-              Dashboard Dosen
-            </h1>
-            {user && (
-              <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>
-            )}
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">Dashboard Dosen</h1>
+            {user && <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>}
           </div>
 
           {isLoading && (
-            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">
-              Memuat data...
-            </div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">Memuat data...</div>
           )}
           {error && !isLoading && (
-            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">
-              {error}
-            </div>
+            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">{error}</div>
           )}
           {!isLoading && (
             <DashboardView
+              stats={stats}
               requestBimbingan={requestBimbingan}
               mahasiswaBimbingan={mahasiswaBimbingan}
               recentActivities={recentActivities}

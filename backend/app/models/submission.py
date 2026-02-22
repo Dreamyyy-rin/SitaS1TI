@@ -99,6 +99,7 @@ class Submission(BaseModel):
     @classmethod
     def mark_reviewed(cls, submission_id: str, score: float) -> bool:
         """Mark as reviewed"""
+        submission = cls.get_by_id(submission_id)
         result = cls.collection().update_one(
             {"_id": ObjectId(submission_id)},
             {
@@ -109,4 +110,14 @@ class Submission(BaseModel):
                 }
             }
         )
+        if result.modified_count > 0 and submission:
+            cls.mahasiswa_collection().update_one(
+                {"_id": ObjectId(submission["mahasiswa_id"])},
+                {
+                    "$set": {
+                        f"ttu_status.{submission['ttu_number']}.status": "reviewed",
+                        f"ttu_status.{submission['ttu_number']}.reviewed_at": datetime.utcnow(),
+                    }
+                }
+            )
         return result.modified_count > 0

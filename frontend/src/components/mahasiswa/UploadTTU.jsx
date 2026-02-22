@@ -6,11 +6,12 @@ import {
   Eye,
   Trash2,
   CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
 
 const UploadTTU = ({ onSwitchToReview }) => {
-  const { currentStage, submittedFile, submitFile, cancelSubmission } =
+  const { currentStage, submittedFile, submitFile, cancelSubmission, isUploading, uploadError, ttuStatus } =
     useTTU();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -78,16 +79,17 @@ const UploadTTU = ({ onSwitchToReview }) => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedFile) {
-      submitFile(selectedFile);
-      setSelectedFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-
-      if (onSwitchToReview) {
-        onSwitchToReview();
+      const success = await submitFile(selectedFile);
+      if (success) {
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        if (onSwitchToReview) {
+          onSwitchToReview();
+        }
       }
     }
   };
@@ -124,10 +126,36 @@ const UploadTTU = ({ onSwitchToReview }) => {
             <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
             Tahap {currentStage} dari 3
           </span>
+          {ttuStatus && (
+            <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-xs ${
+              ttuStatus[`ttu_${currentStage}`]?.status === "open" ? "bg-green-50 text-green-700" :
+              ttuStatus[`ttu_${currentStage}`]?.status === "submitted" ? "bg-yellow-50 text-yellow-700" :
+              ttuStatus[`ttu_${currentStage}`]?.status === "approved" ? "bg-emerald-50 text-emerald-700" :
+              ttuStatus[`ttu_${currentStage}`]?.status === "reviewed" ? "bg-purple-50 text-purple-700" :
+              "bg-slate-50 text-slate-500"
+            }`}>
+              Status: {ttuStatus[`ttu_${currentStage}`]?.status || "locked"}
+            </span>
+          )}
         </div>
       </div>
 
-      {submittedFile ? (
+      {uploadError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700">{uploadError}</p>
+        </div>
+      )}
+
+      {ttuStatus && ttuStatus[`ttu_${currentStage}`]?.status === "locked" ? (
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
+          <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+          <p className="text-slate-600 font-medium">TTU {currentStage} masih terkunci</p>
+          <p className="text-sm text-slate-500 mt-2">
+            Selesaikan tahap sebelumnya terlebih dahulu
+          </p>
+        </div>
+      ) : submittedFile ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-start gap-4 mb-6">
             <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -264,10 +292,20 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 </button>
                 <button
                   onClick={handleSubmit}
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+                  disabled={isUploading}
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm disabled:bg-slate-300"
                 >
-                  <UploadCloud className="w-4 h-4" />
-                  Kirim
+                  {isUploading ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      Mengupload...
+                    </>
+                  ) : (
+                    <>
+                      <UploadCloud className="w-4 h-4" />
+                      Kirim
+                    </>
+                  )}
                 </button>
               </div>
             </div>

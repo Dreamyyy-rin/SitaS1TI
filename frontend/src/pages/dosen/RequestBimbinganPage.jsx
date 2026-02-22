@@ -8,6 +8,7 @@ export default function RequestBimbinganPage() {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [requestBimbingan, setRequestBimbingan] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -18,16 +19,43 @@ export default function RequestBimbinganPage() {
       return;
     }
 
-    try {
-      if (userData) {
-        const parsedUser = JSON.parse(userData);
-        setProfile(parsedUser);
+    const loadData = async () => {
+      try {
+        if (userData) {
+          const parsedUser = JSON.parse(userData);
+          setProfile(parsedUser);
+        }
+
+        const baseUrl =
+          import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+        const response = await fetch(
+          `${baseUrl}/api/dosen/pembimbing-requests`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || result.success === false) {
+          throw new Error(result.error || "Gagal memuat request");
+        }
+
+        const normalized = (result.data || []).map((req) => ({
+          id: req._id,
+          nama: req.mahasiswa?.nama || "-",
+          nim: req.mahasiswa?.nim || "-",
+          judul: req.judul || "-",
+          tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+        }));
+
+        setRequestBimbingan(normalized);
+      } catch (err) {
+        setError(err.message || "Error memuat data user");
+      } finally {
+        setIsLoading(false);
       }
-    } catch (err) {
-      setError("Error memuat data user");
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    loadData();
   }, [navigate]);
 
   const user = {
@@ -36,32 +64,44 @@ export default function RequestBimbinganPage() {
     email: profile?.email || "-",
   };
 
-  //dummy req bimbingan
-  const requestBimbingan = [
-    {
-      id: 1,
-      nama: "Andi Wijaya",
-      nim: "200411100001",
-      judul: "Sistem Informasi Akademik Berbasis Web",
-      tanggal: "2024-02-05",
-    },
-    {
-      id: 2,
-      nama: "Maya Kusuma",
-      nim: "200411100012",
-      judul: "Aplikasi Mobile untuk Manajemen Tugas",
-      tanggal: "2024-02-06",
-    },
-  ];
-
-  const handleAcceptRequest = (id) => {
-    alert(
-      `Request dari mahasiswa dengan ID ${id} diterima. Mahasiswa akan menjadi mahasiswa bimbingan Anda setelah persetujuan dari Kaprodi.`,
-    );
+  const handleAcceptRequest = async (id) => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    const token = localStorage.getItem("sita_token");
+    try {
+      const res = await fetch(`${baseUrl}/api/dosen/pembimbing-requests/${id}/approve`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestBimbingan((prev) => prev.filter((req) => req.id !== id));
+      } else {
+        alert(data.message || data.error || "Gagal approve request");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    }
   };
 
-  const handleRejectRequest = (id) => {
-    alert(`Request dari mahasiswa dengan ID ${id} ditolak.`);
+  const handleRejectRequest = async (id) => {
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    const token = localStorage.getItem("sita_token");
+    try {
+      const res = await fetch(`${baseUrl}/api/dosen/pembimbing-requests/${id}/reject`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestBimbingan((prev) => prev.filter((req) => req.id !== id));
+      } else {
+        alert(data.message || data.error || "Gagal reject request");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    }
   };
 
   const handleLogout = () => {

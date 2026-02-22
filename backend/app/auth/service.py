@@ -27,7 +27,8 @@ class AuthService:
     
     @staticmethod
     def create_token(user_id: str, email: str, role: str, nama: str, 
-                    mahasiswa_id: Optional[str] = None, nim: Optional[str] = None) -> str:
+                    mahasiswa_id: Optional[str] = None, nim: Optional[str] = None,
+                    prodi: Optional[str] = None) -> str:
         """Create JWT token"""
         payload = {
             "user_id": user_id,
@@ -42,6 +43,8 @@ class AuthService:
             payload["mahasiswa_id"] = mahasiswa_id
         if nim:
             payload["nim"] = nim
+        if prodi:
+            payload["prodi"] = prodi
         
         token = jwt.encode(
             payload,
@@ -94,6 +97,8 @@ class AuthService:
                 "role": role,
                 "nim": user.get("nim"),
                 "prodi": user.get("prodi"),
+                "onboarding_status": user.get("onboarding_status", "pending"),
+                "needs_onboarding": user.get("onboarding_status", "pending") != "approved",
             }
         else:
             user = User.find_by_email(email)
@@ -110,7 +115,8 @@ class AuthService:
                 user_id=user["_id"],
                 email=user["email"],
                 role=role,
-                nama=user["nama"]
+                nama=user["nama"],
+                prodi=user.get("prodi") if role == "kaprodi" else None,
             )
             
             user_data = {

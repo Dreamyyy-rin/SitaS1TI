@@ -9,12 +9,17 @@ import PembimbingPage from "./PembimbingPage";
 import UploadBerkasPage from "./UploadBerkasPage";
 import DataAkunPage from "../shared/DataAkunPage";
 import PanduanPage from "./PanduanPage";
+import ReviewChat from "../../components/mahasiswa/ReviewChat";
 
 export default function MahasiswaDashboard() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [pembimbing, setPembimbing] = useState({
+    pembimbing_1: null,
+    pembimbing_2: null,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -38,7 +43,22 @@ export default function MahasiswaDashboard() {
         if (!response.ok || result.success === false) {
           throw new Error(result.error || "Gagal memuat profil");
         }
-        setProfile(result.data || null);
+        const loadedProfile = result.data || null;
+        setProfile(loadedProfile);
+        if (loadedProfile && loadedProfile.onboarding_status !== "approved") {
+          navigate("/mahasiswa/request-pembimbing");
+        }
+
+        const pembimbingRes = await fetch(
+          `${baseUrl}/api/mahasiswa/pembimbing`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        const pembimbingResult = await pembimbingRes.json().catch(() => ({}));
+        if (pembimbingResult.success) {
+          setPembimbing(pembimbingResult.data || { pembimbing_1: null, pembimbing_2: null });
+        }
       } catch (err) {
         setError(err.message || "Gagal memuat profil");
       } finally {
@@ -63,14 +83,33 @@ export default function MahasiswaDashboard() {
       return fallback;
     }
 
+    // Compute current stage from ttu_status
+    const ttu = profile.ttu_status || {};
+    let stage = "TTU 1";
+    if (ttu.ttu_3?.status === "approved") {
+      stage = "Selesai";
+    } else if (ttu.ttu_2?.status === "approved") {
+      stage = "TTU 3";
+    } else if (ttu.ttu_1?.status === "approved") {
+      stage = "TTU 2";
+    } else {
+      stage = "TTU 1";
+    }
+
+    // Get supervisor name from pembimbing state
+    const supervisorName = pembimbing?.pembimbing_1?.nama || "Belum ditetapkan";
+
     return {
       ...fallback,
       name: profile.nama || fallback.name,
       nim: profile.nim || fallback.nim,
       prodi: profile.prodi || fallback.prodi,
       email: profile.email || fallback.email,
+      stage,
+      supervisor: supervisorName,
+      ttu_status: ttu,
     };
-  }, [profile]);
+  }, [profile, pembimbing]);
 
   const [view, setView] = useState("home");
   const [activeMenu, setActiveMenu] = useState("home");
@@ -126,6 +165,9 @@ export default function MahasiswaDashboard() {
             )}
             {view === "home" && <HomeView />}
             {view === "upload-ttu" && <UploadTTUView />}
+            {view === "review-bimbingan" && (
+              <ReviewChat pembimbing={pembimbing} />
+            )}
             {view === "pembimbing" && <PembimbingPage />}
             {view === "upload-berkas" && <UploadBerkasPage />}
             {view === "data-akun" && <DataAkunPage student={student} />}

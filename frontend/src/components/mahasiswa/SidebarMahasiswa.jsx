@@ -17,6 +17,12 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           icon: "upload",
         },
         {
+          key: "review-bimbingan",
+          label: "Review & Bimbingan",
+          view: "review-bimbingan",
+          icon: "chat",
+        },
+        {
           key: "pembimbing",
           label: "Pembimbing",
           view: "pembimbing",

@@ -19,10 +19,22 @@ const Login = () => {
       buttonColor: "bg-[#0B2F7F] hover:bg-indigo-900",
     },
     dosen: {
-      title: "Login sebagai Dosen",
+      title: "Login sebagai Dosen / Kaprodi / Admin",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-orange-600 hover:bg-orange-700",
+    },
+    kaprodi: {
+      title: "Login sebagai Kaprodi",
+      usernameLabel: "Email",
+      usernamePlaceholder: "Masukkan email Anda",
+      buttonColor: "bg-teal-600 hover:bg-teal-700",
+    },
+    superadmin: {
+      title: "Login sebagai Superadmin",
+      usernameLabel: "Email",
+      usernamePlaceholder: "Masukkan email Anda",
+      buttonColor: "bg-gray-700 hover:bg-gray-800",
     },
   };
 
@@ -39,7 +51,7 @@ const Login = () => {
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
     const endpoint =
-      role === "dosen" ? "/api/auth/login" : "/api/auth/login-mahasiswa";
+      role === "mahasiswa" ? "/api/auth/login-mahasiswa" : "/api/auth/login";
 
     try {
       setIsSubmitting(true);
@@ -69,18 +81,22 @@ const Login = () => {
       }
 
       if (role === "mahasiswa") {
-        navigate("/mahasiswa");
-      } else if (role === "dosen") {
-        // Check if user is superadmin, kaprodi, or regular dosen
-        if (user?.role === "superadmin") {
-          navigate("/admin");
-        } else if (user?.jabatan === "kaprodi" || user?.role === "kaprodi") {
-          navigate("/kaprodi");
+        if (user?.needs_onboarding) {
+          navigate("/mahasiswa/request-pembimbing");
         } else {
-          navigate("/dosen");
+          navigate("/mahasiswa");
         }
       } else {
-        navigate("/");
+        // Redirect based on actual role from server
+        if (user?.role === "superadmin") {
+          navigate("/admin");
+        } else if (user?.role === "kaprodi") {
+          navigate("/kaprodi");
+        } else if (user?.role === "dosen") {
+          navigate("/dosen");
+        } else {
+          navigate("/");
+        }
       }
     } catch (err) {
       setError(err.message || "Login gagal");

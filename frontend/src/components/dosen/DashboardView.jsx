@@ -2,6 +2,7 @@ import React from "react";
 import { ClipboardList, Users, CheckCircle } from "lucide-react";
 
 export default function DashboardView({
+  stats = {},
   requestBimbingan = [],
   mahasiswaBimbingan = [],
   recentActivities = [],
@@ -14,7 +15,7 @@ export default function DashboardView({
             <div>
               <p className="text-gray-500 text-sm">Request Bimbingan</p>
               <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
-                {requestBimbingan.length}
+                {stats.total_request ?? requestBimbingan.length}
               </p>
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
@@ -28,7 +29,7 @@ export default function DashboardView({
             <div>
               <p className="text-gray-500 text-sm">Total Mahasiswa</p>
               <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
-                {mahasiswaBimbingan.length}
+                {stats.total_mahasiswa ?? mahasiswaBimbingan.length}
               </p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
@@ -41,7 +42,9 @@ export default function DashboardView({
           <div className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">TTU Selesai</p>
-              <p className="text-2xl font-bold text-[#0B2F7F] mt-1">1</p>
+              <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
+                {stats.ttu_selesai ?? 0}
+              </p>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <CheckCircle className="w-6 h-6 text-purple-600" />
@@ -54,28 +57,32 @@ export default function DashboardView({
         <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
           Aktivitas Terbaru
         </h3>
-        <div className="space-y-4">
-          {recentActivities.map((activity) => (
-            <div
-              key={activity.id}
-              className="flex items-start space-x-3 pb-3 border-b last:border-b-0"
-            >
+        {recentActivities.length === 0 ? (
+          <p className="text-slate-400 text-sm">Belum ada aktivitas terbaru</p>
+        ) : (
+          <div className="space-y-4">
+            {recentActivities.map((activity) => (
               <div
-                className={`w-2 h-2 rounded-full mt-2 ${
-                  activity.type === "request"
-                    ? "bg-blue-500"
-                    : activity.type === "upload"
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
-                }`}
-              ></div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-800">{activity.message}</p>
-                <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                key={activity.id}
+                className="flex items-start space-x-3 pb-3 border-b last:border-b-0"
+              >
+                <div
+                  className={`w-2 h-2 rounded-full mt-2 ${
+                    activity.type === "request"
+                      ? "bg-blue-500"
+                      : activity.type === "upload"
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
+                  }`}
+                ></div>
+                <div className="flex-1">
+                  <p className="text-sm text-gray-800">{activity.message}</p>
+                  <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

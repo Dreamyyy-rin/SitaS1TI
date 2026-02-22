@@ -8,16 +8,12 @@ const MahasiswaBimbinganView = ({ mahasiswaBimbingan, userData, onAccept }) => {
     alert(`Preview file ${ttuType} untuk ${mahasiswa.nama}`);
   };
 
-  
-  const dosenLogin = userData?.name || "Dr. Ahmad Fauzi, M.Kom"; //dummy sajaa
-
-  
-  const mahasiswaForDosen = mahasiswaBimbingan.filter(
-    (mhs) => mhs.dosen === dosenLogin,
+  // Show all active mahasiswa with pembimbing assigned
+  const activeMahasiswa = mahasiswaBimbingan.filter(
+    (mhs) => mhs.onboarding_status === "approved" || mhs.status === "active"
   );
 
- 
-  const filteredMahasiswa = mahasiswaForDosen.filter((mhs) => {
+  const filteredMahasiswa = activeMahasiswa.filter((mhs) => {
     const query = searchQuery.toLowerCase();
     return (
       mhs.nama.toLowerCase().includes(query) ||
@@ -28,9 +24,6 @@ const MahasiswaBimbinganView = ({ mahasiswaBimbingan, userData, onAccept }) => {
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <p className="text-slate-600 mb-4">
-          Daftar mahasiswa yang Anda bimbing: <b>{dosenLogin}</b>
-        </p>
         <div className="relative">
           <input
             type="text"
@@ -60,40 +53,22 @@ const MahasiswaBimbinganView = ({ mahasiswaBimbingan, userData, onAccept }) => {
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Nama
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  NIM
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Judul
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  TTU 1
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  TTU 2
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  TTU 3
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  File
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  Aksi
-                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Nama</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">NIM</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Dosen Pembimbing</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reviewer</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 1</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 2</th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 3</th>
               </tr>
             </thead>
             <tbody>
               {filteredMahasiswa.map((mhs) => (
                 <tr key={mhs.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-semibold">
-                    {mhs.nama}
-                  </td>
+                  <td className="px-4 py-3 text-sm font-semibold">{mhs.nama}</td>
                   <td className="px-4 py-3 text-sm">{mhs.nim}</td>
-                  <td className="px-4 py-3 text-sm">{mhs.judul}</td>
+                  <td className="px-4 py-3 text-sm">{mhs.dosen}{mhs.dosen2 && mhs.dosen2 !== "-" ? `, ${mhs.dosen2}` : ""}</td>
+                  <td className="px-4 py-3 text-sm">{mhs.reviewer || "-"}</td>
                   <td className="px-4 py-3 text-center">
                     {mhs.ttu1 ? (
                       <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
@@ -115,48 +90,28 @@ const MahasiswaBimbinganView = ({ mahasiswaBimbingan, userData, onAccept }) => {
                       <Clock className="w-5 h-5 text-gray-400 mx-auto" />
                     )}
                   </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => handlePreviewFile(mhs, "TTU")}
-                      className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
-                    >
-                      Lihat File
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onAccept(mhs.id)}
-                      className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
-                    >
-                      Accept
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {filteredMahasiswa.length === 0 && mahasiswaForDosen.length > 0 && (
+        {filteredMahasiswa.length === 0 && activeMahasiswa.length > 0 && (
           <div className="text-center py-16">
             <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">
-              Data mahasiswa tidak ditemukan
-            </p>
+            <p className="text-slate-500 text-lg">Data mahasiswa tidak ditemukan</p>
             <p className="text-slate-400 text-sm mt-2">
               Tidak ada mahasiswa yang cocok dengan pencarian "{searchQuery}"
             </p>
           </div>
         )}
 
-        {mahasiswaForDosen.length === 0 && (
+        {activeMahasiswa.length === 0 && (
           <div className="text-center py-16">
             <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">
-              Belum ada mahasiswa bimbingan
-            </p>
+            <p className="text-slate-500 text-lg">Belum ada mahasiswa bimbingan</p>
             <p className="text-slate-400 text-sm mt-2">
-              Mahasiswa yang Anda bimbing akan muncul di sini
+              Mahasiswa yang sudah memiliki pembimbing akan muncul di sini
             </p>
           </div>
         )}

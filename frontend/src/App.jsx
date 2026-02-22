@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/shared/Landing.jsx";
 import Login from "./pages/shared/Login.jsx";
 import MahasiswaDashboard from "./pages/mahasiswa/MahasiswaDashboard.jsx";
+import RequestPembimbingPage from "./pages/mahasiswa/RequestPembimbingPage.jsx";
 import DosenDashboard from "./pages/dosen/DosenDashboard.jsx";
 import RequestBimbinganPage from "./pages/dosen/RequestBimbinganPage.jsx";
 import MahasiswaBimbinganPage from "./pages/dosen/MahasiswaBimbinganPage.jsx";
@@ -19,6 +20,10 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/mahasiswa" element={<MahasiswaDashboard />} />
+        <Route
+          path="/mahasiswa/request-pembimbing"
+          element={<RequestPembimbingPage />}
+        />
         <Route path="/dosen" element={<DosenDashboard />} />
         <Route path="/dosen-dashboard" element={<DosenDashboard />} />
         <Route

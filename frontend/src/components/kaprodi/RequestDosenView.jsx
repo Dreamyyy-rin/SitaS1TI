@@ -54,9 +54,9 @@ const RequestDosenView = ({
                       className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]"
                     >
                       <option value="">Belum dipilih</option>
-                      {availableDosen.map((dosen, idx) => (
-                        <option key={idx} value={dosen}>
-                          {dosen}
+                      {availableDosen.map((dosen) => (
+                        <option key={dosen._id} value={dosen._id}>
+                          {dosen.nama} - {dosen.email}
                         </option>
                       ))}
                     </select>

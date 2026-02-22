@@ -1,19 +1,50 @@
-import React, { useState, useMemo } from "react";
-import { mockUsers } from "../../data/mockUsers";
+import React, { useState, useEffect, useMemo } from "react";
 import UserTable from "../../components/admin/UserTable";
 import UserFormModal from "../../components/admin/UserFormModal";
 import { Users, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const MahasiswaManagementPage = () => {
-  const [users, setUsers] = useState(
-    mockUsers.filter((user) => user.role === "mahasiswa"),
-  );
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingUser, setDeletingUser] = useState(null);
   const [deleteType, setDeleteType] = useState("soft");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchMahasiswa = async () => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/superadmin/mahasiswa`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        const mapped = (data.data || []).map(m => ({
+          id: m._id,
+          name: m.nama,
+          email: m.email,
+          idNumber: m.nim || "-",
+          role: "mahasiswa",
+          prodi: m.prodi || "-",
+          status: m.is_active ? "active" : "inactive",
+        }));
+        setUsers(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch mahasiswa", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMahasiswa();
+  }, []);
 
   const handleAddUser = () => {
     setEditingUser(null);
@@ -30,47 +61,73 @@ const MahasiswaManagementPage = () => {
     setShowDeleteModal(true);
   };
 
-  const handleSaveUser = (userData) => {
-    if (editingUser) {
-      // Edit existing user
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === editingUser.id
-            ? {
-                ...u,
-                ...userData,
-                // Keep old password if new password is not provided
-                password: userData.password || u.password,
-              }
-            : u,
-        ),
-      );
-    } else {
-      // Add new user
-      const newUser = {
-        ...userData,
-        id: Math.max(...users.map((u) => u.id), 0) + 1,
-        role: "mahasiswa",
-      };
-      setUsers((prev) => [...prev, newUser]);
+  const handleSaveUser = async (userData) => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+
+    try {
+      if (editingUser) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingUser.id ? { ...u, name: userData.name, idNumber: userData.idNumber, prodi: userData.prodi } : u
+          )
+        );
+      } else {
+        const res = await fetch(`${API}/api/superadmin/register-mahasiswa`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: userData.email,
+            password: userData.password,
+            nama: userData.name,
+            nim: userData.idNumber,
+            prodi: userData.prodi,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          await fetchMahasiswa();
+        } else {
+          alert(data.error || "Gagal menambahkan mahasiswa");
+          return;
+        }
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+      return;
     }
     setShowModal(false);
     setEditingUser(null);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deletingUser) return;
+    const token = localStorage.getItem("sita_token");
 
-    if (deleteType === "soft") {
-     
+    if (deleteType === "hard") {
+      try {
+        const res = await fetch(`${API}/api/superadmin/mahasiswa/${deletingUser.id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+        } else {
+          alert(data.error || "Gagal menghapus mahasiswa");
+        }
+      } catch {
+        alert("Gagal menghubungi server");
+      }
+    } else {
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
-        ),
+          u.id === deletingUser.id ? { ...u, status: "inactive" } : u
+        )
       );
-    } else {
-    
-      setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
     }
 
     setShowDeleteModal(false);

@@ -1,19 +1,50 @@
-import React, { useState, useMemo } from "react";
-import { mockUsers } from "../../data/mockUsers";
+import React, { useState, useEffect, useMemo } from "react";
 import UserTable from "../../components/admin/UserTable";
 import UserFormModal from "../../components/admin/UserFormModal";
 import { UserCheck, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const DosenManagementPage = () => {
-  const [users, setUsers] = useState(
-    mockUsers.filter((user) => user.role === "dosen"),
-  );
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deletingUser, setDeletingUser] = useState(null);
   const [deleteType, setDeleteType] = useState("soft");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchDosen = async () => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+    try {
+      const res = await fetch(`${API}/api/superadmin/users?role=dosen`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        const mapped = (data.data || []).map(u => ({
+          id: u._id,
+          name: u.nama,
+          email: u.email,
+          idNumber: u.nidn || "-",
+          role: u.role,
+          prodi: u.prodi || "-",
+          status: u.is_active ? "active" : "inactive",
+        }));
+        setUsers(mapped);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dosen", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDosen();
+  }, []);
 
   const handleAddUser = () => {
     setEditingUser(null);
@@ -30,43 +61,77 @@ const DosenManagementPage = () => {
     setShowDeleteModal(true);
   };
 
-  const handleSaveUser = (userData) => {
-    if (editingUser) {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === editingUser.id
-            ? {
-                ...u,
-                ...userData,
+  const handleSaveUser = async (userData) => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
 
-                password: userData.password || u.password,
-              }
-            : u,
-        ),
-      );
-    } else {
-      const newUser = {
-        ...userData,
-        id: Math.max(...users.map((u) => u.id), 0) + 1,
-        role: "dosen",
-      };
-      setUsers((prev) => [...prev, newUser]);
+    try {
+      if (editingUser) {
+        // For now, edit updates local state (backend doesn't have update endpoint yet)
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === editingUser.id ? { ...u, name: userData.name, idNumber: userData.idNumber, prodi: userData.prodi } : u
+          )
+        );
+      } else {
+        // Create new dosen
+        const res = await fetch(`${API}/api/superadmin/register-user`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: userData.email,
+            password: userData.password,
+            nama: userData.name,
+            role: "dosen",
+            nidn: userData.idNumber,
+            prodi: userData.prodi,
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          await fetchDosen();
+        } else {
+          alert(data.error || "Gagal menambahkan dosen");
+          return;
+        }
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+      return;
     }
     setShowModal(false);
     setEditingUser(null);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deletingUser) return;
+    const token = localStorage.getItem("sita_token");
 
-    if (deleteType === "soft") {
+    if (deleteType === "hard") {
+      try {
+        const res = await fetch(`${API}/api/superadmin/users/${deletingUser.id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) {
+          setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+        } else {
+          alert(data.error || "Gagal menghapus dosen");
+        }
+      } catch {
+        alert("Gagal menghubungi server");
+      }
+    } else {
+      // Soft delete - mark inactive locally
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
-        ),
+          u.id === deletingUser.id ? { ...u, status: "inactive" } : u
+        )
       );
-    } else {
-      setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
     }
 
     setShowDeleteModal(false);

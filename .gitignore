@@ -16,3 +16,10 @@ dist/
 
 # Docker
 *.pid
+
+# Logs
+logs/
+*.log
+
+#md file
+*.md

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Send, CheckCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Send, CheckCircle, UploadCloud } from "lucide-react";
 import AccessDenied from "../../components/shared/AccessDenied";
 import FileUploadField from "../../components/shared/FileUploadField";
 
@@ -16,6 +16,10 @@ const UploadBerkasPage = () => {
     ktp: null,
   });
 
+  const [ttu3RequirementFile, setTtu3RequirementFile] = useState(null);
+  const [requirementStatus, setRequirementStatus] = useState(null);
+  const [isUploadingRequirement, setIsUploadingRequirement] = useState(false);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFileChange = (fieldId, fileData) => {
@@ -23,6 +27,72 @@ const UploadBerkasPage = () => {
       ...prev,
       [fieldId]: fileData,
     }));
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+
+    const baseUrl =
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
+    const loadRequirementStatus = async () => {
+      try {
+        const response = await fetch(
+          `${baseUrl}/api/mahasiswa/ttu3-requirement/status`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
+        const result = await response.json().catch(() => ({}));
+        if (result.success) {
+          setRequirementStatus(result.data || null);
+        }
+      } catch (err) {
+        console.error("Failed to load requirement status", err);
+      }
+    };
+
+    loadRequirementStatus();
+  }, []);
+
+  const handleRequirementUpload = async () => {
+    if (!ttu3RequirementFile?.file) {
+      alert("Silakan pilih berkas persyaratan TTU3 terlebih dahulu");
+      return;
+    }
+
+    try {
+      setIsUploadingRequirement(true);
+      const token = localStorage.getItem("sita_token");
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      const formData = new FormData();
+      formData.append("file", ttu3RequirementFile.file);
+
+      const response = await fetch(
+        `${baseUrl}/api/mahasiswa/upload-ttu3-requirement`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        },
+      );
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || "Gagal upload berkas TTU3");
+      }
+
+      alert("✅ Berkas persyaratan TTU3 berhasil diupload");
+      setTtu3RequirementFile(null);
+      setRequirementStatus({ status: "submitted" });
+    } catch (err) {
+      alert(err.message || "Gagal upload berkas TTU3");
+    } finally {
+      setIsUploadingRequirement(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -87,6 +157,44 @@ const UploadBerkasPage = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+          <h3 className="text-lg font-bold text-slate-800 mb-4">
+            Persyaratan TTU 3 (Wajib sebelum Upload TTU 3)
+          </h3>
+          <p className="text-sm text-slate-500 mb-4">
+            Upload berkas persyaratan TTU 3 (format PDF/DOC/DOCX) untuk review oleh Superadmin.
+          </p>
+
+          <div className="flex flex-col gap-4">
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) =>
+                setTtu3RequirementFile({
+                  file: e.target.files?.[0],
+                  name: e.target.files?.[0]?.name,
+                })
+              }
+              className="text-sm"
+            />
+
+            <button
+              type="button"
+              onClick={handleRequirementUpload}
+              disabled={isUploadingRequirement}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg disabled:bg-slate-300"
+            >
+              <UploadCloud className="w-4 h-4" />
+              {isUploadingRequirement ? "Mengupload..." : "Upload Berkas TTU3"}
+            </button>
+
+            {requirementStatus?.status && (
+              <p className="text-xs text-slate-500">
+                Status terakhir: <span className="font-semibold capitalize">{requirementStatus.status}</span>
+              </p>
+            )}
+          </div>
+        </div>
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
           <h3 className="text-lg font-bold text-slate-800 mb-6 pb-4 border-b border-slate-100">
             Dokumen yang Diperlukan

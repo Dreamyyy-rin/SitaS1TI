@@ -18,7 +18,7 @@ export default function DataAkunPage({ student }) {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -31,8 +31,8 @@ export default function DataAkunPage({ student }) {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      setError("Password baru minimal 6 karakter");
+    if (passwordData.newPassword.length < 8) {
+      setError("Password baru minimal 8 karakter");
       return;
     }
 
@@ -41,16 +41,36 @@ export default function DataAkunPage({ student }) {
       return;
     }
 
-    setShowSuccess(true);
-    setPasswordData({
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    const token = localStorage.getItem("sita_token");
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+    try {
+      const res = await fetch(`${baseUrl}/api/auth/change-password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          old_password: passwordData.oldPassword,
+          new_password: passwordData.newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowSuccess(true);
+        setPasswordData({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        setError(data.error || "Gagal mengubah password");
+      }
+    } catch {
+      setError("Gagal menghubungi server");
+    }
   };
 
   return (

@@ -20,6 +20,15 @@ const KaprodiDashboard = () => {
   const [selectedDosen, setSelectedDosen] = useState({});
   const [selectedReviewers, setSelectedReviewers] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [availableDosen, setAvailableDosen] = useState([]);
+  const [requestDosenBaru, setRequestDosenBaru] = useState([]);
+  const [requestGantiDosen, setRequestGantiDosen] = useState([]);
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [dashboardStats, setDashboardStats] = useState({ total_request: 0, total_mahasiswa: 0, ttu_selesai: 0, total_dosen: 0 });
+  const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+
+  const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("sita_user");
@@ -33,194 +42,123 @@ const KaprodiDashboard = () => {
     setSearchQuery("");
   }, [activeMenu]);
 
-  //dummy data untuk dosen yang tersedia
-  const availableDosen = [
-    "Dr. Ahmad Fauzi, M.Kom",
-    "Dr. Sri Wahyuni, M.T",
-    "Dr. Budi Hartono, M.Kom",
-    "Dr. Siti Aminah, M.Kom",
-    "Dr. Rudi Setiawan, M.T",
-    "Dr. Dewi Lestari, M.Kom",
-    "Dr. Eko Prasetyo, M.T",
-    "Dr. Linda Wijaya, M.Kom",
-  ];
+  useEffect(() => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
 
-  //dummy data aktivitas terbaru
-  const recentActivities = [
-    {
-      id: 1,
-      type: "request",
-      message: "Andi Wijaya mengajukan request dosen pembimbing",
-      time: "2 jam yang lalu",
-    },
-    {
-      id: 2,
-      type: "change",
-      message: "Siti Nurhaliza mengajukan ganti dosen pembimbing",
-      time: "5 jam yang lalu",
-    },
-    {
-      id: 3,
-      type: "complete",
-      message: "Budi Santoso menyelesaikan TTU 3",
-      time: "1 hari yang lalu",
-    },
-    {
-      id: 4,
-      type: "request",
-      message: "Maya Kusuma mengajukan request dosen pembimbing",
-      time: "2 hari yang lalu",
-    },
-  ];
+    const headers = { Authorization: `Bearer ${token}` };
 
-  //dummy data request dosen baru
-  const requestDosenBaru = [
-    {
-      id: 1,
-      nama: "Andi Wijaya",
-      nim: "200411100001",
-      judul: "Sistem Informasi Akademik Berbasis Web",
-      dosenDiajukan: "Dr. Ahmad Fauzi, M.Kom",
-      tanggal: "2024-01-15",
-    },
-    {
-      id: 2,
-      nama: "Maya Kusuma",
-      nim: "200411100012",
-      judul: "Aplikasi Mobile untuk Manajemen Tugas",
-      dosenDiajukan: "",
-      tanggal: "2024-01-16",
-    },
-    {
-      id: 4,
-      nama: "Budi Santoso",
-      nim: "200411100020",
-      judul: "Implementasi Blockchain untuk E-Voting",
-      dosenDiajukan: "Dr. Sri Wahyuni, M.T",
-      tanggal: "2024-01-17",
-    },
-  ];
+    const loadAll = async () => {
+      try {
+        setRequestLoading(true);
 
-  //dummy data untuk ganti dosen
-  const requestGantiDosen = [
-    {
-      id: 3,
-      nama: "Siti Nurhaliza",
-      nim: "200411100005",
-      judul: "Analisis Sentimen Media Sosial",
-      dosenLama: "Dr. Budi Hartono, M.Kom",
-      dosenBaru: "Dr. Ahmad Fauzi, M.Kom",
-      alasan: "Topik penelitian lebih sesuai dengan expertise dosen baru",
-      tanggal: "2024-01-14",
-    },
-  ];
+        const [dosenRes, initialRes, changeRes, statsRes, mhsRes] = await Promise.all([
+          fetch(`${API}/api/kaprodi/dosen-list`, { headers }).then(r => r.json()).catch(() => ({})),
+          fetch(`${API}/api/kaprodi/pembimbing-requests?type=initial`, { headers }).then(r => r.json()).catch(() => ({})),
+          fetch(`${API}/api/kaprodi/pembimbing-requests?type=change`, { headers }).then(r => r.json()).catch(() => ({})),
+          fetch(`${API}/api/kaprodi/dashboard-stats`, { headers }).then(r => r.json()).catch(() => ({})),
+          fetch(`${API}/api/kaprodi/mahasiswa`, { headers }).then(r => r.json()).catch(() => ({})),
+        ]);
 
-  //dummy data untuk request bimbingan
-  const requestBimbingan = [
-    {
-      id: 1,
-      nama: "Andi Wijaya",
-      nim: "200411100001",
-      judul: "Sistem Informasi Akademik Berbasis Web",
-      tanggal: "2024-02-05",
-    },
-    {
-      id: 2,
-      nama: "Maya Kusuma",
-      nim: "200411100012",
-      judul: "Aplikasi Mobile untuk Manajemen Tugas",
-      tanggal: "2024-02-06",
-    },
-  ];
+        const dosenList = dosenRes.success ? (dosenRes.data || []) : [];
+        setAvailableDosen(dosenList);
 
-  //dummy data mahasiswa bimbingan
-  const mahasiswaBimbingan = [
-    {
-      id: 1,
-      nama: "Rudi Setiawan",
-      nim: "200411100003",
-      judul: "Implementasi Machine Learning untuk Prediksi",
-      dosen: "Dr. Ahmad Fauzi, M.Kom",
-      reviewer: "Dr. Sri Wahyuni, M.T",
-      ttu1: true,
-      ttu2: false,
-      ttu3: false,
-      status: "active",
-    },
-    {
-      id: 2,
-      nama: "Dewi Lestari",
-      nim: "200411100007",
-      judul: "Sistem E-Commerce dengan React",
-      dosen: "Dr. Sri Wahyuni, M.T",
-      reviewer: "",
-      ttu1: true,
-      ttu2: true,
-      ttu3: false,
-      status: "active",
-    },
-    {
-      id: 3,
-      nama: "Eko Prasetyo",
-      nim: "200411100009",
-      judul: "Aplikasi IoT untuk Smart Home",
-      dosen: "Dr. Budi Hartono, M.Kom",
-      reviewer: "Dr. Dewi Lestari, M.Kom",
-      ttu1: true,
-      ttu2: true,
-      ttu3: true,
-      status: "active",
-    },
-    {
-      id: 4,
-      nama: "Linda Wijaya",
-      nim: "200411100011",
-      judul: "Blockchain untuk Sistem Voting",
-      dosen: "Dr. Ahmad Fauzi, M.Kom",
-      reviewer: "",
-      ttu1: false,
-      ttu2: false,
-      ttu3: false,
-      status: "active",
-    },
-  ];
+        if (statsRes.success) setDashboardStats(statsRes.data);
 
-  //dummy data riwayat bimbingan
-  const riwayatBimbingan = [
-    {
-      id: 1,
-      nama: "Agus Santoso",
-      nim: "200411100002",
-      judul: "Sistem Pakar Diagnosa Penyakit",
-      dosen: "Dr. Ahmad Fauzi, M.Kom",
-      ttu1: true,
-      ttu2: true,
-      ttu3: true,
-      tanggalSelesai: "2023-12-20",
-    },
-    {
-      id: 2,
-      nama: "Fitri Handayani",
-      nim: "200411100006",
-      judul: "Aplikasi Augmented Reality Edukasi",
-      dosen: "Dr. Sri Wahyuni, M.T",
-      ttu1: true,
-      ttu2: true,
-      ttu3: true,
-      tanggalSelesai: "2023-12-18",
-    },
-    {
-      id: 3,
-      nama: "Hendra Gunawan",
-      nim: "200411100010",
-      judul: "Sistem Rekomendasi Berbasis Collaborative Filtering",
-      dosen: "Dr. Budi Hartono, M.Kom",
-      ttu1: true,
-      ttu2: true,
-      ttu3: true,
-      tanggalSelesai: "2023-12-15",
-    },
-  ];
+        // Build mahasiswa bimbingan from real data
+        if (mhsRes.success) {
+          const mhsList = (mhsRes.data || []).map(m => {
+            const ttu = m.ttu_status || {};
+            const p1 = m.pembimbing_1_id ? dosenList.find(d => d._id === m.pembimbing_1_id) : null;
+            const p2 = m.pembimbing_2_id ? dosenList.find(d => d._id === m.pembimbing_2_id) : null;
+            return {
+              id: m._id,
+              nama: m.nama || "-",
+              nim: m.nim || "-",
+              prodi: m.prodi || "-",
+              email: m.email || "-",
+              dosen: p1 ? p1.nama : "-",
+              dosen2: p2 ? p2.nama : "-",
+              reviewer: m.reviewer || "-",
+              ttu1: ttu.ttu_1?.status === "approved",
+              ttu2: ttu.ttu_2?.status === "approved",
+              ttu3: ttu.ttu_3?.status === "approved",
+              ttu_status: ttu,
+              status: m.onboarding_status === "approved" ? "active" : m.onboarding_status,
+              onboarding_status: m.onboarding_status,
+              pembimbing_1_id: m.pembimbing_1_id,
+              pembimbing_2_id: m.pembimbing_2_id,
+              reviewer_id: m.reviewer_id,
+            };
+          });
+          setMahasiswaBimbingan(mhsList);
+        }
+
+        const mapDosen = dosenList.reduce((acc, item) => {
+          acc[item._id] = item;
+          return acc;
+        }, {});
+
+        if (initialRes.success) {
+          const normalizedInitial = (initialRes.data || []).map((req) => ({
+            id: req._id,
+            nama: req.mahasiswa?.nama || "-",
+            nim: req.mahasiswa?.nim || "-",
+            judul: req.judul || "-",
+            dosenDiajukan: req.requested_pembimbing_1_id
+              ? mapDosen[req.requested_pembimbing_1_id]?.nama || "-"
+              : "",
+            tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+            raw: req,
+          }));
+          setRequestDosenBaru(normalizedInitial);
+        }
+
+        if (changeRes.success) {
+          const normalizedChange = (changeRes.data || []).map((req) => ({
+            id: req._id,
+            nama: req.mahasiswa?.nama || "-",
+            nim: req.mahasiswa?.nim || "-",
+            judul: req.judul || "-",
+            dosenLama:
+              req.requested_slot === "pembimbing_2"
+                ? mapDosen[req.current_pembimbing_2_id]?.nama || "-"
+                : mapDosen[req.current_pembimbing_1_id]?.nama || "-",
+            dosenBaru:
+              mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
+            alasan: req.alasan || "-",
+            tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+            raw: req,
+          }));
+          setRequestGantiDosen(normalizedChange);
+        }
+
+        // Build recent activities from requests
+        const allRequests = [
+          ...(initialRes.data || []).map(r => ({ ...r, _type: "request" })),
+          ...(changeRes.data || []).map(r => ({ ...r, _type: "change" })),
+        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+
+        setRecentActivities(allRequests.map((r, i) => ({
+          id: `act-${i}`,
+          type: r._type,
+          message: r._type === "change"
+            ? `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan ganti dosen pembimbing`
+            : `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request dosen pembimbing`,
+          time: new Date(r.created_at).toLocaleDateString("id-ID"),
+        })));
+
+      } catch (err) {
+        console.error("Failed to load data", err);
+      } finally {
+        setRequestLoading(false);
+      }
+    };
+
+    loadAll();
+  }, []);
+
+  const riwayatBimbingan = mahasiswaBimbingan.filter(m => m.ttu1 && m.ttu2 && m.ttu3);
 
   const handleDosenChange = (requestId, dosenName) => {
     setSelectedDosen((prev) => ({
@@ -235,12 +173,42 @@ const KaprodiDashboard = () => {
     );
   };
 
-  const handleApprove = (id, type) => {
-    alert(`Request ${type} dengan ID ${id} disetujui`);
+  const handleApprove = async (id) => {
+    const token = localStorage.getItem("sita_token");
+    try {
+      const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/approve`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
+        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+      } else {
+        alert(data.message || "Gagal approve request");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    }
   };
 
-  const handleReject = (id, type) => {
-    alert(`Request ${type} dengan ID ${id} ditolak`);
+  const handleReject = async (id) => {
+    const token = localStorage.getItem("sita_token");
+    try {
+      const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/reject`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
+        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+      } else {
+        alert(data.message || "Gagal reject request");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    }
   };
 
   const handleAcceptRequestBimbingan = (id) => {
@@ -302,13 +270,13 @@ const KaprodiDashboard = () => {
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
-        return <DashboardView recentActivities={recentActivities} />;
+        return <DashboardView stats={dashboardStats} recentActivities={recentActivities} />;
       case "request-bimbingan":
         return (
           <RequestBimbinganView
-            requestBimbingan={requestBimbingan}
-            onAccept={handleAcceptRequestBimbingan}
-            onReject={handleRejectRequestBimbingan}
+            requestBimbingan={requestDosenBaru}
+            onAccept={handleApprove}
+            onReject={handleReject}
           />
         );
       case "request-dosen":
