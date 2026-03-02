@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const DataAkunKaprodiView = ({ userData }) => {
   const [passwordData, setPasswordData] = useState({
     oldPassword: "",
@@ -8,6 +10,7 @@ const DataAkunKaprodiView = ({ userData }) => {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
   const handlePasswordChange = (e) => {
     const { name, value } = e.target;
@@ -18,7 +21,7 @@ const DataAkunKaprodiView = ({ userData }) => {
     setError("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -31,8 +34,8 @@ const DataAkunKaprodiView = ({ userData }) => {
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      setError("Password baru minimal 6 karakter");
+    if (passwordData.newPassword.length < 8) {
+      setError("Password baru minimal 8 karakter");
       return;
     }
 
@@ -41,16 +44,42 @@ const DataAkunKaprodiView = ({ userData }) => {
       return;
     }
 
-    setShowSuccess(true);
-    setPasswordData({
-      oldPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    const token = localStorage.getItem("sita_token");
+    if (!token) {
+      setError("Sesi habis, silakan login ulang");
+      return;
+    }
 
-    setTimeout(() => {
-      setShowSuccess(false);
-    }, 3000);
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/api/auth/change-password`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          old_password: passwordData.oldPassword,
+          new_password: passwordData.newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowSuccess(true);
+        setPasswordData({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        setError(data.message || "Gagal mengubah password");
+      }
+    } catch {
+      setError("Gagal menghubungi server");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -244,7 +273,7 @@ const DataAkunKaprodiView = ({ userData }) => {
                 placeholder="Masukkan password baru"
               />
               <p className="text-xs text-slate-500 mt-1.5">
-                Minimal 6 karakter
+                Minimal 8 karakter
               </p>
             </div>
 
@@ -264,7 +293,8 @@ const DataAkunKaprodiView = ({ userData }) => {
 
             <button
               type="submit"
-              className="w-full bg-[#0B2F7F] hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2 mt-6"
+              disabled={saving}
+              className="w-full bg-[#0B2F7F] hover:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-all duration-200 shadow-lg flex items-center justify-center gap-2 mt-6 disabled:opacity-50"
             >
               <svg
                 className="w-5 h-5"
@@ -279,7 +309,7 @@ const DataAkunKaprodiView = ({ userData }) => {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              Simpan Perubahan
+              {saving ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
           </form>
 

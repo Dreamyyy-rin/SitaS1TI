@@ -4,6 +4,7 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import DosenManagementPage from "./DosenManagementPage";
 import MahasiswaManagementPage from "./MahasiswaManagementPage";
 import PanduanSuperadminPage from "./PanduanSuperadminPage";
+import TTU3RequirementsPage from "./TTU3RequirementsPage";
 import { UserCheck, Users, CheckCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -156,6 +157,8 @@ const AdminDashboard = () => {
         return <DosenManagementPage />;
       case "mahasiswa":
         return <MahasiswaManagementPage />;
+      case "ttu3":
+        return <TTU3RequirementsPage />;
       case "panduan":
         return <PanduanSuperadminPage />;
       default:

@@ -16,7 +16,7 @@ import {
   User,
 } from "lucide-react";
 
-const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
+const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user, totalRequests = 0 }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
 
@@ -31,11 +31,11 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
           icon: LayoutDashboard,
         },
         {
-          key: "request-bimbingan",
-          label: "Request Bimbingan",
-          view: "request-bimbingan",
+          key: "request-pembimbing",
+          label: "Request Pembimbing",
+          view: "request-pembimbing",
           icon: ClipboardList,
-          badge: 2,
+          badge: totalRequests,
         },
         {
           key: "mahasiswa-bimbingan",
@@ -54,13 +54,6 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user }) => {
     {
       label: "MANAJEMEN",
       items: [
-        {
-          key: "request-dosen",
-          label: "Request Dosen",
-          view: "request-dosen",
-          icon: UserPlus,
-          badge: 3,
-        },
         {
           key: "plotting",
           label: "Plotting Reviewer",

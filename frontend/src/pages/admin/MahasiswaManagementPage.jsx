@@ -67,11 +67,27 @@ const MahasiswaManagementPage = () => {
 
     try {
       if (editingUser) {
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === editingUser.id ? { ...u, name: userData.name, idNumber: userData.idNumber, prodi: userData.prodi } : u
-          )
-        );
+        const res = await fetch(`${API}/api/superadmin/mahasiswa/${editingUser.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nama: userData.name,
+            nim: userData.idNumber,
+            prodi: userData.prodi,
+            is_active: userData.status === "active",
+            ...(userData.password ? { password: userData.password } : {}),
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          await fetchMahasiswa();
+        } else {
+          alert(data.error || "Gagal memperbarui mahasiswa");
+          return;
+        }
       } else {
         const res = await fetch(`${API}/api/superadmin/register-mahasiswa`, {
           method: "POST",

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request as flask_request
 from flask_cors import CORS
 from .config import settings
 from .db import init_mongo, get_db
@@ -13,14 +13,26 @@ def create_app() -> Flask:
     
     cors_origins = [origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()]
 
-    # Enable CORS with proper configuration
+    # Enable CORS - r"/api/.*" is a proper regex matching all /api/ routes
     CORS(
         app,
-        resources={r"/*": {"origins": cors_origins}},
+        resources={r"/api/.*": {"origins": cors_origins}},
         supports_credentials=False,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     )
+
+    # Fallback: ensure CORS headers on ALL responses (including error responses)
+    @app.after_request
+    def add_cors_headers(response):
+        origin = response.headers.get("Access-Control-Allow-Origin")
+        if not origin:
+            req_origin = flask_request.headers.get("Origin", "")
+            if req_origin in cors_origins:
+                response.headers["Access-Control-Allow-Origin"] = req_origin
+                response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+                response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+        return response
 
     # Initialize MongoDB
     init_mongo(settings.mongo_uri)
@@ -33,18 +45,18 @@ def create_app() -> Flask:
     def health_check():
         try:
             db = get_db()
-            return {"status": "ok", "db": db.name}
+            return jsonify({"status": "ok", "db": db.name})
         except Exception as e:
-            return {"status": "error", "message": str(e)}, 500
+            return jsonify({"status": "error", "message": str(e)}), 500
 
     # Error handlers
     @app.errorhandler(404)
     def not_found(e):
-        return {"error": "Endpoint tidak ditemukan"}, 404
+        return jsonify({"error": "Endpoint tidak ditemukan"}), 404
 
     @app.errorhandler(500)
     def internal_error(e):
-        return {"error": "Internal server error"}, 500
+        return jsonify({"error": "Internal server error"}), 500
 
     return app
 

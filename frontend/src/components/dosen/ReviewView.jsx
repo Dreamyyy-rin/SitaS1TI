@@ -11,9 +11,9 @@ export default function ReviewView({
   const [searchQuery, setSearchQuery] = useState("");
 
  
-  const mahasiswaWithTtu2 = mahasiswaBimbingan.filter((mhs) => mhs.ttu2);
+  const mahasiswaWithTtu3 = mahasiswaBimbingan.filter((mhs) => mhs.ttu3);
 
-  const mahasiswaForReview = mahasiswaWithTtu2.filter((mhs) => {
+  const mahasiswaForReview = mahasiswaWithTtu3.filter((mhs) => {
     const query = searchQuery.toLowerCase();
     return (
       mhs.nama.toLowerCase().includes(query) ||
@@ -63,7 +63,7 @@ export default function ReviewView({
                   Judul
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  File TTU 2
+                  File TTU 3
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                   Komentar Review
@@ -134,7 +134,7 @@ export default function ReviewView({
           </table>
         </div>
 
-        {mahasiswaForReview.length === 0 && mahasiswaWithTtu2.length > 0 && (
+        {mahasiswaForReview.length === 0 && mahasiswaWithTtu3.length > 0 && (
           <div className="text-center py-16">
             <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-500 text-lg">
@@ -146,14 +146,14 @@ export default function ReviewView({
           </div>
         )}
 
-        {mahasiswaWithTtu2.length === 0 && (
+        {mahasiswaWithTtu3.length === 0 && (
           <div className="text-center py-16">
             <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-500 text-lg">
               Belum ada submission untuk direview
             </p>
             <p className="text-slate-400 text-sm mt-2">
-              Mahasiswa yang sudah upload TTU 2 akan muncul di sini
+              Mahasiswa yang sudah upload TTU 3 akan muncul di sini
             </p>
           </div>
         )}

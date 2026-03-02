@@ -129,7 +129,7 @@ export default function MahasiswaDashboard() {
   );
 
   const UploadTTUView = () => (
-    <UploadTTUPage onSwitchToPembimbing={() => setView("pembimbing")} />
+    <UploadTTUPage onSwitchToReview={() => setView("review-bimbingan")} />
   );
 
   return (

@@ -67,12 +67,27 @@ const DosenManagementPage = () => {
 
     try {
       if (editingUser) {
-        // For now, edit updates local state (backend doesn't have update endpoint yet)
-        setUsers((prev) =>
-          prev.map((u) =>
-            u.id === editingUser.id ? { ...u, name: userData.name, idNumber: userData.idNumber, prodi: userData.prodi } : u
-          )
-        );
+        const res = await fetch(`${API}/api/superadmin/users/${editingUser.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nama: userData.name,
+            nidn: userData.idNumber,
+            prodi: userData.prodi,
+            is_active: userData.status === "active",
+            ...(userData.password ? { password: userData.password } : {}),
+          }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          await fetchDosen();
+        } else {
+          alert(data.error || "Gagal memperbarui dosen");
+          return;
+        }
       } else {
         // Create new dosen
         const res = await fetch(`${API}/api/superadmin/register-user`, {

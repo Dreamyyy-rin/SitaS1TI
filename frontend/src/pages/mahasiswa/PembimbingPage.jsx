@@ -67,7 +67,7 @@ const PembimbingPage = () => {
     try {
       const token = localStorage.getItem("sita_token");
       const response = await fetch(
-        `${baseUrl}/api/mahasiswa/pembimbing-request/status`,
+        `${baseUrl}/api/mahasiswa/pembimbing-request/status?type=change`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

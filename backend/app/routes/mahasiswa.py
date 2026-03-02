@@ -29,11 +29,11 @@ def register():
     if missing:
         return ResponseFormatter.error(f"Field wajib: {', '.join(missing)}", 400)
     
-    nim = data.get("nim", "").strip()
-    nama = data.get("nama", "").strip()
-    email = data.get("email", "").strip()
-    password = data.get("password", "")
-    prodi = data.get("prodi", "").strip()
+    nim = (data.get("nim") or "").strip()
+    nama = (data.get("nama") or "").strip()
+    email = (data.get("email") or "").strip()
+    password = data.get("password") or ""
+    prodi = (data.get("prodi") or "").strip()
     angkatan = data.get("angkatan", 2024)
     
     if not Validator.validate_nim(nim):
@@ -135,9 +135,9 @@ def create_initial_request():
     data = request.get_json(force=True) or {}
     data = Sanitizer.sanitize_dict(data)
 
-    pembimbing_1_id = data.get("pembimbing_1_id", "").strip()
-    pembimbing_2_id = data.get("pembimbing_2_id", "").strip() or None
-    judul = data.get("judul", "").strip() or None
+    pembimbing_1_id = (data.get("pembimbing_1_id") or "").strip()
+    pembimbing_2_id = (data.get("pembimbing_2_id") or "").strip() or None
+    judul = (data.get("judul") or "").strip() or None
 
     if not pembimbing_1_id:
         return ResponseFormatter.error("Pembimbing 1 wajib dipilih", 400)
@@ -183,9 +183,9 @@ def create_change_request():
     data = request.get_json(force=True) or {}
     data = Sanitizer.sanitize_dict(data)
 
-    requested_pembimbing_id = data.get("newPembimbingId", "").strip()
-    alasan = data.get("alasan", "").strip()
-    requested_slot = data.get("slot", "pembimbing_1").strip()
+    requested_pembimbing_id = (data.get("newPembimbingId") or "").strip()
+    alasan = (data.get("alasan") or "").strip()
+    requested_slot = (data.get("slot") or "pembimbing_1").strip()
 
     if not requested_pembimbing_id or not alasan:
         return ResponseFormatter.error("Dosen dan alasan wajib diisi", 400)

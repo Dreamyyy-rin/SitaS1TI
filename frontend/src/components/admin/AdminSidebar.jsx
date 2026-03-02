@@ -12,6 +12,7 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
         { key: "dashboard", label: "Dashboard", icon: "dashboard" },
         { key: "dosen", label: "Manajemen Dosen", icon: "user-check" },
         { key: "mahasiswa", label: "Manajemen Mahasiswa", icon: "users" },
+        { key: "ttu3", label: "Review TTU 3", icon: "file-check" },
       ],
     },
     {
@@ -148,6 +149,13 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
                       )}
                       {item.icon === "book" && (
                         <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
+                      )}
+                      {item.icon === "file-check" && (
+                        <>
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <path d="M9 15l2 2 4-4" />
+                        </>
                       )}
                     </svg>
                     <span>{item.label}</span>

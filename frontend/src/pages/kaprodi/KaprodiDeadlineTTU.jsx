@@ -1,27 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Save, Calendar, FileText, CheckCircle2 } from "lucide-react";
 import DeadlineCard from "../../components/kaprodi/DeadlineCard";
 import DeadlineSummaryTable from "../../components/kaprodi/DeadlineSummaryTable";
 import SuccessToast from "../../components/shared/SuccessToast";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const KaprodiDeadlineTTU = () => {
   const [deadlines, setDeadlines] = useState({
-    ttu1: {
-      date: "2026-05-20",
-      description:
-        "Deadline pengumpulan proposal penelitian dan pendaftaran TTU 1",
-    },
-    ttu2: {
-      date: "2026-08-15",
-      description: "Deadline pengumpulan draft skripsi dan pendaftaran TTU 2",
-    },
-    ttu3: {
-      date: "",
-      description: "",
-    },
+    ttu1: { date: "" },
+    ttu2: { date: "" },
+    ttu3: { date: "" },
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+    fetch(`${API}/api/kaprodi/deadlines`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data?.deadlines) {
+          setDeadlines(res.data.deadlines);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const ttuStages = [
     {
@@ -101,10 +109,31 @@ const KaprodiDeadlineTTU = () => {
     });
   };
 
-  const handleSave = () => {
-    console.log("Saving deadlines:", deadlines);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+  const handleSave = async () => {
+    const token = localStorage.getItem("sita_token");
+    if (!token) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API}/api/kaprodi/deadlines`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(deadlines),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else {
+        alert(data.message || "Gagal menyimpan deadline");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getColorClasses = (color) => {
@@ -174,10 +203,11 @@ const KaprodiDeadlineTTU = () => {
         <div className="sticky bottom-6 flex justify-center">
           <button
             onClick={handleSave}
-            className="inline-flex items-center gap-3 px-8 py-4 bg-[#0B2F7F] text-white rounded-2xl font-bold text-lg shadow-2xl hover:bg-blue-800 transition-all duration-200"
+            disabled={saving}
+            className="inline-flex items-center gap-3 px-8 py-4 bg-[#0B2F7F] text-white rounded-2xl font-bold text-lg shadow-2xl hover:bg-blue-800 transition-all duration-200 disabled:opacity-50"
           >
             <Save className="w-6 h-6" />
-            Simpan Perubahan
+            {saving ? "Menyimpan..." : "Simpan Perubahan"}
           </button>
         </div>
 

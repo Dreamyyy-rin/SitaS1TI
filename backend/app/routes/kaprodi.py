@@ -4,7 +4,8 @@ Kaprodi routes blueprint
 from flask import Blueprint, request, g
 from ..auth import token_required, role_required
 from ..models import Mahasiswa, User, PembimbingRequest, Notification, Submission
-from ..utils import Sanitizer, ResponseFormatter
+from ..utils import Sanitizer, Validator, ResponseFormatter
+from ..auth.service import AuthService
 
 kaprodi_bp = Blueprint("kaprodi", __name__, url_prefix="/api/kaprodi")
 
@@ -13,8 +14,14 @@ kaprodi_bp = Blueprint("kaprodi", __name__, url_prefix="/api/kaprodi")
 @token_required
 @role_required("kaprodi")
 def list_dosen():
-    """List semua dosen"""
+    """List semua dosen with active student counts"""
     dosen_list = User.get_all(role="dosen")
+
+    # Enrich with active bimbingan count
+    for d in dosen_list:
+        bimbingan = Mahasiswa.get_by_pembimbing(d["_id"])
+        d["active_students_count"] = len(bimbingan)
+
     return ResponseFormatter.success(data=dosen_list, message=f"Total dosen: {len(dosen_list)}")
 
 
@@ -27,8 +34,14 @@ def dashboard_stats():
     mahasiswa_list = Mahasiswa.get_by_prodi(prodi) if prodi else []
     mahasiswa_ids = [m.get("_id") for m in mahasiswa_list]
 
-    pending_initial = PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type="initial")
-    pending_change = PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type="change")
+    pending_initial = [
+        req for req in PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type="initial")
+        if req.get("status_kaprodi") == "pending"
+    ]
+    pending_change = [
+        req for req in PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type="change")
+        if req.get("status_kaprodi") == "pending"
+    ]
     dosen_list = User.get_all(role="dosen")
 
     ttu_selesai = sum(1 for m in mahasiswa_list
@@ -130,10 +143,11 @@ def assign_reviewer():
     if reviewer_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
         return ResponseFormatter.error("Reviewer tidak boleh sama dengan pembimbing", 400)
     
-    from ..db import db
+    from ..db import get_db
     from bson import ObjectId
     from datetime import datetime
-    result = db.mahasiswa.update_one(
+    db = get_db()
+    result = db["mahasiswa"].update_one(
         {"_id": ObjectId(mahasiswa_id)},
         {"$set": {"reviewer_id": reviewer_id, "updated_at": datetime.utcnow()}}
     )
@@ -154,7 +168,10 @@ def list_pembimbing_requests():
 
     mahasiswa_list = Mahasiswa.get_by_prodi(prodi)
     mahasiswa_ids = [m.get("_id") for m in mahasiswa_list]
-    requests = PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type=request_type)
+    requests = [
+        req for req in PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type=request_type)
+        if req.get("status_kaprodi") == "pending"
+    ]
 
     mahasiswa_map = {m.get("_id"): m for m in mahasiswa_list}
     for req in requests:
@@ -179,7 +196,11 @@ def _update_request_for_kaprodi(request_id: str, decision: str):
     if req.get("overall_status") != "pending":
         return ResponseFormatter.error("Request sudah diproses", 400)
 
-    updated = PembimbingRequest.update_status(request_id, {"status_kaprodi": decision})
+    # Kaprodi hanya memproses status kaprodi;
+    # request final approved jika status dosen terkait juga approved.
+    status_update = {"status_kaprodi": decision}
+
+    updated = PembimbingRequest.update_status(request_id, status_update)
     if not updated:
         return ResponseFormatter.error("Gagal memperbarui request", 400)
 
@@ -241,3 +262,100 @@ def approve_pembimbing_request(request_id):
 def reject_pembimbing_request(request_id):
     """Reject request pembimbing"""
     return _update_request_for_kaprodi(request_id, "rejected")
+
+
+# ─── Dosen Management ───────────────────────────────────────────────
+
+@kaprodi_bp.post("/register-dosen")
+@token_required
+@role_required("kaprodi")
+def register_dosen():
+    """Register dosen baru oleh kaprodi"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    nama = data.get("nama", "").strip()
+    email = data.get("email", "").strip()
+    nidn = data.get("nidn", "").strip()
+    password = data.get("password", "").strip() or "dosen12345"
+
+    if not nama or not email or not nidn:
+        return ResponseFormatter.error("Nama, email, dan NIP/NIDN wajib diisi", 400)
+
+    if not Validator.validate_email(email):
+        return ResponseFormatter.error("Email tidak valid", 400)
+
+    if User.find_by_email(email):
+        return ResponseFormatter.error("Email sudah terdaftar", 400)
+
+    password_hash = AuthService.hash_password(password)
+    user = User.create(
+        email=email,
+        password_hash=password_hash,
+        nama=nama,
+        role="dosen",
+        nidn=nidn,
+    )
+
+    return ResponseFormatter.success(
+        data={"user_id": user["_id"], "email": user["email"]},
+        message="Dosen berhasil ditambahkan",
+        status_code=201
+    )
+
+
+@kaprodi_bp.delete("/dosen/<dosen_id>")
+@token_required
+@role_required("kaprodi")
+def delete_dosen(dosen_id):
+    """Hapus dosen (soft delete)"""
+    dosen = User.find_by_id(dosen_id)
+    if not dosen:
+        return ResponseFormatter.error("Dosen tidak ditemukan", 404)
+    if dosen.get("role") != "dosen":
+        return ResponseFormatter.error("User bukan dosen", 400)
+
+    if User.delete(dosen_id):
+        return ResponseFormatter.success(message="Dosen berhasil dihapus")
+    return ResponseFormatter.error("Gagal menghapus dosen", 400)
+
+
+# ─── Deadline Management ────────────────────────────────────────────
+
+@kaprodi_bp.get("/deadlines")
+@token_required
+@role_required("kaprodi")
+def get_deadlines():
+    """Get deadline configuration"""
+    from ..db import get_db
+    db = get_db()
+    prodi = g.current_user.get("prodi", "")
+    config = db["deadline_config"].find_one({"prodi": prodi})
+    if config:
+        config["_id"] = str(config["_id"])
+    return ResponseFormatter.success(data=config, message="Deadline config")
+
+
+@kaprodi_bp.put("/deadlines")
+@token_required
+@role_required("kaprodi")
+def save_deadlines():
+    """Save deadline configuration"""
+    from ..db import get_db
+    from datetime import datetime
+    db = get_db()
+    data = request.get_json(force=True) or {}
+    prodi = g.current_user.get("prodi", "")
+
+    deadlines = {
+        "ttu1": {"date": data.get("ttu1", {}).get("date", "")},
+        "ttu2": {"date": data.get("ttu2", {}).get("date", "")},
+        "ttu3": {"date": data.get("ttu3", {}).get("date", "")},
+    }
+
+    db["deadline_config"].update_one(
+        {"prodi": prodi},
+        {"$set": {"deadlines": deadlines, "updated_at": datetime.utcnow(), "prodi": prodi}},
+        upsert=True,
+    )
+    return ResponseFormatter.success(message="Deadline berhasil disimpan")

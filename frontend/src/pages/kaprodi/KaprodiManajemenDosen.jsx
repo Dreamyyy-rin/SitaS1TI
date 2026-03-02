@@ -1,49 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, UserCircle, Mail, IdCard, Users } from "lucide-react";
 
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const KaprodiManajemenDosen = () => {
-  const [dosenList, setDosenList] = useState([
-    {
-      id: 1,
-      name: "Dr. Budi Santoso, M.Kom",
-      nip: "198501152010121001",
-      email: "budi.santoso@university.ac.id",
-      role: "dosen",
-      active_students_count: 8,
-    },
-    {
-      id: 2,
-      name: "Dr. Siti Nurhaliza, M.T",
-      nip: "199002102015042002",
-      email: "siti.nurhaliza@university.ac.id",
-      role: "dosen",
-      active_students_count: 5,
-    },
-    {
-      id: 3,
-      name: "Prof. Dr. Ahmad Dahlan, M.Sc",
-      nip: "197812051998031003",
-      email: "ahmad.dahlan@university.ac.id",
-      role: "dosen",
-      active_students_count: 12,
-    },
-    {
-      id: 4,
-      name: "Ir. Dewi Lestari, M.Kom",
-      nip: "198703222012122004",
-      email: "dewi.lestari@university.ac.id",
-      role: "dosen",
-      active_students_count: 6,
-    },
-    {
-      id: 5,
-      name: "Dr. Eng. Rizki Pratama, S.Kom, M.T",
-      nip: "199105152017091005",
-      email: "rizki.pratama@university.ac.id",
-      role: "dosen",
-      active_students_count: 3,
-    },
-  ]);
+  const [dosenList, setDosenList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [showModal, setShowModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -55,6 +17,29 @@ const KaprodiManajemenDosen = () => {
     email: "",
   });
   const [errors, setErrors] = useState({});
+
+  const getToken = () => localStorage.getItem("sita_token");
+
+  const fetchDosenList = async () => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`${API}/api/kaprodi/dosen-list`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setDosenList(data.data || []);
+    } catch (err) {
+      console.error("Failed to load dosen", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDosenList();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -71,9 +56,9 @@ const KaprodiManajemenDosen = () => {
       newErrors.name = "Nama lengkap harus diisi";
     }
     if (!formData.nip.trim()) {
-      newErrors.nip = "NIP harus diisi";
-    } else if (!/^\d{18}$/.test(formData.nip)) {
-      newErrors.nip = "NIP harus 18 digit angka";
+      newErrors.nip = "NIP/NIDN harus diisi";
+    } else if (!/^\d{10,18}$/.test(formData.nip)) {
+      newErrors.nip = "NIP/NIDN harus 10-18 digit angka";
     }
     if (!formData.email.trim()) {
       newErrors.email = "Email harus diisi";
@@ -84,21 +69,37 @@ const KaprodiManajemenDosen = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleAddDosen = (e) => {
+  const handleAddDosen = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      const newDosen = {
-        id: dosenList.length + 1,
-        name: formData.name,
-        nip: formData.nip,
-        email: formData.email,
-        role: "dosen",
-        active_students_count: 0,
-      };
-      setDosenList([...dosenList, newDosen]);
-      setShowModal(false);
-      setFormData({ name: "", nip: "", email: "" });
-      setErrors({});
+    if (!validateForm()) return;
+
+    const token = getToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API}/api/kaprodi/register-dosen`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nama: formData.name,
+          nidn: formData.nip,
+          email: formData.email,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowModal(false);
+        setFormData({ name: "", nip: "", email: "" });
+        setErrors({});
+        fetchDosenList();
+      } else {
+        setErrors({ email: data.message || "Gagal menambahkan dosen" });
+      }
+    } catch {
+      setErrors({ email: "Gagal menghubungi server" });
     }
   };
 
@@ -107,10 +108,26 @@ const KaprodiManajemenDosen = () => {
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    setDosenList(dosenList.filter((d) => d.id !== selectedDosen.id));
-    setShowDeleteConfirm(false);
-    setSelectedDosen(null);
+  const confirmDelete = async () => {
+    const token = getToken();
+    if (!token || !selectedDosen) return;
+
+    try {
+      const res = await fetch(`${API}/api/kaprodi/dosen/${selectedDosen._id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowDeleteConfirm(false);
+        setSelectedDosen(null);
+        fetchDosenList();
+      } else {
+        alert(data.message || "Gagal menghapus dosen");
+      }
+    } catch {
+      alert("Gagal menghubungi server");
+    }
   };
 
   const openModal = () => {
@@ -123,8 +140,8 @@ const KaprodiManajemenDosen = () => {
   const filteredDosenList = dosenList.filter((dosen) => {
     const query = searchQuery.toLowerCase();
     return (
-      dosen.name.toLowerCase().includes(query) ||
-      dosen.nip.toLowerCase().includes(query)
+      (dosen.nama || "").toLowerCase().includes(query) ||
+      (dosen.nidn || "").toLowerCase().includes(query)
     );
   });
 
@@ -211,7 +228,7 @@ const KaprodiManajemenDosen = () => {
                     Nama Dosen
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    NIP
+                    NIP/NIDN
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                     Email
@@ -227,24 +244,24 @@ const KaprodiManajemenDosen = () => {
               <tbody>
                 {filteredDosenList.map((dosen, index) => (
                   <tr
-                    key={dosen.id}
+                    key={dosen._id}
                     className="border-t hover:bg-gray-50 transition-colors"
                   >
                     <td className="px-4 py-3 text-sm text-slate-600">
                       {index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm font-semibold text-slate-800">
-                      {dosen.name}
+                      {dosen.nama}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600 font-mono">
-                      {dosen.nip}
+                      {dosen.nidn}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-600">
                       {dosen.email}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-50 text-blue-700">
-                        {dosen.active_students_count} Mahasiswa
+                        {dosen.active_students_count || 0} Mahasiswa
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -328,7 +345,7 @@ const KaprodiManajemenDosen = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  NIP (18 Digit)
+                  NIP/NIDN
                 </label>
                 <div className="relative">
                   <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -410,7 +427,7 @@ const KaprodiManajemenDosen = () => {
                 Hapus Data Dosen?
               </h3>
               <p className="text-slate-600 mb-6">
-                Anda akan menghapus data <strong>{selectedDosen.name}</strong>.
+                Anda akan menghapus data <strong>{selectedDosen.nama}</strong>.
                 Tindakan ini tidak dapat dibatalkan.
               </p>
               <div className="flex gap-3">

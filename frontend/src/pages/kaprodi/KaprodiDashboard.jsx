@@ -4,7 +4,6 @@ import SidebarKaprodi from "../../components/kaprodi/SidebarKaprodi";
 import KaprodiManajemenDosen from "./KaprodiManajemenDosen";
 import KaprodiDeadlineTTU from "./KaprodiDeadlineTTU";
 import DashboardView from "../../components/kaprodi/DashboardView";
-import RequestBimbinganView from "../../components/kaprodi/RequestBimbinganView";
 import RequestDosenView from "../../components/kaprodi/RequestDosenView";
 import MahasiswaBimbinganView from "../../components/kaprodi/MahasiswaBimbinganView";
 import DataAkunKaprodiView from "../../components/kaprodi/DataAkunKaprodiView";
@@ -100,17 +99,20 @@ const KaprodiDashboard = () => {
         }, {});
 
         if (initialRes.success) {
-          const normalizedInitial = (initialRes.data || []).map((req) => ({
-            id: req._id,
-            nama: req.mahasiswa?.nama || "-",
-            nim: req.mahasiswa?.nim || "-",
-            judul: req.judul || "-",
-            dosenDiajukan: req.requested_pembimbing_1_id
-              ? mapDosen[req.requested_pembimbing_1_id]?.nama || "-"
-              : "",
-            tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
-            raw: req,
-          }));
+          const normalizedInitial = (initialRes.data || []).map((req) => {
+            const pembimbing1 = req.requested_pembimbing_1_id ? mapDosen[req.requested_pembimbing_1_id]?.nama : null;
+            const pembimbing2 = req.requested_pembimbing_2_id ? mapDosen[req.requested_pembimbing_2_id]?.nama : null;
+            return {
+              id: req._id,
+              nama: req.mahasiswa?.nama || "-",
+              nim: req.mahasiswa?.nim || "-",
+              judul: req.judul || "-",
+              pembimbing1: pembimbing1 || "-",
+              pembimbing2: pembimbing2 || "(Tidak ada)",
+              tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+              raw: req,
+            };
+          });
           setRequestDosenBaru(normalizedInitial);
         }
 
@@ -167,14 +169,22 @@ const KaprodiDashboard = () => {
     }));
   };
 
-  const handleAccept = (id) => {
-    alert(
-      `Mahasiswa dengan ID ${id} telah diacc dan dipindahkan ke Riwayat Bimbingan`,
-    );
+  const handleAccept = async (id) => {
+    // Mark bimbingan as validated by kaprodi (informational only)
+    const mhs = mahasiswaBimbingan.find((m) => m.id === id);
+    if (mhs && mhs.ttu1 && mhs.ttu2 && mhs.ttu3) {
+      alert(`Mahasiswa ${mhs.nama} sudah menyelesaikan seluruh TTU.`);
+    } else {
+      alert(`Mahasiswa belum menyelesaikan seluruh TTU.`);
+    }
   };
 
   const handleApprove = async (id) => {
     const token = localStorage.getItem("sita_token");
+    if (!confirm("Apakah Anda yakin menyetujui request pembimbing ini?")) {
+      return;
+    }
+    
     try {
       const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/approve`, {
         method: "POST",
@@ -182,43 +192,84 @@ const KaprodiDashboard = () => {
       });
       const data = await res.json();
       if (data.success) {
+        alert("✓ Persetujuan kaprodi berhasil. Request kini menunggu persetujuan dosen pembimbing terkait.");
+        // Remove from list and reload data
         setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
         setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+        
+        // Reload mahasiswa data to reflect changes
+        const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, { 
+          headers: { Authorization: `Bearer ${token}` } 
+        });
+        const mhsData = await mhsRes.json();
+        if (mhsData.success) {
+          const dosenRes = await fetch(`${API}/api/kaprodi/dosen-list`, { 
+            headers: { Authorization: `Bearer ${token}` } 
+          });
+          const dosenData = await dosenRes.json();
+          const dosenList = dosenData.success ? (dosenData.data || []) : [];
+          
+          const mhsList = (mhsData.data || []).map(m => {
+            const ttu = m.ttu_status || {};
+            const p1 = m.pembimbing_1_id ? dosenList.find(d => d._id === m.pembimbing_1_id) : null;
+            const p2 = m.pembimbing_2_id ? dosenList.find(d => d._id === m.pembimbing_2_id) : null;
+            return {
+              id: m._id,
+              nama: m.nama || "-",
+              nim: m.nim || "-",
+              prodi: m.prodi || "-",
+              email: m.email || "-",
+              dosen: p1 ? p1.nama : "-",
+              dosen2: p2 ? p2.nama : "-",
+              reviewer: m.reviewer || "-",
+              ttu1: ttu.ttu_1?.status === "approved",
+              ttu2: ttu.ttu_2?.status === "approved",
+              ttu3: ttu.ttu_3?.status === "approved",
+              ttu_status: ttu,
+              status: m.onboarding_status === "approved" ? "active" : m.onboarding_status,
+              onboarding_status: m.onboarding_status,
+              pembimbing_1_id: m.pembimbing_1_id,
+              pembimbing_2_id: m.pembimbing_2_id,
+              reviewer_id: m.reviewer_id,
+            };
+          });
+          setMahasiswaBimbingan(mhsList);
+        }
       } else {
-        alert(data.message || "Gagal approve request");
+        alert("❌ " + (data.message || data.error || "Gagal approve request"));
       }
-    } catch {
-      alert("Gagal menghubungi server");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Gagal menghubungi server");
     }
   };
 
   const handleReject = async (id) => {
     const token = localStorage.getItem("sita_token");
+    const alasan = prompt("Alasan penolakan (opsional):");
+    if (alasan === null) return; // User cancelled
+    
     try {
       const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/reject`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ alasan }),
       });
       const data = await res.json();
       if (data.success) {
+        alert("✓ Request pembimbing ditolak.");
         setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
         setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
       } else {
-        alert(data.message || "Gagal reject request");
+        alert("❌ " + (data.message || data.error || "Gagal reject request"));
       }
-    } catch {
-      alert("Gagal menghubungi server");
+    } catch (err) {
+      console.error(err);
+      alert("❌ Gagal menghubungi server");
     }
-  };
-
-  const handleAcceptRequestBimbingan = (id) => {
-    alert(
-      `Request bimbingan dari mahasiswa dengan ID ${id} diterima. Dosen akan menerima notifikasi untuk persetujuan.`,
-    );
-  };
-
-  const handleRejectRequestBimbingan = (id) => {
-    alert(`Request bimbingan dari mahasiswa dengan ID ${id} ditolak.`);
   };
 
   const handleReviewerChange = (mahasiswaId, reviewerName) => {
@@ -226,10 +277,6 @@ const KaprodiDashboard = () => {
       ...prev,
       [mahasiswaId]: reviewerName,
     }));
-  };
-
-  const handleSavePlotting = () => {
-    alert("Plotting reviewer berhasil disimpan!");
   };
 
   const handleLogout = () => {
@@ -242,10 +289,8 @@ const KaprodiDashboard = () => {
     switch (activeMenu) {
       case "dashboard":
         return "Dashboard Kaprodi";
-      case "request-bimbingan":
-        return "Request Bimbingan";
-      case "request-dosen":
-        return "Request Dosen";
+      case "request-pembimbing":
+        return "Request Pembimbing";
       case "plotting":
         return "Plotting Reviewer";
       case "mahasiswa-bimbingan":
@@ -271,15 +316,7 @@ const KaprodiDashboard = () => {
     switch (activeMenu) {
       case "dashboard":
         return <DashboardView stats={dashboardStats} recentActivities={recentActivities} />;
-      case "request-bimbingan":
-        return (
-          <RequestBimbinganView
-            requestBimbingan={requestDosenBaru}
-            onAccept={handleApprove}
-            onReject={handleReject}
-          />
-        );
-      case "request-dosen":
+      case "request-pembimbing":
         return (
           <RequestDosenView
             requestDosenBaru={requestDosenBaru}
@@ -298,7 +335,6 @@ const KaprodiDashboard = () => {
             availableDosen={availableDosen}
             selectedReviewers={selectedReviewers}
             onReviewerChange={handleReviewerChange}
-            onSavePlotting={handleSavePlotting}
           />
         );
       case "mahasiswa-bimbingan":
@@ -332,6 +368,8 @@ const KaprodiDashboard = () => {
     }
   };
 
+  const totalRequests = requestDosenBaru.length + requestGantiDosen.length;
+
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
       <SidebarKaprodi
@@ -339,6 +377,7 @@ const KaprodiDashboard = () => {
         onMenuClick={setActiveMenu}
         onLogout={handleLogout}
         user={userData}
+        totalRequests={totalRequests}
       />
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">

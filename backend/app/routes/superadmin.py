@@ -2,6 +2,8 @@
 Superadmin routes blueprint
 """
 from flask import Blueprint, request, g
+from datetime import datetime
+from bson import ObjectId
 from ..auth import AuthService, token_required, role_required
 from ..models import User, UserRole, TTU3Requirement, Mahasiswa, Notification
 from ..utils import Sanitizer, Validator, ResponseFormatter
@@ -85,6 +87,61 @@ def delete_user(user_id):
     return ResponseFormatter.error("User tidak ditemukan", 404)
 
 
+@superadmin_bp.put("/users/<user_id>")
+@token_required
+@role_required("superadmin")
+def update_user(user_id):
+    """Update user dosen/kaprodi"""
+    existing = User.find_by_id(user_id)
+    if not existing:
+        return ResponseFormatter.error("User tidak ditemukan", 404)
+
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    update_doc = {}
+
+    if "nama" in data:
+        nama = (data.get("nama") or "").strip()
+        if not nama:
+            return ResponseFormatter.error("Nama tidak boleh kosong", 400)
+        update_doc["nama"] = nama
+
+    if "nidn" in data:
+        nidn = (data.get("nidn") or "").strip()
+        if not Validator.validate_nidn(nidn):
+            return ResponseFormatter.error("NIDN harus 10 digit", 400)
+        update_doc["nidn"] = nidn
+
+    if "prodi" in data:
+        prodi = (data.get("prodi") or "").strip()
+        update_doc["prodi"] = prodi
+
+    if "is_active" in data:
+        update_doc["is_active"] = bool(data.get("is_active"))
+
+    new_password = (data.get("password") or "").strip()
+    if new_password:
+        if len(new_password) < 8:
+            return ResponseFormatter.error("Password minimal 8 karakter", 400)
+        update_doc["password_hash"] = AuthService.hash_password(new_password)
+
+    if not update_doc:
+        return ResponseFormatter.error("Tidak ada data yang diperbarui", 400)
+
+    update_doc["updated_at"] = datetime.utcnow()
+
+    result = User.collection().update_one(
+        {"_id": ObjectId(user_id)},
+        {"$set": update_doc}
+    )
+
+    if result.matched_count == 0:
+        return ResponseFormatter.error("User tidak ditemukan", 404)
+
+    return ResponseFormatter.success(message="User berhasil diperbarui")
+
+
 @superadmin_bp.get("/mahasiswa")
 @token_required
 @role_required("superadmin")
@@ -153,12 +210,72 @@ def register_mahasiswa():
 @role_required("superadmin")
 def delete_mahasiswa(mahasiswa_id):
     """Delete mahasiswa"""
-    from ..db import db
+    from ..db import get_db
     from bson import ObjectId
-    result = db.mahasiswa.delete_one({"_id": ObjectId(mahasiswa_id)})
+    db = get_db()
+    result = db["mahasiswa"].delete_one({"_id": ObjectId(mahasiswa_id)})
     if result.deleted_count > 0:
         return ResponseFormatter.success(message="Mahasiswa berhasil dihapus")
     return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+
+@superadmin_bp.put("/mahasiswa/<mahasiswa_id>")
+@token_required
+@role_required("superadmin")
+def update_mahasiswa(mahasiswa_id):
+    """Update data mahasiswa"""
+    existing = Mahasiswa.find_by_id(mahasiswa_id)
+    if not existing:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    update_doc = {}
+
+    if "nama" in data:
+        nama = (data.get("nama") or "").strip()
+        if not nama:
+            return ResponseFormatter.error("Nama tidak boleh kosong", 400)
+        update_doc["nama"] = nama
+
+    if "nim" in data:
+        nim = (data.get("nim") or "").strip()
+        if not nim:
+            return ResponseFormatter.error("NIM tidak boleh kosong", 400)
+
+        nim_owner = Mahasiswa.find_by_nim(nim)
+        if nim_owner and nim_owner.get("_id") != mahasiswa_id:
+            return ResponseFormatter.error("NIM sudah terdaftar", 400)
+        update_doc["nim"] = nim
+
+    if "prodi" in data:
+        prodi = (data.get("prodi") or "").strip()
+        update_doc["prodi"] = prodi
+
+    if "is_active" in data:
+        update_doc["is_active"] = bool(data.get("is_active"))
+
+    new_password = (data.get("password") or "").strip()
+    if new_password:
+        if len(new_password) < 8:
+            return ResponseFormatter.error("Password minimal 8 karakter", 400)
+        update_doc["password_hash"] = AuthService.hash_password(new_password)
+
+    if not update_doc:
+        return ResponseFormatter.error("Tidak ada data yang diperbarui", 400)
+
+    update_doc["updated_at"] = datetime.utcnow()
+
+    result = Mahasiswa.collection().update_one(
+        {"_id": ObjectId(mahasiswa_id)},
+        {"$set": update_doc}
+    )
+
+    if result.matched_count == 0:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    return ResponseFormatter.success(message="Mahasiswa berhasil diperbarui")
 
 
 @superadmin_bp.get("/ttu3-requirements")
@@ -168,6 +285,19 @@ def list_ttu3_requirements():
     """List berkas persyaratan TTU3"""
     status = request.args.get("status")
     requirements = TTU3Requirement.list_all(status=status)
+
+    # Enrich with mahasiswa info
+    mahasiswa_map = {}
+    for req in requirements:
+        m_id = req.get("mahasiswa_id")
+        if m_id and m_id not in mahasiswa_map:
+            mahasiswa_map[m_id] = Mahasiswa.find_by_id(m_id)
+
+    for req in requirements:
+        m = mahasiswa_map.get(req.get("mahasiswa_id")) or {}
+        req["mahasiswa_nama"] = m.get("nama", "-")
+        req["mahasiswa_nim"] = m.get("nim", "-")
+
     return ResponseFormatter.success(
         data=requirements,
         message=f"Total berkas: {len(requirements)}"

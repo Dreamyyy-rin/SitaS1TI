@@ -2,7 +2,7 @@
 Authentication decorators
 """
 from functools import wraps
-from flask import request, g
+from flask import request, g, jsonify
 from .service import AuthService
 
 
@@ -17,14 +17,14 @@ def token_required(f):
             try:
                 token = auth_header.split(" ")[1]
             except IndexError:
-                return {"error": "Format header tidak valid"}, 401
+                return jsonify({"success": False, "error": "Format header tidak valid"}), 401
         
         if not token:
-            return {"error": "Token diperlukan"}, 401
+            return jsonify({"success": False, "error": "Token diperlukan"}), 401
         
         payload = AuthService.verify_token(token)
         if not payload:
-            return {"error": "Token tidak valid atau sudah expired"}, 401
+            return jsonify({"success": False, "error": "Token tidak valid atau sudah expired"}), 401
         
         g.current_user = payload
         return f(*args, **kwargs)
@@ -38,11 +38,11 @@ def role_required(*allowed_roles):
         @wraps(f)
         def decorated(*args, **kwargs):
             if not hasattr(g, 'current_user'):
-                return {"error": "Authenticate dulu"}, 401
+                return jsonify({"success": False, "error": "Authenticate dulu"}), 401
             
             user_role = g.current_user.get("role")
             if user_role not in allowed_roles:
-                return {"error": f"Akses ditolak. Role harus: {', '.join(allowed_roles)}"}, 403
+                return jsonify({"success": False, "error": f"Akses ditolak. Role harus: {', '.join(allowed_roles)}"}), 403
             
             return f(*args, **kwargs)
         
