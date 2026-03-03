@@ -33,7 +33,7 @@ const TimelineCard = ({ student }) => {
             Linimasa Tugas Akhir
           </h3>
           <p className="text-sm text-slate-400 mt-1">
-            Progres pengerjaan tahapan Tugas Talenta Unggul
+            Progres pengerjaan Tugas Talenta Unggul
           </p>
         </div>
       </div>

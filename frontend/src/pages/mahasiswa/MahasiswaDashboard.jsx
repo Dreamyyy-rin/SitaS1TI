@@ -6,10 +6,9 @@ import ProfileCard from "../../components/mahasiswa/ProfileCard";
 import TimelineCard from "../../components/mahasiswa/TimelineCard";
 import UploadTTUPage from "./UploadTTUPage";
 import PembimbingPage from "./PembimbingPage";
-import UploadBerkasPage from "./UploadBerkasPage";
+import UploadTTU3 from "./UploadTTU3";
 import DataAkunPage from "../shared/DataAkunPage";
 import PanduanPage from "./PanduanPage";
-import ReviewChat from "../../components/mahasiswa/ReviewChat";
 
 export default function MahasiswaDashboard() {
   const navigate = useNavigate();
@@ -57,7 +56,9 @@ export default function MahasiswaDashboard() {
         );
         const pembimbingResult = await pembimbingRes.json().catch(() => ({}));
         if (pembimbingResult.success) {
-          setPembimbing(pembimbingResult.data || { pembimbing_1: null, pembimbing_2: null });
+          setPembimbing(
+            pembimbingResult.data || { pembimbing_1: null, pembimbing_2: null },
+          );
         }
       } catch (err) {
         setError(err.message || "Gagal memuat profil");
@@ -116,12 +117,7 @@ export default function MahasiswaDashboard() {
 
   const HomeView = () => (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
-        <div className="text-sm text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 font-medium">
-          Semester Genap 2025/2026
-        </div>
-      </div>
+      <h2 className="text-2xl font-bold text-slate-800">Dashboard</h2>
 
       <ProfileCard student={student} />
       <TimelineCard student={student} />
@@ -165,11 +161,8 @@ export default function MahasiswaDashboard() {
             )}
             {view === "home" && <HomeView />}
             {view === "upload-ttu" && <UploadTTUView />}
-            {view === "review-bimbingan" && (
-              <ReviewChat pembimbing={pembimbing} />
-            )}
-            {view === "pembimbing" && <PembimbingPage />}
-            {view === "upload-berkas" && <UploadBerkasPage />}
+            {view === "bimbingan" && <PembimbingPage />}
+            {view === "daftar-review" && <UploadTTU3 student={student} />}
             {view === "data-akun" && <DataAkunPage student={student} />}
             {view === "panduan" && <PanduanPage />}
           </div>

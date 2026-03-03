@@ -127,18 +127,21 @@ class Mahasiswa(BaseModel):
 
     @classmethod
     def set_pembimbing(cls, mahasiswa_id: str, pembimbing_1_id: str,
-                       pembimbing_2_id: Optional[str] = None) -> bool:
+                       pembimbing_2_id: Optional[str] = None, judul: Optional[str] = None) -> bool:
         """Set pembimbing 1 & 2"""
+        update_fields = {
+            "pembimbing_1_id": pembimbing_1_id,
+            "pembimbing_2_id": pembimbing_2_id,
+            "onboarding_status": "approved",
+            "updated_at": datetime.utcnow(),
+        }
+        
+        if judul:
+            update_fields["judul"] = judul
+        
         result = cls.collection().update_one(
             {"_id": ObjectId(mahasiswa_id)},
-            {
-                "$set": {
-                    "pembimbing_1_id": pembimbing_1_id,
-                    "pembimbing_2_id": pembimbing_2_id,
-                    "onboarding_status": "approved",
-                    "updated_at": datetime.utcnow(),
-                }
-            }
+            {"$set": update_fields}
         )
         return result.modified_count > 0
 

@@ -1,7 +1,7 @@
 """
 Dosen routes blueprint
 """
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, send_file
 from ..auth import token_required, role_required
 from ..models import Submission, PembimbingRequest, Mahasiswa, Notification, User
 from ..utils import Sanitizer, ResponseFormatter
@@ -46,6 +46,7 @@ def list_mahasiswa_bimbingan():
             "nim": m.get("nim"),
             "prodi": m.get("prodi"),
             "email": m.get("email"),
+            "judul": m.get("judul"),
             "reviewer": reviewer.get("nama") if reviewer else None,
             "ttu_status": ttu,
             "onboarding_status": m.get("onboarding_status"),
@@ -184,6 +185,7 @@ def _update_request_for_dosen(request_id: str, decision: str):
                 mahasiswa_id=updated_req.get("mahasiswa_id"),
                 pembimbing_1_id=updated_req.get("requested_pembimbing_1_id"),
                 pembimbing_2_id=updated_req.get("requested_pembimbing_2_id"),
+                judul=updated_req.get("judul"),
             )
         elif updated_req.get("request_type") == "change":
             slot = updated_req.get("requested_slot") or "pembimbing_1"
@@ -268,3 +270,121 @@ def approve_ttu(ttu_number):
         return ResponseFormatter.success(message="TTU disetujui")
 
     return ResponseFormatter.error("Gagal mengubah status TTU", 400)
+
+
+@dosen_bp.post("/ttu/<ttu_number>/reject")
+@token_required
+@role_required("dosen")
+def reject_ttu(ttu_number):
+    """Tolak TTU dan allow mahasiswa untuk reupload"""
+    if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
+        return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
+
+    data = request.get_json(force=True) or {}
+    mahasiswa_id = data.get("mahasiswa_id", "").strip()
+    reason = data.get("reason", "").strip()
+    
+    if not mahasiswa_id:
+        return ResponseFormatter.error("Mahasiswa wajib dipilih", 400)
+    
+    if not reason or len(reason) < 10:
+        return ResponseFormatter.error("Alasan penolakan minimal 10 karakter", 400)
+
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    dosen_id = g.current_user.get("user_id")
+    dosen_nama = g.current_user.get("nama")
+
+    # Check authorization
+    if ttu_number in ["ttu_1", "ttu_2"]:
+        if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
+            return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
+    else:
+        if dosen_id != mahasiswa.get("reviewer_id"):
+            return ResponseFormatter.error("Anda bukan reviewer mahasiswa ini", 403)
+
+    # Get latest submission for this TTU
+    submission = Submission.get_by_mahasiswa_ttu(mahasiswa_id, ttu_number)
+    if not submission:
+        return ResponseFormatter.error("Submission tidak ditemukan", 404)
+
+    # Mark submission as rejected
+    if Submission.mark_rejected(submission["_id"], reason, dosen_id, dosen_nama):
+        Notification.create(
+            recipient_email=mahasiswa.get("email"),
+            recipient_name=mahasiswa.get("nama"),
+            subject=f"TTU {ttu_number.replace('ttu_', '')} ditolak",
+            body=f"TTU {ttu_number.replace('ttu_', '')} Anda ditolak. Alasan: {reason}\\n\\nSilakan upload file revisi.",
+            event_type="ttu_rejected",
+        )
+        return ResponseFormatter.success(message="TTU ditolak, mahasiswa dapat upload revisi")
+
+    return ResponseFormatter.error("Gagal menolak TTU", 400)
+
+
+@dosen_bp.get("/mahasiswa/<mahasiswa_id>/submissions")
+@token_required
+@role_required("dosen")
+def get_mahasiswa_submissions(mahasiswa_id):
+    """Get all submissions dari mahasiswa tertentu"""
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+    
+    dosen_id = g.current_user.get("user_id")
+    
+    # Check if dosen is pembimbing or reviewer
+    is_pembimbing = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    is_reviewer = dosen_id == mahasiswa.get("reviewer_id")
+    
+    if not (is_pembimbing or is_reviewer):
+        return ResponseFormatter.error("Anda tidak memiliki akses ke data mahasiswa ini", 403)
+    
+    submissions = Submission.get_by_mahasiswa(mahasiswa_id)
+    return ResponseFormatter.success(data=submissions, message=f"Total: {len(submissions)}")
+
+
+@dosen_bp.get("/mahasiswa/<mahasiswa_id>/ttu/<ttu_number>/history")
+@token_required
+@role_required("dosen")
+def get_ttu_submission_history(mahasiswa_id, ttu_number):
+    """Get submission history untuk specific TTU"""
+    if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
+        return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
+    
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+    
+    dosen_id = g.current_user.get("user_id")
+    
+    # Check authorization
+    if ttu_number in ["ttu_1", "ttu_2"]:
+        is_authorized = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    else:
+        is_authorized = dosen_id == mahasiswa.get("reviewer_id")
+    
+    if not is_authorized:
+        return ResponseFormatter.error("Anda tidak memiliki akses ke data ini", 403)
+    
+    history = Submission.get_all_by_mahasiswa_ttu(mahasiswa_id, ttu_number)
+    return ResponseFormatter.success(data=history, message=f"Total revisi: {len(history)}")
+
+
+@dosen_bp.get("/file/<path:file_path>")
+@token_required
+@role_required("dosen")
+def download_file(file_path):
+    """Download atau preview file submission"""
+    import os
+    full_path = os.path.join(os.getcwd(), file_path)
+    
+    if not os.path.exists(full_path):
+        return ResponseFormatter.error("File tidak ditemukan", 404)
+    
+    try:
+        return send_file(full_path, as_attachment=False)
+    except Exception as e:
+        return ResponseFormatter.error(f"Gagal mengambil file: {str(e)}", 500)

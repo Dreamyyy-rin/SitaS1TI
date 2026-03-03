@@ -9,6 +9,10 @@ export default function RequestBimbinganPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [requestBimbingan, setRequestBimbingan] = useState([]);
+  const [requestCount, setRequestCount] = useState(() => {
+    const cached = localStorage.getItem("dosen_request_count");
+    return cached ? parseInt(cached, 10) : 0;
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -48,6 +52,10 @@ export default function RequestBimbinganPage() {
         }));
 
         setRequestBimbingan(normalized);
+        // Backend already filters by overall_status = pending, so count all returned data
+        const count = (result.data || []).length;
+        setRequestCount(count);
+        localStorage.setItem("dosen_request_count", count.toString());
       } catch (err) {
         setError(err.message || "Error memuat data user");
       } finally {
@@ -69,13 +77,20 @@ export default function RequestBimbinganPage() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
-      const res = await fetch(`${baseUrl}/api/dosen/pembimbing-requests/${id}/approve`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${baseUrl}/api/dosen/pembimbing-requests/${id}/approve`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        setRequestBimbingan((prev) => prev.filter((req) => req.id !== id));
+        alert(
+          "✓ Request berhasil disetujui. Request akan hilang dari list setelah Kaprodi dan minimal 1 Dosen Pembimbing menyetujui.",
+        );
+        // Reload data from backend to get updated list
+        window.location.reload();
       } else {
         alert(data.message || data.error || "Gagal approve request");
       }
@@ -89,13 +104,18 @@ export default function RequestBimbinganPage() {
       import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
-      const res = await fetch(`${baseUrl}/api/dosen/pembimbing-requests/${id}/reject`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${baseUrl}/api/dosen/pembimbing-requests/${id}/reject`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        setRequestBimbingan((prev) => prev.filter((req) => req.id !== id));
+        alert("✓ Request berhasil ditolak.");
+        // Reload data from backend to get updated list
+        window.location.reload();
       } else {
         alert(data.message || data.error || "Gagal reject request");
       }
@@ -124,6 +144,7 @@ export default function RequestBimbinganPage() {
         }}
         onLogout={handleLogout}
         user={user}
+        requestCount={requestCount}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">

@@ -11,7 +11,13 @@ import {
   FileCheck,
 } from "lucide-react";
 
-const SidebarDosen = ({ activeMenu, onMenuClick, onLogout, user }) => {
+const SidebarDosen = ({
+  activeMenu,
+  onMenuClick,
+  onLogout,
+  user,
+  requestCount = 0,
+}) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
 
@@ -30,7 +36,7 @@ const SidebarDosen = ({ activeMenu, onMenuClick, onLogout, user }) => {
           label: "Request Bimbingan",
           view: "request-bimbingan",
           icon: ClipboardList,
-          badge: 2,
+          badge: requestCount,
         },
         {
           key: "mahasiswa-bimbingan",
@@ -128,7 +134,7 @@ const SidebarDosen = ({ activeMenu, onMenuClick, onLogout, user }) => {
                       strokeWidth={2}
                     />
                     <span className="flex-1 text-left">{item.label}</span>
-                    {item.badge && (
+                    {item.badge > 0 && (
                       <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                         {item.badge}
                       </span>

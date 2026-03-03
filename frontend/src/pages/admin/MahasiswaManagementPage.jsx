@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import UserTable from "../../components/admin/UserTable";
 import UserFormModal from "../../components/admin/UserFormModal";
-import { Users, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
+import {
+  Users,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  Search,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -14,6 +22,11 @@ const MahasiswaManagementPage = () => {
   const [deletingUser, setDeletingUser] = useState(null);
   const [deleteType, setDeleteType] = useState("soft");
   const [searchQuery, setSearchQuery] = useState("");
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   const fetchMahasiswa = async () => {
     const token = localStorage.getItem("sita_token");
@@ -24,13 +37,13 @@ const MahasiswaManagementPage = () => {
       });
       const data = await res.json();
       if (data.success) {
-        const mapped = (data.data || []).map(m => ({
+        const mapped = (data.data || []).map((m) => ({
           id: m._id,
           name: m.nama,
           email: m.email,
           idNumber: m.nim || "-",
           role: "mahasiswa",
-          prodi: m.prodi || "-",
+          prodi: m.prodi && m.prodi !== "-" ? m.prodi : "Teknik Informatika",
           status: m.is_active ? "active" : "inactive",
         }));
         setUsers(mapped);
@@ -67,25 +80,37 @@ const MahasiswaManagementPage = () => {
 
     try {
       if (editingUser) {
-        const res = await fetch(`${API}/api/superadmin/mahasiswa/${editingUser.id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        const res = await fetch(
+          `${API}/api/superadmin/mahasiswa/${editingUser.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nama: userData.name,
+              nim: userData.idNumber,
+              prodi: userData.prodi,
+              is_active: userData.status === "active",
+              ...(userData.password ? { password: userData.password } : {}),
+            }),
           },
-          body: JSON.stringify({
-            nama: userData.name,
-            nim: userData.idNumber,
-            prodi: userData.prodi,
-            is_active: userData.status === "active",
-            ...(userData.password ? { password: userData.password } : {}),
-          }),
-        });
+        );
         const data = await res.json();
         if (data.success) {
           await fetchMahasiswa();
+          setNotification({
+            show: true,
+            message: "Berhasil memperbarui mahasiswa",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal memperbarui mahasiswa");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal memperbarui mahasiswa",
+            type: "error",
+          });
           return;
         }
       } else {
@@ -106,13 +131,26 @@ const MahasiswaManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchMahasiswa();
+          setNotification({
+            show: true,
+            message: "Berhasil menambahkan mahasiswa",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal menambahkan mahasiswa");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menambahkan mahasiswa",
+            type: "error",
+          });
           return;
         }
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotification({
+        show: true,
+        message: "Gagal menghubungi server",
+        type: "error",
+      });
       return;
     }
     setShowModal(false);
@@ -125,24 +163,40 @@ const MahasiswaManagementPage = () => {
 
     if (deleteType === "hard") {
       try {
-        const res = await fetch(`${API}/api/superadmin/mahasiswa/${deletingUser.id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${API}/api/superadmin/mahasiswa/${deletingUser.id}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const data = await res.json();
         if (data.success) {
           setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+          setNotification({
+            show: true,
+            message: "Berhasil menghapus mahasiswa",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal menghapus mahasiswa");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menghapus mahasiswa",
+            type: "error",
+          });
         }
       } catch {
-        alert("Gagal menghubungi server");
+        setNotification({
+          show: true,
+          message: "Gagal menghubungi server",
+          type: "error",
+        });
       }
     } else {
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u
-        )
+          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
+        ),
       );
     }
 
@@ -199,7 +253,7 @@ const MahasiswaManagementPage = () => {
         </div>
       </div>
 
-      {/* Stats Card */}
+  
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -262,7 +316,6 @@ const MahasiswaManagementPage = () => {
               </div>
             </div>
 
-        
             <div className="space-y-3 mb-6">
               <label className="flex items-start space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
                 <input
@@ -298,7 +351,7 @@ const MahasiswaManagementPage = () => {
               </label>
             </div>
 
-            {/* Actions */}
+        
             <div className="flex space-x-3 justify-end">
               <button
                 onClick={() => {
@@ -320,6 +373,61 @@ const MahasiswaManagementPage = () => {
               >
                 <Trash2 className="w-4 h-4 inline mr-1" />
                 {deleteType === "soft" ? "Nonaktifkan" : "Hapus Permanen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {notification.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() =>
+              setNotification({ show: false, message: "", type: "error" })
+            }
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                  notification.type === "success"
+                    ? "bg-green-50 ring-green-50/50"
+                    : "bg-red-50 ring-red-50/50"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <CheckCircle
+                    className="w-8 h-8 text-green-500"
+                    strokeWidth={2}
+                  />
+                ) : (
+                  <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+                )}
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                {notification.type === "success"
+                  ? "Berhasil"
+                  : "Terjadi Kesalahan"}
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                {notification.message}
+              </p>
+
+              <button
+                onClick={() =>
+                  setNotification({ show: false, message: "", type: "error" })
+                }
+                className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition-all transform active:scale-95 shadow-lg ${
+                  notification.type === "success"
+                    ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
+                    : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                }`}
+              >
+                OK
               </button>
             </div>
           </div>

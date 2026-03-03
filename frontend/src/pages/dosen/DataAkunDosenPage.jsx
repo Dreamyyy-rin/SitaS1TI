@@ -8,6 +8,9 @@ export default function DataAkunDosenPage() {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [requestCount, setRequestCount] = useState(0);
+
+  const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -28,6 +31,20 @@ export default function DataAkunDosenPage() {
     } finally {
       setIsLoading(false);
     }
+
+    // Fetch request count for sidebar badge
+    const headers = { Authorization: `Bearer ${token}` };
+    fetch(`${API}/api/dosen/pembimbing-requests`, { headers })
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success) {
+          // Backend already filters by overall_status = pending, so count all returned data
+          const count = (res.data || []).length;
+          setRequestCount(count);
+          localStorage.setItem("dosen_request_count", count.toString());
+        }
+      })
+      .catch(() => {});
   }, [navigate]);
 
   const user = {
@@ -46,6 +63,7 @@ export default function DataAkunDosenPage() {
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
       <SidebarDosen
         activeMenu="data-akun"
+        requestCount={requestCount}
         onMenuClick={(key) => {
           if (key === "dashboard") navigate("/dosen-dashboard");
           else if (key === "request-bimbingan")

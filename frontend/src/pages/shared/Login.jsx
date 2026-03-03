@@ -19,7 +19,7 @@ const Login = () => {
       buttonColor: "bg-[#0B2F7F] hover:bg-indigo-900",
     },
     dosen: {
-      title: "Login sebagai Dosen / Kaprodi / Admin",
+      title: "Login sebagai Dosen & Admin",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-orange-600 hover:bg-orange-700",
@@ -47,6 +47,11 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!formData.username.trim() || !formData.password.trim()) {
+      setError("Email dan password wajib diisi");
+      return;
+    }
 
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -87,7 +92,6 @@ const Login = () => {
           navigate("/mahasiswa");
         }
       } else {
-        // Redirect based on actual role from server
         if (user?.role === "superadmin") {
           navigate("/admin");
         } else if (user?.role === "kaprodi") {
@@ -195,6 +199,7 @@ const Login = () => {
               </label>
               <input
                 type="text"
+                required
                 id="username"
                 name="username"
                 value={formData.username}
@@ -214,6 +219,7 @@ const Login = () => {
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
+                  required
                   id="password"
                   name="password"
                   value={formData.password}
@@ -252,12 +258,7 @@ const Login = () => {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                       />
                     </svg>
                   )}
@@ -272,14 +273,14 @@ const Login = () => {
                 config.buttonColor || "bg-blue-600"
               } text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2`}
             >
-              {isSubmitting ? "Memproses..." : "Login"}
+              {isSubmitting ? "Mohon Tunggu..." : "Login"}
             </button>
           </form>
         </div>
 
         <div className="text-center mt-6">
           <p className="text-sm text-slate-400 font-medium">
-            © 2026 FTI UKSW Salatiga
+            © {new Date().getFullYear()} FTI UKSW Salatiga
           </p>
         </div>
       </div>

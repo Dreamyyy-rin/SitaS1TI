@@ -9,6 +9,7 @@ const RequestPembimbingPage = () => {
   const [formData, setFormData] = useState({
     pembimbing_1_id: "",
     pembimbing_2_id: "",
+    judul: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,9 +31,12 @@ const RequestPembimbingPage = () => {
           fetch(`${baseUrl}/api/mahasiswa/dosen-list`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          fetch(`${baseUrl}/api/mahasiswa/pembimbing-request/status?type=initial`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          fetch(
+            `${baseUrl}/api/mahasiswa/pembimbing-request/status?type=initial`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
         ]);
 
         const dosenResult = await dosenRes.json().catch(() => ({}));
@@ -62,7 +66,15 @@ const RequestPembimbingPage = () => {
       return;
     }
 
-    if (formData.pembimbing_2_id && formData.pembimbing_2_id === formData.pembimbing_1_id) {
+    if (!formData.judul || formData.judul.trim() === "") {
+      setError("Judul pengajuan wajib diisi");
+      return;
+    }
+
+    if (
+      formData.pembimbing_2_id &&
+      formData.pembimbing_2_id === formData.pembimbing_1_id
+    ) {
       setError("Pembimbing 2 tidak boleh sama dengan Pembimbing 1");
       return;
     }
@@ -71,25 +83,29 @@ const RequestPembimbingPage = () => {
       setIsSubmitting(true);
       setError("");
       const token = localStorage.getItem("sita_token");
-      const response = await fetch(`${baseUrl}/api/mahasiswa/pembimbing-request/initial`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${baseUrl}/api/mahasiswa/pembimbing-request/initial`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            pembimbing_1_id: formData.pembimbing_1_id,
+            pembimbing_2_id: formData.pembimbing_2_id || null,
+            judul: formData.judul || null,
+          }),
         },
-        body: JSON.stringify({
-          pembimbing_1_id: formData.pembimbing_1_id,
-          pembimbing_2_id: formData.pembimbing_2_id || null,
-        }),
-      });
+      );
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success === false) {
         throw new Error(result.error || "Gagal mengirim request");
       }
 
-      setPendingRequest(result.data || { status: "pending" });
-      setFormData({ pembimbing_1_id: "", pembimbing_2_id: "" });
+      setPendingRequest(result.data || { status: "Menunggu" });
+      setFormData({ pembimbing_1_id: "", pembimbing_2_id: "", judul: "" });
     } catch (err) {
       setError(err.message || "Gagal mengirim request");
     } finally {
@@ -102,15 +118,16 @@ const RequestPembimbingPage = () => {
       <div className="max-w-2xl w-full">
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center">
-              <UserPlus className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 rounded-full bg-[#0B2F7F]/10 flex items-center justify-center">
+              <UserPlus className="w-6 h-6 text-[#0B2F7F]" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">
                 Pilih Dosen Pembimbing
               </h1>
               <p className="text-sm text-slate-500">
-                Lengkapi pemilihan pembimbing sebelum masuk ke dashboard mahasiswa.
+                Lengkapi pemilihan pembimbing sebelum masuk ke dashboard
+                mahasiswa.
               </p>
             </div>
           </div>
@@ -131,12 +148,35 @@ const RequestPembimbingPage = () => {
             <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 mt-0.5" />
               <div>
-                <p className="font-semibold">Request pembimbing sedang diproses</p>
-                <p className="text-xs mt-1">Status: {pendingRequest.overall_status || "pending"}</p>
+                <p className="font-semibold">
+                  Request pembimbing sedang diproses
+                </p>
+                <p className="text-xs mt-1">
+                  Status:{" "}
+                  {pendingRequest.overall_status === "pending"
+                    ? "Menunggu"
+                    : pendingRequest.overall_status || "Menunggu"}
+                </p>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Pengajuan Judul <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={formData.judul}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, judul: e.target.value }))
+                  }
+                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Masukkan judul pengajuan TTU"
+                  rows="3"
+                  required
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Pembimbing 1 <span className="text-red-500">*</span>
@@ -144,14 +184,17 @@ const RequestPembimbingPage = () => {
                 <select
                   value={formData.pembimbing_1_id}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, pembimbing_1_id: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      pembimbing_1_id: e.target.value,
+                    }))
                   }
                   className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">-- Pilih Dosen --</option>
+                  <option value="">Pilih Dosen</option>
                   {dosenList.map((dosen) => (
                     <option key={dosen._id} value={dosen._id}>
-                      {dosen.nama} - {dosen.email}
+                      {dosen.nama}
                     </option>
                   ))}
                 </select>
@@ -159,21 +202,24 @@ const RequestPembimbingPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Pembimbing 2 (Opsional)
+                  Pembimbing 2
                 </label>
                 <select
                   value={formData.pembimbing_2_id}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, pembimbing_2_id: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      pembimbing_2_id: e.target.value,
+                    }))
                   }
                   className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">-- Tidak memilih pembimbing 2 --</option>
+                  <option value="">Pilih Dosen</option>
                   {dosenList
                     .filter((dosen) => dosen._id !== formData.pembimbing_1_id)
                     .map((dosen) => (
                       <option key={dosen._id} value={dosen._id}>
-                        {dosen.nama} - {dosen.email}
+                        {dosen.nama}
                       </option>
                     ))}
                 </select>
@@ -182,14 +228,14 @@ const RequestPembimbingPage = () => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors disabled:bg-slate-300"
+                className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0B2F7F] hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors disabled:bg-slate-300"
               >
                 {isSubmitting ? (
                   "Mengirim..."
                 ) : (
                   <>
                     <Send className="w-4 h-4" />
-                    Kirim Request
+                    Kirim
                   </>
                 )}
               </button>

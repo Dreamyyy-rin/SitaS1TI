@@ -16,7 +16,13 @@ import {
   User,
 } from "lucide-react";
 
-const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user, totalRequests = 0 }) => {
+const SidebarKaprodi = ({
+  activeMenu,
+  onMenuClick,
+  onLogout,
+  user,
+  totalRequests = 0,
+}) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
 
@@ -166,7 +172,7 @@ const SidebarKaprodi = ({ activeMenu, onMenuClick, onLogout, user, totalRequests
                     <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
                       {item.label}
                     </span>
-                    {item.badge && (
+                    {item.badge > 0 && (
                       <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">
                         {item.badge}
                       </span>

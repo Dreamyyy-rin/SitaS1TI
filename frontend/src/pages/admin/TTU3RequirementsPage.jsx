@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { FileCheck, Search, CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
+import {
+  FileCheck,
+  Search,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -8,6 +15,11 @@ const TTU3RequirementsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   const fetchRequirements = async () => {
     const token = localStorage.getItem("sita_token");
@@ -35,18 +47,34 @@ const TTU3RequirementsPage = () => {
     if (!window.confirm("Setujui berkas persyaratan TTU3 ini?")) return;
     const token = localStorage.getItem("sita_token");
     try {
-      const res = await fetch(`${API}/api/superadmin/ttu3-requirements/${id}/approve`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API}/api/superadmin/ttu3-requirements/${id}/approve`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
         await fetchRequirements();
+        setNotification({
+          show: true,
+          message: "Berhasil menyetujui berkas",
+          type: "success",
+        });
       } else {
-        alert(data.error || "Gagal menyetujui berkas");
+        setNotification({
+          show: true,
+          message: data.error || "Gagal menyetujui berkas",
+          type: "error",
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotification({
+        show: true,
+        message: "Gagal menghubungi server",
+        type: "error",
+      });
     }
   };
 
@@ -54,18 +82,34 @@ const TTU3RequirementsPage = () => {
     if (!window.confirm("Tolak berkas persyaratan TTU3 ini?")) return;
     const token = localStorage.getItem("sita_token");
     try {
-      const res = await fetch(`${API}/api/superadmin/ttu3-requirements/${id}/reject`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API}/api/superadmin/ttu3-requirements/${id}/reject`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
         await fetchRequirements();
+        setNotification({
+          show: true,
+          message: "Berhasil menolak berkas",
+          type: "success",
+        });
       } else {
-        alert(data.error || "Gagal menolak berkas");
+        setNotification({
+          show: true,
+          message: data.error || "Gagal menolak berkas",
+          type: "error",
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotification({
+        show: true,
+        message: "Gagal menghubungi server",
+        type: "error",
+      });
     }
   };
 
@@ -82,7 +126,7 @@ const TTU3RequirementsPage = () => {
         (r) =>
           (r.mahasiswa_nama || "").toLowerCase().includes(query) ||
           (r.mahasiswa_nim || "").toLowerCase().includes(query) ||
-          (r.file_name || "").toLowerCase().includes(query)
+          (r.file_name || "").toLowerCase().includes(query),
       );
     }
 
@@ -144,7 +188,9 @@ const TTU3RequirementsPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Menunggu Review</p>
-              <p className="text-2xl font-bold text-yellow-600">{statusCounts.submitted}</p>
+              <p className="text-2xl font-bold text-yellow-600">
+                {statusCounts.submitted}
+              </p>
             </div>
             <Clock className="w-8 h-8 text-yellow-400" />
           </div>
@@ -153,7 +199,9 @@ const TTU3RequirementsPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Disetujui</p>
-              <p className="text-2xl font-bold text-green-600">{statusCounts.approved}</p>
+              <p className="text-2xl font-bold text-green-600">
+                {statusCounts.approved}
+              </p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-400" />
           </div>
@@ -162,7 +210,9 @@ const TTU3RequirementsPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Ditolak</p>
-              <p className="text-2xl font-bold text-red-600">{statusCounts.rejected}</p>
+              <p className="text-2xl font-bold text-red-600">
+                {statusCounts.rejected}
+              </p>
             </div>
             <XCircle className="w-8 h-8 text-red-400" />
           </div>
@@ -213,12 +263,24 @@ const TTU3RequirementsPage = () => {
             <table className="w-full">
               <thead className="bg-gray-50 border-b">
                 <tr>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">No</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Mahasiswa</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">File</th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tanggal Upload</th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
-                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    No
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Mahasiswa
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    File
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                    Tanggal Upload
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                    Aksi
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -227,12 +289,18 @@ const TTU3RequirementsPage = () => {
                     <td className="px-4 py-3 text-sm">{index + 1}</td>
                     <td className="px-4 py-3 text-sm">
                       <div>
-                        <p className="font-semibold text-gray-900">{req.mahasiswa_nama || "-"}</p>
-                        <p className="text-xs text-gray-500">{req.mahasiswa_nim || "-"}</p>
+                        <p className="font-semibold text-gray-900">
+                          {req.mahasiswa_nama || "-"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {req.mahasiswa_nim || "-"}
+                        </p>
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm">
-                      <p className="text-gray-700 truncate max-w-[200px]">{req.file_name || "-"}</p>
+                      <p className="text-gray-700 truncate max-w-[200px]">
+                        {req.file_name || "-"}
+                      </p>
                       {req.file_size && (
                         <p className="text-xs text-gray-400">
                           {(req.file_size / 1024).toFixed(1)} KB
@@ -278,6 +346,61 @@ const TTU3RequirementsPage = () => {
           </div>
         )}
       </div>
+
+      {notification.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() =>
+              setNotification({ show: false, message: "", type: "error" })
+            }
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                  notification.type === "success"
+                    ? "bg-green-50 ring-green-50/50"
+                    : "bg-red-50 ring-red-50/50"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <CheckCircle
+                    className="w-8 h-8 text-green-500"
+                    strokeWidth={2}
+                  />
+                ) : (
+                  <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+                )}
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                {notification.type === "success"
+                  ? "Berhasil"
+                  : "Terjadi Kesalahan"}
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                {notification.message}
+              </p>
+
+              <button
+                onClick={() =>
+                  setNotification({ show: false, message: "", type: "error" })
+                }
+                className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition-all transform active:scale-95 shadow-lg ${
+                  notification.type === "success"
+                    ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
+                    : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                }`}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

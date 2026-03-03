@@ -32,7 +32,7 @@ const UserFormModal = ({
         role: initialData.role || defaultRole,
         prodi: initialData.prodi || "Teknik Informatika",
         status: initialData.status || "active",
-        password: "", 
+        password: "",
       });
       return;
     }
@@ -58,7 +58,7 @@ const UserFormModal = ({
       role: formData.role.toLowerCase(),
       status: formData.status.toLowerCase(),
     };
- 
+
     if (initialData && !formData.password) {
       delete dataToSave.password;
     }
@@ -66,28 +66,40 @@ const UserFormModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4">
       <div
         className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-slate-100">
-        <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Users className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-800">
-              {initialData ? "Edit User" : "Tambah User"}
-            </h3>
-            <p className="text-sm text-slate-500">
-              Lengkapi informasi pengguna di bawah ini.
-            </p>
+      <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-slate-100 max-h-[95vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white rounded-t-2xl px-6 pt-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div
+              className={`h-12 w-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                formData.role === "mahasiswa"
+                  ? "bg-green-50 text-green-600"
+                  : "bg-blue-50 text-blue-600"
+              }`}
+            >
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-slate-800">
+                {initialData
+                  ? `Edit Data ${formData.role === "mahasiswa" ? "Mahasiswa" : "Dosen"}`
+                  : `Tambah ${formData.role === "mahasiswa" ? "Mahasiswa" : "Dosen"}`}
+              </h3>
+              <p className="text-sm text-slate-500">
+                Lengkapi informasi{" "}
+                {formData.role === "mahasiswa" ? "mahasiswa" : "dosen"} di bawah
+                ini.
+              </p>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-slate-600">
@@ -122,14 +134,18 @@ const UserFormModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-slate-600">
-                NIM/NIDN
+                {formData.role === "mahasiswa" ? "NIM" : "NIDN"}
               </label>
               <input
                 name="idNumber"
                 value={formData.idNumber}
                 onChange={handleChange}
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                placeholder="Masukkan NIM/NIDN"
+                placeholder={
+                  formData.role === "mahasiswa"
+                    ? "Masukkan NIM"
+                    : "Masukkan NIDN"
+                }
                 required
               />
             </div>
@@ -138,14 +154,15 @@ const UserFormModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-semibold text-slate-600">
-                Role
+                Peran
               </label>
               <div className="relative mt-2">
                 <select
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 pr-10 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 appearance-none cursor-pointer"
+                  disabled={!initialData}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 pr-10 text-sm text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 appearance-none cursor-not-allowed"
                 >
                   <option value="mahasiswa">Mahasiswa</option>
                   <option value="dosen">Dosen</option>
@@ -208,8 +225,9 @@ const UserFormModal = ({
               name="prodi"
               value={formData.prodi}
               onChange={handleChange}
-              className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-              placeholder="Contoh: Teknik Informatika"
+              disabled
+              className="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-500 cursor-not-allowed"
+              placeholder="Teknik Informatika"
               required
             />
           </div>
@@ -218,6 +236,11 @@ const UserFormModal = ({
             <label className="text-sm font-semibold text-slate-600">
               Password Baru
             </label>
+            {initialData && (
+              <p className="mt-1 text-xs text-slate-500">
+                Kosongkan jika tidak ingin mereset password.
+              </p>
+            )}
             <input
               type="password"
               name="password"
@@ -231,11 +254,6 @@ const UserFormModal = ({
               }
               required={!initialData}
             />
-            {initialData && (
-              <p className="mt-1 text-xs text-slate-500">
-                Kosongkan jika tidak ingin mereset password.
-              </p>
-            )}
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4">
@@ -248,7 +266,11 @@ const UserFormModal = ({
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-xl bg-[#2563EB] text-white text-sm font-semibold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all"
+              className={`px-5 py-2.5 rounded-xl text-white text-sm font-semibold shadow-lg transition-all ${
+                formData.role === "mahasiswa"
+                  ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
+                  : "bg-[#2563EB] hover:bg-blue-700 shadow-blue-600/20"
+              }`}
             >
               Simpan
             </button>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { CheckCircle, XCircle } from "lucide-react";
 import SidebarKaprodi from "../../components/kaprodi/SidebarKaprodi";
 import KaprodiManajemenDosen from "./KaprodiManajemenDosen";
 import KaprodiDeadlineTTU from "./KaprodiDeadlineTTU";
@@ -23,9 +24,22 @@ const KaprodiDashboard = () => {
   const [requestDosenBaru, setRequestDosenBaru] = useState([]);
   const [requestGantiDosen, setRequestGantiDosen] = useState([]);
   const [requestLoading, setRequestLoading] = useState(false);
-  const [dashboardStats, setDashboardStats] = useState({ total_request: 0, total_mahasiswa: 0, ttu_selesai: 0, total_dosen: 0 });
+  const [dashboardStats, setDashboardStats] = useState({
+    total_request: 0,
+    total_mahasiswa: 0,
+    ttu_selesai: 0,
+    total_dosen: 0,
+  });
   const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
   const [recentActivities, setRecentActivities] = useState([]);
+  const [totalRequests, setTotalRequests] = useState(() => {
+    const cached = localStorage.getItem("kaprodi_total_requests");
+    return cached ? parseInt(cached, 10) : 0;
+  });
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -36,7 +50,6 @@ const KaprodiDashboard = () => {
     }
   }, []);
 
- 
   useEffect(() => {
     setSearchQuery("");
   }, [activeMenu]);
@@ -51,25 +64,44 @@ const KaprodiDashboard = () => {
       try {
         setRequestLoading(true);
 
-        const [dosenRes, initialRes, changeRes, statsRes, mhsRes] = await Promise.all([
-          fetch(`${API}/api/kaprodi/dosen-list`, { headers }).then(r => r.json()).catch(() => ({})),
-          fetch(`${API}/api/kaprodi/pembimbing-requests?type=initial`, { headers }).then(r => r.json()).catch(() => ({})),
-          fetch(`${API}/api/kaprodi/pembimbing-requests?type=change`, { headers }).then(r => r.json()).catch(() => ({})),
-          fetch(`${API}/api/kaprodi/dashboard-stats`, { headers }).then(r => r.json()).catch(() => ({})),
-          fetch(`${API}/api/kaprodi/mahasiswa`, { headers }).then(r => r.json()).catch(() => ({})),
-        ]);
+        const [dosenRes, initialRes, changeRes, statsRes, mhsRes] =
+          await Promise.all([
+            fetch(`${API}/api/kaprodi/dosen-list`, { headers })
+              .then((r) => r.json())
+              .catch(() => ({})),
+            fetch(`${API}/api/kaprodi/pembimbing-requests?type=initial`, {
+              headers,
+            })
+              .then((r) => r.json())
+              .catch(() => ({})),
+            fetch(`${API}/api/kaprodi/pembimbing-requests?type=change`, {
+              headers,
+            })
+              .then((r) => r.json())
+              .catch(() => ({})),
+            fetch(`${API}/api/kaprodi/dashboard-stats`, { headers })
+              .then((r) => r.json())
+              .catch(() => ({})),
+            fetch(`${API}/api/kaprodi/mahasiswa`, { headers })
+              .then((r) => r.json())
+              .catch(() => ({})),
+          ]);
 
-        const dosenList = dosenRes.success ? (dosenRes.data || []) : [];
+        const dosenList = dosenRes.success ? dosenRes.data || [] : [];
         setAvailableDosen(dosenList);
 
         if (statsRes.success) setDashboardStats(statsRes.data);
 
         // Build mahasiswa bimbingan from real data
         if (mhsRes.success) {
-          const mhsList = (mhsRes.data || []).map(m => {
+          const mhsList = (mhsRes.data || []).map((m) => {
             const ttu = m.ttu_status || {};
-            const p1 = m.pembimbing_1_id ? dosenList.find(d => d._id === m.pembimbing_1_id) : null;
-            const p2 = m.pembimbing_2_id ? dosenList.find(d => d._id === m.pembimbing_2_id) : null;
+            const p1 = m.pembimbing_1_id
+              ? dosenList.find((d) => d._id === m.pembimbing_1_id)
+              : null;
+            const p2 = m.pembimbing_2_id
+              ? dosenList.find((d) => d._id === m.pembimbing_2_id)
+              : null;
             return {
               id: m._id,
               nama: m.nama || "-",
@@ -83,7 +115,10 @@ const KaprodiDashboard = () => {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
-              status: m.onboarding_status === "approved" ? "active" : m.onboarding_status,
+              status:
+                m.onboarding_status === "approved"
+                  ? "active"
+                  : m.onboarding_status,
               onboarding_status: m.onboarding_status,
               pembimbing_1_id: m.pembimbing_1_id,
               pembimbing_2_id: m.pembimbing_2_id,
@@ -100,8 +135,12 @@ const KaprodiDashboard = () => {
 
         if (initialRes.success) {
           const normalizedInitial = (initialRes.data || []).map((req) => {
-            const pembimbing1 = req.requested_pembimbing_1_id ? mapDosen[req.requested_pembimbing_1_id]?.nama : null;
-            const pembimbing2 = req.requested_pembimbing_2_id ? mapDosen[req.requested_pembimbing_2_id]?.nama : null;
+            const pembimbing1 = req.requested_pembimbing_1_id
+              ? mapDosen[req.requested_pembimbing_1_id]?.nama
+              : null;
+            const pembimbing2 = req.requested_pembimbing_2_id
+              ? mapDosen[req.requested_pembimbing_2_id]?.nama
+              : null;
             return {
               id: req._id,
               nama: req.mahasiswa?.nama || "-",
@@ -126,8 +165,7 @@ const KaprodiDashboard = () => {
               req.requested_slot === "pembimbing_2"
                 ? mapDosen[req.current_pembimbing_2_id]?.nama || "-"
                 : mapDosen[req.current_pembimbing_1_id]?.nama || "-",
-            dosenBaru:
-              mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
+            dosenBaru: mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
             alasan: req.alasan || "-",
             tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
             raw: req,
@@ -135,21 +173,31 @@ const KaprodiDashboard = () => {
           setRequestGantiDosen(normalizedChange);
         }
 
+        // Update total requests and cache it
+        const total =
+          (initialRes.data || []).length + (changeRes.data || []).length;
+        setTotalRequests(total);
+        localStorage.setItem("kaprodi_total_requests", total.toString());
+
         // Build recent activities from requests
         const allRequests = [
-          ...(initialRes.data || []).map(r => ({ ...r, _type: "request" })),
-          ...(changeRes.data || []).map(r => ({ ...r, _type: "change" })),
-        ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+          ...(initialRes.data || []).map((r) => ({ ...r, _type: "request" })),
+          ...(changeRes.data || []).map((r) => ({ ...r, _type: "change" })),
+        ]
+          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+          .slice(0, 5);
 
-        setRecentActivities(allRequests.map((r, i) => ({
-          id: `act-${i}`,
-          type: r._type,
-          message: r._type === "change"
-            ? `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan ganti dosen pembimbing`
-            : `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request dosen pembimbing`,
-          time: new Date(r.created_at).toLocaleDateString("id-ID"),
-        })));
-
+        setRecentActivities(
+          allRequests.map((r, i) => ({
+            id: `act-${i}`,
+            type: r._type,
+            message:
+              r._type === "change"
+                ? `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan ganti dosen pembimbing`
+                : `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request dosen pembimbing`,
+            time: new Date(r.created_at).toLocaleDateString("id-ID"),
+          })),
+        );
       } catch (err) {
         console.error("Failed to load data", err);
       } finally {
@@ -160,7 +208,9 @@ const KaprodiDashboard = () => {
     loadAll();
   }, []);
 
-  const riwayatBimbingan = mahasiswaBimbingan.filter(m => m.ttu1 && m.ttu2 && m.ttu3);
+  const riwayatBimbingan = mahasiswaBimbingan.filter(
+    (m) => m.ttu1 && m.ttu2 && m.ttu3,
+  );
 
   const handleDosenChange = (requestId, dosenName) => {
     setSelectedDosen((prev) => ({
@@ -179,40 +229,50 @@ const KaprodiDashboard = () => {
     }
   };
 
-  const handleApprove = async (id) => {
+  const handleApprove = (id) => {
+    setSelectedRequestId(id);
+    setShowApproveModal(true);
+  };
+
+  const confirmApprove = async () => {
     const token = localStorage.getItem("sita_token");
-    if (!confirm("Apakah Anda yakin menyetujui request pembimbing ini?")) {
-      return;
-    }
-    
+    const id = selectedRequestId;
+
     try {
-      const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/approve`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API}/api/kaprodi/pembimbing-requests/${id}/approve`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
-        alert("✓ Persetujuan kaprodi berhasil. Request kini menunggu persetujuan dosen pembimbing terkait.");
-        // Remove from list and reload data
         setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
         setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
-        
-        // Reload mahasiswa data to reflect changes
-        const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, { 
-          headers: { Authorization: `Bearer ${token}` } 
+        const newTotal = Math.max(0, totalRequests - 1);
+        setTotalRequests(newTotal);
+        localStorage.setItem("kaprodi_total_requests", newTotal.toString());
+
+        const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
         const mhsData = await mhsRes.json();
         if (mhsData.success) {
-          const dosenRes = await fetch(`${API}/api/kaprodi/dosen-list`, { 
-            headers: { Authorization: `Bearer ${token}` } 
+          const dosenRes = await fetch(`${API}/api/kaprodi/dosen-list`, {
+            headers: { Authorization: `Bearer ${token}` },
           });
           const dosenData = await dosenRes.json();
-          const dosenList = dosenData.success ? (dosenData.data || []) : [];
-          
-          const mhsList = (mhsData.data || []).map(m => {
+          const dosenList = dosenData.success ? dosenData.data || [] : [];
+
+          const mhsList = (mhsData.data || []).map((m) => {
             const ttu = m.ttu_status || {};
-            const p1 = m.pembimbing_1_id ? dosenList.find(d => d._id === m.pembimbing_1_id) : null;
-            const p2 = m.pembimbing_2_id ? dosenList.find(d => d._id === m.pembimbing_2_id) : null;
+            const p1 = m.pembimbing_1_id
+              ? dosenList.find((d) => d._id === m.pembimbing_1_id)
+              : null;
+            const p2 = m.pembimbing_2_id
+              ? dosenList.find((d) => d._id === m.pembimbing_2_id)
+              : null;
             return {
               id: m._id,
               nama: m.nama || "-",
@@ -226,7 +286,10 @@ const KaprodiDashboard = () => {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
-              status: m.onboarding_status === "approved" ? "active" : m.onboarding_status,
+              status:
+                m.onboarding_status === "approved"
+                  ? "active"
+                  : m.onboarding_status,
               onboarding_status: m.onboarding_status,
               pembimbing_1_id: m.pembimbing_1_id,
               pembimbing_2_id: m.pembimbing_2_id,
@@ -241,34 +304,52 @@ const KaprodiDashboard = () => {
     } catch (err) {
       console.error(err);
       alert("❌ Gagal menghubungi server");
+    } finally {
+      setShowApproveModal(false);
+      setSelectedRequestId(null);
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = (id) => {
+    setSelectedRequestId(id);
+    setRejectReason("");
+    setShowRejectModal(true);
+  };
+
+  const confirmReject = async () => {
     const token = localStorage.getItem("sita_token");
-    const alasan = prompt("Alasan penolakan (opsional):");
-    if (alasan === null) return; // User cancelled
-    
+    const id = selectedRequestId;
+
     try {
-      const res = await fetch(`${API}/api/kaprodi/pembimbing-requests/${id}/reject`, {
-        method: "POST",
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${API}/api/kaprodi/pembimbing-requests/${id}/reject`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ alasan: rejectReason }),
         },
-        body: JSON.stringify({ alasan }),
-      });
+      );
       const data = await res.json();
       if (data.success) {
         alert("✓ Request pembimbing ditolak.");
         setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
         setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+        const newTotal = Math.max(0, totalRequests - 1);
+        setTotalRequests(newTotal);
+        localStorage.setItem("kaprodi_total_requests", newTotal.toString());
       } else {
         alert("❌ " + (data.message || data.error || "Gagal reject request"));
       }
     } catch (err) {
       console.error(err);
       alert("❌ Gagal menghubungi server");
+    } finally {
+      setShowRejectModal(false);
+      setSelectedRequestId(null);
+      setRejectReason("");
     }
   };
 
@@ -315,7 +396,12 @@ const KaprodiDashboard = () => {
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
-        return <DashboardView stats={dashboardStats} recentActivities={recentActivities} />;
+        return (
+          <DashboardView
+            stats={dashboardStats}
+            recentActivities={recentActivities}
+          />
+        );
       case "request-pembimbing":
         return (
           <RequestDosenView
@@ -368,8 +454,6 @@ const KaprodiDashboard = () => {
     }
   };
 
-  const totalRequests = requestDosenBaru.length + requestGantiDosen.length;
-
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
       <SidebarKaprodi
@@ -394,6 +478,91 @@ const KaprodiDashboard = () => {
           {renderContent()}
         </div>
       </main>
+
+      {/* Approve Modal */}
+      {showApproveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() => setShowApproveModal(false)}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-green-50/50">
+                <CheckCircle
+                  className="w-8 h-8 text-green-500"
+                  strokeWidth={2}
+                />
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Setujui Request Pembimbing?
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Permintaan akan diproses setelah dosen pembimbing menyetujui.
+              </p>
+
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={() => setShowApproveModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmApprove}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all transform active:scale-95"
+                >
+                  Ya, Setujui
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() => setShowRejectModal(false)}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-red-50/50">
+                <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Tolak Request Pembimbing?
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Request ini akan ditolak dan dihapus dari daftar.
+              </p>
+
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={() => setShowRejectModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmReject}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all transform active:scale-95"
+                >
+                  Ya, Tolak
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

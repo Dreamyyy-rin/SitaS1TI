@@ -12,7 +12,7 @@ const RequestDosenView = ({
   <div className="space-y-6">
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Request Dosen Pembimbing Awal
+        Request Dosen Pembimbing
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -52,14 +52,24 @@ const RequestDosenView = ({
                   {req.judul}
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className="text-blue-700 font-medium">{req.pembimbing1}</span>
+                  <span className="text-blue-700 font-medium">
+                    {req.pembimbing1}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className={req.pembimbing2 !== "(Tidak ada)" ? "text-blue-700 font-medium" : "text-gray-400 italic"}>
+                  <span
+                    className={
+                      req.pembimbing2 !== "(Tidak ada)"
+                        ? "text-blue-700 font-medium"
+                        : "text-gray-400 italic"
+                    }
+                  >
                     {req.pembimbing2}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{req.tanggal}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {req.tanggal}
+                </td>
                 <td className="px-4 py-3 text-center">
                   <div className="flex justify-center gap-2">
                     <button
@@ -83,7 +93,7 @@ const RequestDosenView = ({
       </div>
       {requestDosenBaru.length === 0 && (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-sm">Tidak ada request dosen pembimbing awal</p>
+          <p className="text-sm">Tidak ada request dosen pembimbing</p>
         </div>
       )}
     </div>
@@ -130,12 +140,18 @@ const RequestDosenView = ({
                   <span className="text-red-600">{req.dosenLama}</span>
                 </td>
                 <td className="px-4 py-3 text-sm">
-                  <span className="text-green-600 font-medium">{req.dosenBaru}</span>
+                  <span className="text-green-600 font-medium">
+                    {req.dosenBaru}
+                  </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 max-w-xs">
-                  <div className="truncate" title={req.alasan}>{req.alasan}</div>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  <div className="whitespace-normal break-words max-w-md">
+                    {req.alasan}
+                  </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{req.tanggal}</td>
+                <td className="px-4 py-3 text-sm text-gray-600">
+                  {req.tanggal}
+                </td>
                 <td className="px-4 py-3 text-center">
                   <div className="flex justify-center gap-2">
                     <button

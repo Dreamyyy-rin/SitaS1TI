@@ -262,7 +262,8 @@ def upload(ttu_number):
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
 
     ttu_status = (mahasiswa.get("ttu_status") or {}).get(ttu_number, {})
-    if ttu_status.get("status") != "open":
+    current_status = ttu_status.get("status")
+    if current_status not in ["open", "needs_revision"]:
         return ResponseFormatter.error("TTU belum dibuka atau sudah selesai", 400)
 
     if ttu_number == "ttu_3":
@@ -360,6 +361,65 @@ def list_submissions():
     return ResponseFormatter.success(
         data=submissions,
         message=f"Total submissions: {len(submissions)}"
+    )
+
+
+@mahasiswa_bp.get("/ttu/<ttu_number>/history")
+@token_required
+@role_required("mahasiswa")
+def get_ttu_history(ttu_number):
+    """Get submission history untuk specific TTU"""
+    if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
+        return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
+    
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    history = Submission.get_all_by_mahasiswa_ttu(mahasiswa_id, ttu_number)
+    
+    return ResponseFormatter.success(
+        data=history,
+        message=f"Total revisi: {len(history)}"
+    )
+
+
+@mahasiswa_bp.get("/ttu/all-history")
+@token_required
+@role_required("mahasiswa")
+def get_all_ttu_history():
+    """Get all submission history untuk semua TTU"""
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    
+    all_history = []
+    for ttu_num in ["ttu_1", "ttu_2", "ttu_3"]:
+        history = Submission.get_all_by_mahasiswa_ttu(mahasiswa_id, ttu_num)
+        all_history.extend(history)
+    
+    # Sort by uploaded_at descending (newest first)
+    all_history.sort(key=lambda x: x.get("uploaded_at", ""), reverse=True)
+    
+    return ResponseFormatter.success(
+        data=all_history,
+        message=f"Total submission: {len(all_history)}"
+    )
+
+
+@mahasiswa_bp.delete("/ttu/<ttu_number>/cancel")
+@token_required
+@role_required("mahasiswa")
+def cancel_submission(ttu_number):
+    """Cancel submission (mahasiswa can cancel their own submitted file)"""
+    if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
+        return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
+    
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    
+    # Cancel the submission
+    success = Submission.cancel_by_mahasiswa(mahasiswa_id, ttu_number)
+    
+    if not success:
+        return ResponseFormatter.error("Tidak ada submission yang dapat dibatalkan", 404)
+    
+    return ResponseFormatter.success(
+        message="Submission berhasil dibatalkan. Anda dapat mengupload file baru."
     )
 
 

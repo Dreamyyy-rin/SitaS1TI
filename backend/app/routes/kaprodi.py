@@ -217,6 +217,7 @@ def _update_request_for_kaprodi(request_id: str, decision: str):
                 mahasiswa_id=updated_req.get("mahasiswa_id"),
                 pembimbing_1_id=updated_req.get("requested_pembimbing_1_id"),
                 pembimbing_2_id=updated_req.get("requested_pembimbing_2_id"),
+                judul=updated_req.get("judul"),
             )
         elif updated_req.get("request_type") == "change":
             slot = updated_req.get("requested_slot") or "pembimbing_1"

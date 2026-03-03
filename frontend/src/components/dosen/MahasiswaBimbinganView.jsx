@@ -5,6 +5,7 @@ export default function MahasiswaBimbinganView({
   mahasiswaBimbingan = [],
   onPreviewFile,
   onAcceptMahasiswa,
+  onRejectMahasiswa,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -112,12 +113,20 @@ export default function MahasiswaBimbinganView({
                     </button>
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onAcceptMahasiswa(mhs.id)}
-                      className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
-                    >
-                      Accept
-                    </button>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => onAcceptMahasiswa(mhs.id)}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm font-medium"
+                      >
+                        Terima
+                      </button>
+                      <button
+                        onClick={() => onRejectMahasiswa(mhs.id)}
+                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm font-medium"
+                      >
+                        Tolak
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -8,7 +8,7 @@ const MahasiswaBimbinganView = ({ mahasiswaBimbingan, userData, onAccept }) => {
     alert(`Preview file ${ttuType} untuk ${mahasiswa.nama}`);
   };
 
-  // Show all active mahasiswa with pembimbing assigned
+  
   const activeMahasiswa = mahasiswaBimbingan.filter(
     (mhs) => mhs.onboarding_status === "approved" || mhs.status === "active"
   );

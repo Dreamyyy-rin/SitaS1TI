@@ -129,13 +129,17 @@ class PembimbingRequest(BaseModel):
 
     @staticmethod
     def compute_overall_status(request_doc: dict) -> str:
-        statuses = [
-            request_doc.get("status_kaprodi"),
-            request_doc.get("status_dosen_1"),
-            request_doc.get("status_dosen_2"),
-        ]
-        if "rejected" in statuses:
+        status_kaprodi = request_doc.get("status_kaprodi")
+        status_dosen_1 = request_doc.get("status_dosen_1")
+        status_dosen_2 = request_doc.get("status_dosen_2")
+        
+        # If any party rejects, overall is rejected
+        if "rejected" in [status_kaprodi, status_dosen_1, status_dosen_2]:
             return "rejected"
-        if all(s == "approved" for s in statuses):
-            return "approved"
+        
+        # Approved if: Kaprodi approved AND at least one dosen approved
+        if status_kaprodi == "approved":
+            if status_dosen_1 == "approved" or status_dosen_2 == "approved":
+                return "approved"
+        
         return "pending"

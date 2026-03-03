@@ -85,7 +85,7 @@ const Landing = () => {
           <div className="whitespace-nowrap animate-marquee">
             <span className="text-slate-500 font-medium tracking-wide mx-4">
               Selamat datang di Sistem Informasi Tugas Akhir S1 Teknik
-              Informatika FTI UKSW • Silakan login sesuai peran Anda
+              Informatika FTI UKSW • Silakan masuk sesuai peran Anda
             </span>
           </div>
         </div>
@@ -121,7 +121,8 @@ const Landing = () => {
         </div>
 
         <p className="mt-12 text-slate-400 text-sm font-medium">
-          © 2026 Fakultas Teknologi Informasi Universitas Kristen Satya Wacana Salatiga
+          © {new Date().getFullYear()} Fakultas Teknologi Informasi Universitas
+          Kristen Satya Wacana Salatiga
         </p>
       </div>
     </div>

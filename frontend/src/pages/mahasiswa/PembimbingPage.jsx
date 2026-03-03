@@ -159,7 +159,6 @@ const PembimbingPage = () => {
         </div>
       </div>
 
-   
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-50 to-transparent rounded-bl-full -mr-16 -mt-16 opacity-50"></div>
 
@@ -216,9 +215,7 @@ const PembimbingPage = () => {
                         </div>
                       </>
                     ) : (
-                      <p className="text-sm text-slate-400">
-                        Belum ditetapkan
-                      </p>
+                      <p className="text-sm text-slate-400">Belum ditetapkan</p>
                     )}
                   </div>
                 </div>
@@ -238,7 +235,6 @@ const PembimbingPage = () => {
         </div>
       </div>
 
- 
       {pendingRequest && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
           <div className="flex items-start gap-3">
@@ -258,7 +254,6 @@ const PembimbingPage = () => {
         </div>
       )}
 
-  
       {!pendingRequest && pembimbing?.pembimbing_1 && (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -292,8 +287,11 @@ const PembimbingPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Dosen Pembimbing Baru <span className="text-red-500">*</span>
+                  Slot Dosen Pembimbing <span className="text-red-500">*</span>
                 </label>
+                <p className="text-xs text-slate-500 mt-1">
+                  Pilih slot pembimbing yang ingin diganti
+                </p>
                 <select
                   value={formData.slot}
                   onChange={(e) =>
@@ -308,15 +306,15 @@ const PembimbingPage = () => {
                   <option value="pembimbing_1">Pembimbing 1</option>
                   <option value="pembimbing_2">Pembimbing 2</option>
                 </select>
-                <p className="text-xs text-slate-500 mt-1">
-                  Pilih slot pembimbing yang ingin diganti
-                </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Dosen Pembimbing Baru <span className="text-red-500">*</span>
                 </label>
+                <p className="text-xs text-slate-500 mt-1">
+                  Pilih dosen baru atau biarkan Kaprodi yang menentukan
+                </p>
                 <select
                   value={formData.newPembimbingId}
                   onChange={(e) =>
@@ -328,7 +326,7 @@ const PembimbingPage = () => {
                   className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
                   required
                 >
-                  <option value="">-- Pilih Dosen atau Opsi --</option>
+                  <option value="">Pilih Dosen</option>
                   <optgroup label="Dosen yang Tersedia">
                     {dosenList
                       .filter(
@@ -338,14 +336,11 @@ const PembimbingPage = () => {
                       )
                       .map((dosen) => (
                         <option key={dosen._id} value={dosen._id}>
-                          {dosen.nama} - {dosen.email}
+                          {dosen.nama}
                         </option>
                       ))}
                   </optgroup>
                 </select>
-                <p className="text-xs text-slate-500 mt-1">
-                  Pilih dosen baru atau biarkan Kaprodi yang menentukan
-                </p>
               </div>
 
               <div>
@@ -358,7 +353,7 @@ const PembimbingPage = () => {
                     setFormData({ ...formData, alasan: e.target.value })
                   }
                   rows={5}
-                  placeholder="Jelaskan alasan Anda mengajukan pergantian dosen pembimbing (minimal 20 karakter)..."
+                  placeholder="Jelaskan alasan Anda mengajukan pergantian dosen pembimbing (minimal 20 karakter)"
                   className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700 resize-none"
                   required
                   minLength={20}

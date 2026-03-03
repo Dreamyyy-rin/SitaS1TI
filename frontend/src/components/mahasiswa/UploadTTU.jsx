@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   UploadCloud,
   FileText,
@@ -7,15 +7,32 @@ import {
   Trash2,
   CheckCircle,
   AlertCircle,
+  Clock,
+  History,
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
 
 const UploadTTU = ({ onSwitchToReview }) => {
-  const { currentStage, submittedFile, submitFile, cancelSubmission, isUploading, uploadError, ttuStatus } =
-    useTTU();
+  const {
+    currentStage,
+    submittedFile,
+    submitFile,
+    cancelSubmission,
+    isUploading,
+    uploadError,
+    ttuStatus,
+    submissionHistory,
+    loadingHistory,
+    loadSubmissionHistory,
+  } = useTTU();
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    loadSubmissionHistory();
+  }, [loadSubmissionHistory]);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -87,21 +104,25 @@ const UploadTTU = ({ onSwitchToReview }) => {
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        if (onSwitchToReview) {
-          onSwitchToReview();
-        }
       }
     }
   };
 
   const handleCancelSubmission = () => {
-    if (
-      window.confirm(
-        "Apakah Anda yakin ingin membatalkan pengajuan file? Anda dapat mengupload file baru setelah pembatalan.",
-      )
-    ) {
-      cancelSubmission();
+    setShowCancelDialog(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    const success = await cancelSubmission();
+    setShowCancelDialog(false);
+
+    if (!success) {
+      alert("Gagal membatalkan pengajuan. Silakan coba lagi.");
     }
+  };
+
+  const handleCloseCancelDialog = () => {
+    setShowCancelDialog(false);
   };
 
   const formatFileSize = (bytes) => {
@@ -123,18 +144,40 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </p>
         <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
           <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
-            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
-            Tahap {currentStage} dari 3
+            <span className="w-2 h-2 bg-blue-500 rounded-full "></span>
+            TTU {currentStage} dari 3
           </span>
           {ttuStatus && (
-            <span className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-xs ${
-              ttuStatus[`ttu_${currentStage}`]?.status === "open" ? "bg-green-50 text-green-700" :
-              ttuStatus[`ttu_${currentStage}`]?.status === "submitted" ? "bg-yellow-50 text-yellow-700" :
-              ttuStatus[`ttu_${currentStage}`]?.status === "approved" ? "bg-emerald-50 text-emerald-700" :
-              ttuStatus[`ttu_${currentStage}`]?.status === "reviewed" ? "bg-purple-50 text-purple-700" :
-              "bg-slate-50 text-slate-500"
-            }`}>
-              Status: {ttuStatus[`ttu_${currentStage}`]?.status || "locked"}
+            <span
+              className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-xs ${
+                ttuStatus[`ttu_${currentStage}`]?.status === "open"
+                  ? "bg-green-50 text-green-700"
+                  : ttuStatus[`ttu_${currentStage}`]?.status === "submitted"
+                    ? "bg-yellow-50 text-yellow-700"
+                    : ttuStatus[`ttu_${currentStage}`]?.status === "approved"
+                      ? "bg-emerald-50 text-emerald-700"
+                      : ttuStatus[`ttu_${currentStage}`]?.status === "reviewed"
+                        ? "bg-purple-50 text-purple-700"
+                        : ttuStatus[`ttu_${currentStage}`]?.status ===
+                            "needs_revision"
+                          ? "bg-orange-50 text-orange-700"
+                          : "bg-slate-50 text-slate-500"
+              }`}
+            >
+              Status:{" "}
+              {ttuStatus[`ttu_${currentStage}`]?.status === "open"
+                ? "Dibuka"
+                : ttuStatus[`ttu_${currentStage}`]?.status === "submitted"
+                  ? "Diajukan"
+                  : ttuStatus[`ttu_${currentStage}`]?.status === "approved"
+                    ? "Disetujui"
+                    : ttuStatus[`ttu_${currentStage}`]?.status === "reviewed"
+                      ? "Ditinjau"
+                      : ttuStatus[`ttu_${currentStage}`]?.status ===
+                          "needs_revision"
+                        ? "Perlu Revisi"
+                        : ttuStatus[`ttu_${currentStage}`]?.status ||
+                          "Terkunci"}
             </span>
           )}
         </div>
@@ -150,7 +193,9 @@ const UploadTTU = ({ onSwitchToReview }) => {
       {ttuStatus && ttuStatus[`ttu_${currentStage}`]?.status === "locked" ? (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
           <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <p className="text-slate-600 font-medium">TTU {currentStage} masih terkunci</p>
+          <p className="text-slate-600 font-medium">
+            TTU {currentStage} masih terkunci
+          </p>
           <p className="text-sm text-slate-500 mt-2">
             Selesaikan tahap sebelumnya terlebih dahulu
           </p>
@@ -311,6 +356,126 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </div>
           )}
         </>
+      )}
+
+      {/* Submission History */}
+      {submissionHistory && submissionHistory.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <History className="w-5 h-5 text-slate-600" />
+            <h3 className="text-lg font-semibold text-gray-900">
+              Riwayat Upload
+            </h3>
+            <span className="text-sm text-slate-500">
+              ({submissionHistory.length} file)
+            </span>
+          </div>
+
+          {loadingHistory ? (
+            <div className="text-center py-8 text-slate-500">
+              <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full mx-auto mb-3"></div>
+              Memuat riwayat...
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {submissionHistory.map((sub, index) => (
+                <div
+                  key={sub._id || index}
+                  className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium text-slate-600 text-xs uppercase">
+                          {sub.ttu_number.replace("_", " ")}
+                        </span>
+                        <span className="font-medium text-slate-800 text-sm">
+                          {sub.file_name}
+                        </span>
+                        <span
+                          className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                            sub.status === "approved"
+                              ? "bg-green-100 text-green-700"
+                              : sub.status === "reviewed"
+                                ? "bg-blue-100 text-blue-700"
+                                : sub.status === "rejected"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {sub.status === "approved"
+                            ? "Disetujui"
+                            : sub.status === "reviewed"
+                              ? "Ditinjau"
+                              : sub.status === "rejected"
+                                ? "Ditolak"
+                                : "Diajukan"}
+                        </span>
+                        {index === 0 && (
+                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
+                            Terbaru
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-slate-500">
+                        <Clock className="w-3 h-3" />
+                        {new Date(sub.uploaded_at).toLocaleDateString("id-ID", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Cancel Confirmation Dialog */}
+      {showCancelDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={handleCloseCancelDialog}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-orange-50/50">
+                <AlertCircle className="w-8 h-8 text-orange-500" />
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Batalkan Pengajuan?
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Anda dapat mengupload file baru setelah pembatalan.
+              </p>
+
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={handleCloseCancelDialog}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Tidak
+                </button>
+                <button
+                  onClick={handleConfirmCancel}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 shadow-lg shadow-orange-600/20 transition-all transform active:scale-95"
+                >
+                  Ya, Batalkan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

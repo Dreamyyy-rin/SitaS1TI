@@ -10,9 +10,17 @@ export default function DosenDashboard() {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [stats, setStats] = useState({ total_mahasiswa: 0, total_request: 0, ttu_selesai: 0 });
+  const [stats, setStats] = useState({
+    total_mahasiswa: 0,
+    total_request: 0,
+    ttu_selesai: 0,
+  });
   const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
   const [requestBimbingan, setRequestBimbingan] = useState([]);
+  const [requestCount, setRequestCount] = useState(() => {
+    const cached = localStorage.getItem("dosen_request_count");
+    return cached ? parseInt(cached, 10) : 0;
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -25,19 +33,33 @@ export default function DosenDashboard() {
 
     try {
       if (userData) setProfile(JSON.parse(userData));
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     const headers = { Authorization: `Bearer ${token}` };
 
     Promise.all([
-      fetch(`${API}/api/dosen/dashboard-stats`, { headers }).then(r => r.json()).catch(() => ({})),
-      fetch(`${API}/api/dosen/mahasiswa-bimbingan`, { headers }).then(r => r.json()).catch(() => ({})),
-      fetch(`${API}/api/dosen/pembimbing-requests`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/api/dosen/dashboard-stats`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
+      fetch(`${API}/api/dosen/mahasiswa-bimbingan`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
+      fetch(`${API}/api/dosen/pembimbing-requests`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
     ])
       .then(([statsRes, mhsRes, reqRes]) => {
         if (statsRes.success) setStats(statsRes.data);
         if (mhsRes.success) setMahasiswaBimbingan(mhsRes.data || []);
-        if (reqRes.success) setRequestBimbingan(reqRes.data || []);
+        if (reqRes.success) {
+          setRequestBimbingan(reqRes.data || []);
+          // Backend already filters by overall_status = pending, so count all returned data
+          const count = (reqRes.data || []).length;
+          setRequestCount(count);
+          localStorage.setItem("dosen_request_count", count.toString());
+        }
       })
       .catch((err) => setError("Gagal memuat data dashboard"))
       .finally(() => setIsLoading(false));
@@ -54,7 +76,9 @@ export default function DosenDashboard() {
       id: `req-${i}`,
       type: "request",
       message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request pembimbing`,
-      time: r.created_at ? new Date(r.created_at).toLocaleDateString("id-ID") : "-",
+      time: r.created_at
+        ? new Date(r.created_at).toLocaleDateString("id-ID")
+        : "-",
     })),
   ];
 
@@ -70,27 +94,37 @@ export default function DosenDashboard() {
         activeMenu="dashboard"
         onMenuClick={(key) => {
           if (key === "request-bimbingan") navigate("/dosen-request-bimbingan");
-          else if (key === "mahasiswa-bimbingan") navigate("/dosen-mahasiswa-bimbingan");
+          else if (key === "mahasiswa-bimbingan")
+            navigate("/dosen-mahasiswa-bimbingan");
           else if (key === "review") navigate("/dosen-review");
           else if (key === "data-akun") navigate("/data-akun");
           else if (key === "panduan") navigate("/dosen-panduan");
         }}
         onLogout={handleLogout}
         user={user}
+        requestCount={requestCount}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">Dashboard Dosen</h1>
-            {user && <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>}
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">
+              Dashboard Dosen
+            </h1>
+            {user && (
+              <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>
+            )}
           </div>
 
           {isLoading && (
-            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">Memuat data...</div>
+            <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">
+              Memuat data...
+            </div>
           )}
           {error && !isLoading && (
-            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">{error}</div>
+            <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">
+              {error}
+            </div>
           )}
           {!isLoading && (
             <DashboardView

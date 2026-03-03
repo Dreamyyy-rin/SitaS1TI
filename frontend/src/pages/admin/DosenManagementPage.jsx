@@ -1,7 +1,15 @@
 import React, { useState, useEffect, useMemo } from "react";
 import UserTable from "../../components/admin/UserTable";
 import UserFormModal from "../../components/admin/UserFormModal";
-import { UserCheck, Plus, Trash2, AlertTriangle, Search } from "lucide-react";
+import {
+  UserCheck,
+  Plus,
+  Trash2,
+  AlertTriangle,
+  Search,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -14,6 +22,11 @@ const DosenManagementPage = () => {
   const [deletingUser, setDeletingUser] = useState(null);
   const [deleteType, setDeleteType] = useState("soft");
   const [searchQuery, setSearchQuery] = useState("");
+  const [notification, setNotification] = useState({
+    show: false,
+    message: "",
+    type: "error",
+  });
 
   const fetchDosen = async () => {
     const token = localStorage.getItem("sita_token");
@@ -24,13 +37,13 @@ const DosenManagementPage = () => {
       });
       const data = await res.json();
       if (data.success) {
-        const mapped = (data.data || []).map(u => ({
+        const mapped = (data.data || []).map((u) => ({
           id: u._id,
           name: u.nama,
           email: u.email,
           idNumber: u.nidn || "-",
           role: u.role,
-          prodi: u.prodi || "-",
+          prodi: u.prodi && u.prodi !== "-" ? u.prodi : "Teknik Informatika",
           status: u.is_active ? "active" : "inactive",
         }));
         setUsers(mapped);
@@ -67,25 +80,37 @@ const DosenManagementPage = () => {
 
     try {
       if (editingUser) {
-        const res = await fetch(`${API}/api/superadmin/users/${editingUser.id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+        const res = await fetch(
+          `${API}/api/superadmin/users/${editingUser.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              nama: userData.name,
+              nidn: userData.idNumber,
+              prodi: userData.prodi,
+              is_active: userData.status === "active",
+              ...(userData.password ? { password: userData.password } : {}),
+            }),
           },
-          body: JSON.stringify({
-            nama: userData.name,
-            nidn: userData.idNumber,
-            prodi: userData.prodi,
-            is_active: userData.status === "active",
-            ...(userData.password ? { password: userData.password } : {}),
-          }),
-        });
+        );
         const data = await res.json();
         if (data.success) {
           await fetchDosen();
+          setNotification({
+            show: true,
+            message: "Berhasil memperbarui dosen",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal memperbarui dosen");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal memperbarui dosen",
+            type: "error",
+          });
           return;
         }
       } else {
@@ -108,13 +133,26 @@ const DosenManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchDosen();
+          setNotification({
+            show: true,
+            message: "Berhasil menambahkan dosen",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal menambahkan dosen");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menambahkan dosen",
+            type: "error",
+          });
           return;
         }
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotification({
+        show: true,
+        message: "Gagal menghubungi server",
+        type: "error",
+      });
       return;
     }
     setShowModal(false);
@@ -127,25 +165,41 @@ const DosenManagementPage = () => {
 
     if (deleteType === "hard") {
       try {
-        const res = await fetch(`${API}/api/superadmin/users/${deletingUser.id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${API}/api/superadmin/users/${deletingUser.id}`,
+          {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         const data = await res.json();
         if (data.success) {
           setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+          setNotification({
+            show: true,
+            message: "Berhasil menghapus dosen",
+            type: "success",
+          });
         } else {
-          alert(data.error || "Gagal menghapus dosen");
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menghapus dosen",
+            type: "error",
+          });
         }
       } catch {
-        alert("Gagal menghubungi server");
+        setNotification({
+          show: true,
+          message: "Gagal menghubungi server",
+          type: "error",
+        });
       }
     } else {
       // Soft delete - mark inactive locally
       setUsers((prev) =>
         prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u
-        )
+          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
+        ),
       );
     }
 
@@ -315,6 +369,61 @@ const DosenManagementPage = () => {
               >
                 <Trash2 className="w-4 h-4 inline mr-1" />
                 {deleteType === "soft" ? "Nonaktifkan" : "Hapus Permanen"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {notification.show && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() =>
+              setNotification({ show: false, message: "", type: "error" })
+            }
+          ></div>
+
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                  notification.type === "success"
+                    ? "bg-green-50 ring-green-50/50"
+                    : "bg-red-50 ring-red-50/50"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <CheckCircle
+                    className="w-8 h-8 text-green-500"
+                    strokeWidth={2}
+                  />
+                ) : (
+                  <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+                )}
+              </div>
+
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                {notification.type === "success"
+                  ? "Berhasil"
+                  : "Terjadi Kesalahan"}
+              </h3>
+
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                {notification.message}
+              </p>
+
+              <button
+                onClick={() =>
+                  setNotification({ show: false, message: "", type: "error" })
+                }
+                className={`w-full px-4 py-2.5 rounded-xl text-white text-sm font-semibold transition-all transform active:scale-95 shadow-lg ${
+                  notification.type === "success"
+                    ? "bg-green-600 hover:bg-green-700 shadow-green-600/20"
+                    : "bg-red-600 hover:bg-red-700 shadow-red-600/20"
+                }`}
+              >
+                OK
               </button>
             </div>
           </div>

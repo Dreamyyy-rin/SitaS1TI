@@ -7,31 +7,31 @@ export default function PanduanPage() {
       title: "Dashboard",
       description: "Cek status dan progres terkini",
       details:
-        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, dosen pembimbing, dan timeline progres.",
+        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, dosen pembimbing, dan timeline progres. Anda juga dapat mengajukan permintaan pergantian dosen pembimbing.",
       color: "blue",
     },
     {
       number: "02",
       title: "Upload TTU",
-      description: "Upload draf per bab (TTU 1, 2, 3)",
+      description: "Upload draf TTU",
       details:
-        "Upload dokumen Tugas Tulis Usulan sesuai tahapan: TTU 1 (Bab 1-3), TTU 2 (Bab 4), dan TTU 3 (Bab 5). Pastikan format dokumen adalah PDF dengan ukuran maksimal 10 MB.",
+        "Upload dokumen Tugas Talenta Unggul Anda. Pastikan format dokumen sesuai dengan ketentuan yang berlaku. Setiap tahapan TTU harus disetujui dosen pembimbing sebelum lanjut ke tahap berikutnya.",
       color: "green",
     },
     {
       number: "03",
-      title: "Pembimbing",
-      description: "Informasi dosen pembimbing Tugas Akhir",
+      title: "Bimbingan",
+      description: "Informasi dan komunikasi dengan dosen pembimbing",
       details:
-        "Lihat informasi lengkap dosen pembimbing Anda termasuk nama, email, dan NIDN. Jika diperlukan, ajukan permintaan pergantian dosen pembimbing dengan mengisi formulir disertai alasan yang jelas. Permintaan akan diproses oleh Kaprodi.",
+        "Lihat informasi lengkap dosen pembimbing utama dan pembimbing kedua Anda, termasuk nama, email, dan NIDN. Gunakan menu ini untuk melihat detail pembimbing yang ditugaskan untuk membimbing tugas akhir Anda.",
       color: "purple",
     },
     {
       number: "04",
-      title: "Upload Berkas",
-      description: "Upload syarat sidang setelah lulus TTU",
+      title: "Daftar Review",
+      description: "Upload file TTU yang sudah disetujui",
       details:
-        "Setelah menyelesaikan tahapan TTU, upload dokumen persyaratan sidang seperti transkrip nilai, KST, ijasah SMA, lembar pengesahan, pas foto, dan fotocopy KTP. Pastikan semua berkas lengkap sebelum mengirim.",
+        "Menu ini hanya dapat diakses setelah TTU 2 Anda disetujui oleh dosen pembimbing. Upload file Tugas Talenta Unggul yang telah mendapat persetujuan untuk direview oleh tim akademik.",
       color: "orange",
     },
     {

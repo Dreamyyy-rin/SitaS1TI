@@ -4,7 +4,6 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import DosenManagementPage from "./DosenManagementPage";
 import MahasiswaManagementPage from "./MahasiswaManagementPage";
 import PanduanSuperadminPage from "./PanduanSuperadminPage";
-import TTU3RequirementsPage from "./TTU3RequirementsPage";
 import { UserCheck, Users, CheckCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -12,7 +11,11 @@ const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("dashboard");
-  const [stats, setStats] = useState({ totalDosen: 0, totalMahasiswa: 0, userAktif: 0 });
+  const [stats, setStats] = useState({
+    totalDosen: 0,
+    totalMahasiswa: 0,
+    userAktif: 0,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -20,14 +23,22 @@ const AdminDashboard = () => {
     const headers = { Authorization: `Bearer ${token}` };
 
     Promise.all([
-      fetch(`${API}/api/superadmin/users?role=dosen`, { headers }).then(r => r.json()).catch(() => ({})),
-      fetch(`${API}/api/superadmin/mahasiswa`, { headers }).then(r => r.json()).catch(() => ({})),
-      fetch(`${API}/api/superadmin/users`, { headers }).then(r => r.json()).catch(() => ({})),
+      fetch(`${API}/api/superadmin/users?role=dosen`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
+      fetch(`${API}/api/superadmin/mahasiswa`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
+      fetch(`${API}/api/superadmin/users`, { headers })
+        .then((r) => r.json())
+        .catch(() => ({})),
     ]).then(([dosenRes, mhsRes, allUsersRes]) => {
-      const dosenList = dosenRes.success ? (dosenRes.data || []) : [];
-      const mhsList = mhsRes.success ? (mhsRes.data || []) : [];
-      const allUsers = allUsersRes.success ? (allUsersRes.data || []) : [];
-      const activeUsers = allUsers.filter(u => u.is_active).length + mhsList.filter(m => m.is_active).length;
+      const dosenList = dosenRes.success ? dosenRes.data || [] : [];
+      const mhsList = mhsRes.success ? mhsRes.data || [] : [];
+      const allUsers = allUsersRes.success ? allUsersRes.data || [] : [];
+      const activeUsers =
+        allUsers.filter((u) => u.is_active).length +
+        mhsList.filter((m) => m.is_active).length;
       setStats({
         totalDosen: dosenList.length,
         totalMahasiswa: mhsList.length,
@@ -157,8 +168,6 @@ const AdminDashboard = () => {
         return <DosenManagementPage />;
       case "mahasiswa":
         return <MahasiswaManagementPage />;
-      case "ttu3":
-        return <TTU3RequirementsPage />;
       case "panduan":
         return <PanduanSuperadminPage />;
       default:

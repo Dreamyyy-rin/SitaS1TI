@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 const TTUContext = createContext();
 
@@ -19,6 +25,8 @@ export const TTUProvider = ({ children }) => {
   const [submittedFile, setSubmittedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [submissionHistory, setSubmissionHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const getToken = () => localStorage.getItem("sita_token");
 
@@ -45,22 +53,24 @@ export const TTUProvider = ({ children }) => {
         setTtuStatus(ttu);
 
         // Compute current stage
+        let computedStage = 1;
         if (ttu.ttu_3?.status === "approved") {
-          setCurrentStage(3); // completed
+          computedStage = 3; // completed
         } else if (ttu.ttu_2?.status === "approved") {
-          setCurrentStage(3);
+          computedStage = 3;
         } else if (ttu.ttu_1?.status === "approved") {
-          setCurrentStage(2);
-        } else {
-          setCurrentStage(1);
+          computedStage = 2;
         }
+        setCurrentStage(computedStage);
 
         // Check if there's already a submitted file for current stage
-        const stageKey = `ttu_${ttu.ttu_2?.status === "approved" ? 3 : ttu.ttu_1?.status === "approved" ? 2 : 1}`;
+        const stageKey = `ttu_${computedStage}`;
         const stageStatus = ttu[stageKey]?.status;
         if (stageStatus === "submitted" || stageStatus === "reviewed") {
           // Find the submission for this stage
-          const stageSub = (subsResult.data || []).find(s => s.ttu_number === stageKey);
+          const stageSub = (subsResult.data || []).find(
+            (s) => s.ttu_number === stageKey,
+          );
           if (stageSub) {
             setSubmittedFile({
               name: stageSub.file_name,
@@ -98,28 +108,25 @@ export const TTUProvider = ({ children }) => {
       const formData = new FormData();
       formData.append("file", fileData.file);
 
-      const response = await fetch(`${baseUrl}/api/mahasiswa/upload/${ttuNumber}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${baseUrl}/api/mahasiswa/upload/${ttuNumber}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
         },
-        body: formData,
-      });
+      );
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success === false) {
         throw new Error(result.error || "Gagal mengupload file");
       }
 
-      setSubmittedFile({
-        name: fileData.name,
-        size: fileData.size,
-        submission_id: result.data?.submission_id,
-        status: "submitted",
-      });
-
-      // Reload TTU status
+      // Reload TTU status and history to get updated state from server
       await loadTTUStatus();
+      await loadSubmissionHistory();
       return true;
     } catch (err) {
       setUploadError(err.message || "Gagal mengupload file");
@@ -129,9 +136,63 @@ export const TTUProvider = ({ children }) => {
     }
   };
 
-  const cancelSubmission = () => {
-    setSubmittedFile(null);
+  const cancelSubmission = async () => {
+    const ttuNumber = `ttu_${currentStage}`;
+    const token = getToken();
+    if (!token) return false;
+
+    try {
+      const response = await fetch(
+        `${baseUrl}/api/mahasiswa/ttu/${ttuNumber}/cancel`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === false) {
+        throw new Error(result.error || "Gagal membatalkan submission");
+      }
+
+      setSubmittedFile(null);
+
+      // Reload TTU status and history
+      await loadTTUStatus();
+      await loadSubmissionHistory();
+
+      return true;
+    } catch (err) {
+      console.error("Error canceling submission:", err);
+      return false;
+    }
   };
+
+  const loadSubmissionHistory = useCallback(async () => {
+    try {
+      setLoadingHistory(true);
+      const token = getToken();
+      if (!token) return;
+
+      const response = await fetch(`${baseUrl}/api/mahasiswa/ttu/all-history`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const result = await response.json().catch(() => ({}));
+      if (result.success && result.data) {
+        setSubmissionHistory(result.data);
+      } else {
+        setSubmissionHistory([]);
+      }
+    } catch (err) {
+      console.error("Failed to load submission history:", err);
+      setSubmissionHistory([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [baseUrl]);
 
   const nextStage = () => {
     if (currentStage < 3) {
@@ -153,6 +214,9 @@ export const TTUProvider = ({ children }) => {
     isUploading,
     uploadError,
     loadTTUStatus,
+    submissionHistory,
+    loadingHistory,
+    loadSubmissionHistory,
   };
 
   return <TTUContext.Provider value={value}>{children}</TTUContext.Provider>;

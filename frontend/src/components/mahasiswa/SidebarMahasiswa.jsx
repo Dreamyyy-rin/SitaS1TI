@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toTitleCase } from "../../utils/textFormatter";
 
 const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -17,22 +18,16 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           icon: "upload",
         },
         {
-          key: "review-bimbingan",
-          label: "Review & Bimbingan",
-          view: "review-bimbingan",
-          icon: "chat",
-        },
-        {
-          key: "pembimbing",
-          label: "Pembimbing",
-          view: "pembimbing",
+          key: "bimbingan",
+          label: "Bimbingan",
+          view: "bimbingan",
           icon: "user-tie",
         },
         {
-          key: "upload-berkas",
-          label: "Upload Berkas",
-          view: "upload-berkas",
-          icon: "folder",
+          key: "daftar-review",
+          label: "Daftar Review",
+          view: "daftar-review",
+          icon: "clipboard-list",
         },
       ],
     },
@@ -86,8 +81,10 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           <path d="M12 14v8m0-8l-2 3m2-3l2 3" />
         </>
       ),
-      folder: (
-        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+      "clipboard-list": (
+        <>
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </>
       ),
       "user-cog": (
         <>
@@ -185,8 +182,10 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                           <path d="M12 14v8m0-8l-2 3m2-3l2 3" />
                         </>
                       )}
-                      {item.icon === "folder" && (
-                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                      {item.icon === "clipboard-list" && (
+                        <>
+                          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </>
                       )}
                       {item.icon === "user-cog" && (
                         <>
@@ -215,7 +214,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
 
               <div className="text-left overflow-hidden">
                 <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
-                  {student?.name || "Felicia Wijaya"}
+                  {toTitleCase(student?.name) || "Felicia Wijaya"}
                 </p>
 
                 <p className="text-xs text-slate-500 font-mono">

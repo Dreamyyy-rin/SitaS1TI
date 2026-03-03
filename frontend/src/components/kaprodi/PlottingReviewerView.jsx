@@ -14,7 +14,7 @@ const PlottingReviewerView = ({
   const getAvailableReviewers = (mhs) => {
     // Exclude pembimbing 1 & 2 from reviewer options
     return availableDosen.filter(
-      (d) => d._id !== mhs.pembimbing_1_id && d._id !== mhs.pembimbing_2_id
+      (d) => d._id !== mhs.pembimbing_1_id && d._id !== mhs.pembimbing_2_id,
     );
   };
 
@@ -25,9 +25,11 @@ const PlottingReviewerView = ({
     setSaving(true);
     try {
       // Save each reviewer assignment
-      for (const [mahasiswaId, reviewerId] of Object.entries(selectedReviewers)) {
+      for (const [mahasiswaId, reviewerId] of Object.entries(
+        selectedReviewers,
+      )) {
         if (!reviewerId) continue;
-        const mhs = mahasiswaBimbingan.find(m => m.id === mahasiswaId);
+        const mhs = mahasiswaBimbingan.find((m) => m.id === mahasiswaId);
         if (!mhs) continue;
 
         await fetch(`${API}/api/kaprodi/assign-reviewer`, {
@@ -52,7 +54,7 @@ const PlottingReviewerView = ({
   };
 
   // Only show mahasiswa that have pembimbing assigned
-  const eligibleMahasiswa = mahasiswaBimbingan.filter(m => m.pembimbing_1_id);
+  const eligibleMahasiswa = mahasiswaBimbingan.filter((m) => m.pembimbing_1_id);
 
   return (
     <div className="space-y-6">
@@ -61,17 +63,31 @@ const PlottingReviewerView = ({
           <table className="w-full">
             <thead>
               <tr className="bg-gray-50">
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">No</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Mahasiswa</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Dosen Pembimbing</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Dosen Reviewer</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  No
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Mahasiswa
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Dosen Pembimbing 1
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Dosen Pembimbing 2
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Dosen Reviewer
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  Status
+                </th>
               </tr>
             </thead>
             <tbody>
               {eligibleMahasiswa.map((mhs, index) => {
                 const reviewers = getAvailableReviewers(mhs);
-                const currentReviewerId = selectedReviewers[mhs.id] || mhs.reviewer_id || "";
+                const currentReviewerId =
+                  selectedReviewers[mhs.id] || mhs.reviewer_id || "";
                 const hasReviewer = !!currentReviewerId;
 
                 return (
@@ -79,20 +95,29 @@ const PlottingReviewerView = ({
                     <td className="px-4 py-3 text-sm">{index + 1}</td>
                     <td className="px-4 py-3 text-sm">
                       <div>
-                        <p className="font-semibold text-slate-800">{mhs.nama}</p>
+                        <p className="font-semibold text-slate-800">
+                          {mhs.nama}
+                        </p>
                         <p className="text-xs text-slate-500">{mhs.nim}</p>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-sm">{mhs.dosen}{mhs.dosen2 && mhs.dosen2 !== "-" ? `, ${mhs.dosen2}` : ""}</td>
+                    <td className="px-4 py-3 text-sm">{mhs.dosen || "-"}</td>
+                    <td className="px-4 py-3 text-sm">
+                      {mhs.dosen2 && mhs.dosen2 !== "-" ? mhs.dosen2 : "-"}
+                    </td>
                     <td className="px-4 py-3">
                       <select
                         value={currentReviewerId}
-                        onChange={(e) => onReviewerChange(mhs.id, e.target.value)}
+                        onChange={(e) =>
+                          onReviewerChange(mhs.id, e.target.value)
+                        }
                         className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]"
                       >
                         <option value="">Belum dipilih</option>
                         {reviewers.map((dosen) => (
-                          <option key={dosen._id} value={dosen._id}>{dosen.nama}</option>
+                          <option key={dosen._id} value={dosen._id}>
+                            {dosen.nama}
+                          </option>
                         ))}
                       </select>
                     </td>
@@ -116,8 +141,12 @@ const PlottingReviewerView = ({
 
         {eligibleMahasiswa.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-slate-500 text-lg">Belum ada mahasiswa yang bisa diplot reviewer</p>
-            <p className="text-slate-400 text-sm mt-2">Mahasiswa harus sudah memiliki pembimbing terlebih dahulu</p>
+            <p className="text-slate-500 text-lg">
+              Belum ada mahasiswa yang bisa diplot reviewer
+            </p>
+            <p className="text-slate-400 text-sm mt-2">
+              Mahasiswa harus sudah memiliki pembimbing terlebih dahulu
+            </p>
           </div>
         )}
       </div>
