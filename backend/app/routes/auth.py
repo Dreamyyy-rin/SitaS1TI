@@ -62,7 +62,7 @@ def login_mahasiswa():
 @token_required
 def change_password():
     """Ganti password user/mahasiswa"""
-    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(request.get_json(force=True) or {})
     old_password = data.get("old_password", "")
     new_password = data.get("new_password", "")
     

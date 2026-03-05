@@ -32,9 +32,12 @@ class Sanitizer:
     
     @staticmethod
     def sanitize_dict(data: dict, allow_html: bool = False) -> dict:
-        """Sanitize all strings in dict"""
+        """Sanitize all strings in dict, strip MongoDB operators ($-prefixed keys)"""
         sanitized = {}
         for key, value in data.items():
+            # Proteksi NoSQL injection: hapus key yang dimulai dengan $ (operator MongoDB)
+            if isinstance(key, str) and key.startswith('$'):
+                continue
             if isinstance(value, str):
                 sanitized[key] = Sanitizer.sanitize_string(value, allow_html)
             elif isinstance(value, dict):
@@ -57,3 +60,19 @@ class Sanitizer:
         filename = re.sub(r'[^\w\s\.\-]', '', filename)
         filename = filename.lstrip('.')
         return filename
+
+    @staticmethod
+    def sanitize_query_value(value):
+        """
+        Proteksi NoSQL injection.
+        Memastikan value yang digunakan di MongoDB query adalah tipe primitif (str, int, float, bool),
+        bukan dict/operator seperti {"$gt": ""} yang bisa bypass filter.
+        """
+        if isinstance(value, dict):
+            # Tolak semua dict value dalam query — bisa berisi operator NoSQL
+            return ""
+        if isinstance(value, list):
+            return [Sanitizer.sanitize_query_value(v) for v in value]
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        return str(value)

@@ -56,7 +56,10 @@ const KaprodiDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
-    if (!token) return;
+    if (!token) {
+      navigate("/login?role=kaprodi");
+      return;
+    }
 
     const headers = { Authorization: `Bearer ${token}` };
 

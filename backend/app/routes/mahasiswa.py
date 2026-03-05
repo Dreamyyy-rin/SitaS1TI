@@ -16,6 +16,8 @@ MAX_FILE_SIZE_MB = 50
 
 
 @mahasiswa_bp.post("/register")
+@token_required
+@role_required("superadmin")
 def register():
     """Register mahasiswa baru"""
     data = request.get_json(force=True) or {}
@@ -115,7 +117,7 @@ def get_pembimbing():
 @role_required("mahasiswa")
 def pembimbing_request_status():
     """Cek status request pembimbing"""
-    request_type = request.args.get("type")
+    request_type = Sanitizer.sanitize_query_value(request.args.get("type"))
     mahasiswa_id = g.current_user.get("mahasiswa_id")
     pending_request = PembimbingRequest.find_pending_by_mahasiswa(mahasiswa_id, request_type=request_type)
     return ResponseFormatter.success(

@@ -214,7 +214,7 @@ def direct_change_pembimbing():
 @role_required("kaprodi")
 def list_pembimbing_requests():
     """List request pembimbing untuk kaprodi"""
-    request_type = request.args.get("type")
+    request_type = Sanitizer.sanitize_query_value(request.args.get("type"))
     prodi = g.current_user.get("prodi", "")
     if not prodi:
         return ResponseFormatter.error("Kaprodi tidak punya prodi assignment", 400)
@@ -398,13 +398,13 @@ def save_deadlines():
     from ..db import get_db
     from datetime import datetime
     db = get_db()
-    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(request.get_json(force=True) or {})
     prodi = g.current_user.get("prodi", "")
 
     deadlines = {
-        "ttu1": {"date": data.get("ttu1", {}).get("date", "")},
-        "ttu2": {"date": data.get("ttu2", {}).get("date", "")},
-        "ttu3": {"date": data.get("ttu3", {}).get("date", "")},
+        "ttu1": {"date": str(data.get("ttu1", {}).get("date", ""))},
+        "ttu2": {"date": str(data.get("ttu2", {}).get("date", ""))},
+        "ttu3": {"date": str(data.get("ttu3", {}).get("date", ""))},
     }
 
     db["deadline_config"].update_one(

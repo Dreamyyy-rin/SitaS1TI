@@ -68,7 +68,7 @@ def register_user():
 @role_required("superadmin")
 def list_users():
     """List semua users"""
-    role_filter = request.args.get("role")
+    role_filter = Sanitizer.sanitize_query_value(request.args.get("role"))
     users = User.get_all(role=role_filter)
     
     return ResponseFormatter.success(
@@ -283,7 +283,7 @@ def update_mahasiswa(mahasiswa_id):
 @role_required("superadmin")
 def list_ttu3_requirements():
     """List berkas persyaratan TTU3"""
-    status = request.args.get("status")
+    status = Sanitizer.sanitize_query_value(request.args.get("status"))
     requirements = TTU3Requirement.list_all(status=status)
 
     # Enrich with mahasiswa info

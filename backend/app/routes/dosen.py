@@ -109,7 +109,7 @@ def add_comment(submission_id):
 @role_required("dosen")
 def review(submission_id):
     """Review submission dengan score"""
-    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(request.get_json(force=True) or {})
     
     score = data.get("score")
     if score is None or not (0 <= score <= 100):
@@ -126,7 +126,7 @@ def review(submission_id):
 @role_required("dosen")
 def list_pembimbing_requests():
     """List request pembimbing untuk dosen"""
-    request_type = request.args.get("type")
+    request_type = Sanitizer.sanitize_query_value(request.args.get("type"))
     dosen_id = g.current_user.get("user_id")
     requests = PembimbingRequest.list_by_dosen(dosen_id, request_type=request_type)
 
@@ -242,7 +242,7 @@ def approve_ttu(ttu_number):
     if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
         return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
 
-    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(request.get_json(force=True) or {})
     mahasiswa_id = data.get("mahasiswa_id", "").strip()
     if not mahasiswa_id:
         return ResponseFormatter.error("Mahasiswa wajib dipilih", 400)
@@ -281,7 +281,7 @@ def reject_ttu(ttu_number):
     if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
         return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
 
-    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(request.get_json(force=True) or {})
     mahasiswa_id = data.get("mahasiswa_id", "").strip()
     reason = data.get("reason", "").strip()
     

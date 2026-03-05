@@ -19,7 +19,10 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
-    if (!token) return;
+    if (!token) {
+      navigate("/login?role=superadmin");
+      return;
+    }
     const headers = { Authorization: `Bearer ${token}` };
 
     Promise.all([

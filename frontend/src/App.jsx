@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/shared/Landing.jsx";
 import Login from "./pages/shared/Login.jsx";
+import ProtectedRoute from "./components/shared/ProtectedRoute.jsx";
 import MahasiswaDashboard from "./pages/mahasiswa/MahasiswaDashboard.jsx";
 import RequestPembimbingPage from "./pages/mahasiswa/RequestPembimbingPage.jsx";
 import DosenDashboard from "./pages/dosen/DosenDashboard.jsx";
@@ -17,28 +18,72 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/mahasiswa" element={<MahasiswaDashboard />} />
-        <Route
-          path="/mahasiswa/request-pembimbing"
-          element={<RequestPembimbingPage />}
-        />
-        <Route path="/dosen" element={<DosenDashboard />} />
-        <Route path="/dosen-dashboard" element={<DosenDashboard />} />
-        <Route
-          path="/dosen-request-bimbingan"
-          element={<RequestBimbinganPage />}
-        />
-        <Route
-          path="/dosen-mahasiswa-bimbingan"
-          element={<MahasiswaBimbinganPage />}
-        />
-        <Route path="/dosen-review" element={<ReviewDosenPage />} />
-        <Route path="/dosen-panduan" element={<PanduanDosenPage />} />
-        <Route path="/data-akun" element={<DataAkunDosenPage />} />
-        <Route path="/kaprodi" element={<KaprodiDashboard />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+
+        {/* Mahasiswa routes */}
+        <Route path="/mahasiswa" element={
+          <ProtectedRoute allowedRoles={["mahasiswa"]}>
+            <MahasiswaDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/mahasiswa/request-pembimbing" element={
+          <ProtectedRoute allowedRoles={["mahasiswa"]}>
+            <RequestPembimbingPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Dosen routes */}
+        <Route path="/dosen" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <DosenDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/dosen-dashboard" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <DosenDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/dosen-request-bimbingan" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <RequestBimbinganPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/dosen-mahasiswa-bimbingan" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <MahasiswaBimbinganPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/dosen-review" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <ReviewDosenPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/dosen-panduan" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <PanduanDosenPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/data-akun" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <DataAkunDosenPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Kaprodi routes */}
+        <Route path="/kaprodi" element={
+          <ProtectedRoute allowedRoles={["kaprodi"]}>
+            <KaprodiDashboard />
+          </ProtectedRoute>
+        } />
+
+        {/* Superadmin routes */}
+        <Route path="/admin" element={
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <AdminDashboard />
+          </ProtectedRoute>
+        } />
       </Routes>
     </BrowserRouter>
   );
