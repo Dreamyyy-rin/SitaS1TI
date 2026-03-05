@@ -30,7 +30,6 @@ export const TTUProvider = ({ children }) => {
 
   const getToken = () => localStorage.getItem("sita_token");
 
-  // Load profile to get ttu_status and compute current stage
   const loadTTUStatus = useCallback(async () => {
     try {
       const token = getToken();
@@ -52,10 +51,9 @@ export const TTUProvider = ({ children }) => {
         const ttu = profileResult.data.ttu_status || {};
         setTtuStatus(ttu);
 
-        // Compute current stage
         let computedStage = 1;
         if (ttu.ttu_3?.status === "approved") {
-          computedStage = 3; // completed
+          computedStage = 3;
         } else if (ttu.ttu_2?.status === "approved") {
           computedStage = 3;
         } else if (ttu.ttu_1?.status === "approved") {
@@ -63,11 +61,9 @@ export const TTUProvider = ({ children }) => {
         }
         setCurrentStage(computedStage);
 
-        // Check if there's already a submitted file for current stage
         const stageKey = `ttu_${computedStage}`;
         const stageStatus = ttu[stageKey]?.status;
         if (stageStatus === "submitted" || stageStatus === "reviewed") {
-          // Find the submission for this stage
           const stageSub = (subsResult.data || []).find(
             (s) => s.ttu_number === stageKey,
           );
@@ -96,7 +92,6 @@ export const TTUProvider = ({ children }) => {
     loadTTUStatus();
   }, [loadTTUStatus]);
 
-  // Upload file to real backend API
   const submitFile = async (fileData) => {
     const ttuNumber = `ttu_${currentStage}`;
     const token = getToken();
@@ -124,7 +119,6 @@ export const TTUProvider = ({ children }) => {
         throw new Error(result.error || "Gagal mengunggah file");
       }
 
-      // Reload TTU status and history to get updated state from server
       await loadTTUStatus();
       await loadSubmissionHistory();
       return true;
@@ -159,7 +153,6 @@ export const TTUProvider = ({ children }) => {
 
       setSubmittedFile(null);
 
-      // Reload TTU status and history
       await loadTTUStatus();
       await loadSubmissionHistory();
 
