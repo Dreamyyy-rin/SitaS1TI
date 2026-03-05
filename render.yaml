@@ -2,9 +2,8 @@ services:
   - type: web
     name: sita-backend
     env: python
-    rootDirectory: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: cd /opt/render/project/src/backend && gunicorn -w 4 -b 0.0.0.0:$PORT app.main:app
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && gunicorn -w 4 -b 0.0.0.0:$PORT app.main:app
     envVars:
       - key: MONGO_URI
         sync: false
