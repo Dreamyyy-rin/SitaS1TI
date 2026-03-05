@@ -82,7 +82,7 @@ const ReviewView = ({ mahasiswaBimbingan }) => {
                   File TTU 2
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Komentar Review
+                  Komentar Tinjauan
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
                   Aksi
@@ -116,7 +116,7 @@ const ReviewView = ({ mahasiswaBimbingan }) => {
                         onChange={(e) =>
                           handleCommentChange(mhs.id, e.target.value)
                         }
-                        placeholder="Tulis komentar review..."
+                        placeholder="Tulis komentar tinjauan..."
                         rows={2}
                         className="flex-1 px-3 py-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                       />
@@ -142,7 +142,7 @@ const ReviewView = ({ mahasiswaBimbingan }) => {
                       onClick={() => handleAcceptReview(mhs)}
                       className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
                     >
-                      Accept
+                      Terima
                     </button>
                   </td>
                 </tr>
@@ -167,10 +167,10 @@ const ReviewView = ({ mahasiswaBimbingan }) => {
           <div className="text-center py-16">
             <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
             <p className="text-slate-500 text-lg">
-              Belum ada submission untuk direview
+              Belum ada pengajuan untuk ditinjau
             </p>
             <p className="text-slate-400 text-sm mt-2">
-              Mahasiswa yang sudah upload TTU 2 akan muncul di sini
+              Mahasiswa yang sudah mengunggah TTU 2 akan muncul di sini
             </p>
           </div>
         )}

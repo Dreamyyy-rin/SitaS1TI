@@ -6,7 +6,7 @@ const RequestBimbinganView = ({ requestBimbingan, onAccept, onReject }) => (
   <div className="space-y-6">
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Request Bimbingan Mahasiswa
+        Permintaan Bimbingan Mahasiswa
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -41,7 +41,7 @@ const RequestBimbinganView = ({ requestBimbingan, onAccept, onReject }) => (
       {requestBimbingan.length === 0 && (
         <div className="text-center py-12 text-slate-400">
           <ClipboardList className="w-12 h-12 mx-auto mb-4 text-slate-300" />
-          <p>Belum ada request bimbingan</p>
+          <p>Belum ada permintaan bimbingan</p>
         </div>
       )}
     </div>

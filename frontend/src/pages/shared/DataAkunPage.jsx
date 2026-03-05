@@ -27,17 +27,17 @@ export default function DataAkunPage({ student }) {
       !passwordData.newPassword ||
       !passwordData.confirmPassword
     ) {
-      setError("Semua field harus diisi");
+      setError("Semua kolom harus diisi");
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      setError("Password baru minimal 8 karakter");
+      setError("Kata sandi baru minimal 8 karakter");
       return;
     }
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("Password baru dan konfirmasi tidak cocok");
+      setError("Kata sandi baru dan konfirmasi tidak cocok");
       return;
     }
 
@@ -66,7 +66,7 @@ export default function DataAkunPage({ student }) {
         });
         setTimeout(() => setShowSuccess(false), 3000);
       } else {
-        setError(data.error || "Gagal mengubah password");
+        setError(data.error || "Gagal mengubah kata sandi");
       }
     } catch {
       setError("Gagal menghubungi server");
@@ -92,7 +92,7 @@ export default function DataAkunPage({ student }) {
               d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span className="font-medium">Password berhasil diubah!</span>
+          <span className="font-medium">Kata sandi berhasil diubah!</span>
         </div>
       )}
 
@@ -243,7 +243,7 @@ export default function DataAkunPage({ student }) {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Password Lama
+                Kata Sandi Lama
               </label>
               <input
                 type="password"
@@ -251,13 +251,13 @@ export default function DataAkunPage({ student }) {
                 value={passwordData.oldPassword}
                 onChange={handlePasswordChange}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Masukkan password lama"
+                placeholder="Masukkan kata sandi lama"
               />
             </div>
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Password Baru
+                Kata Sandi Baru
               </label>
               <input
                 type="password"
@@ -265,7 +265,7 @@ export default function DataAkunPage({ student }) {
                 value={passwordData.newPassword}
                 onChange={handlePasswordChange}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Masukkan password baru"
+                placeholder="Masukkan kata sandi baru"
               />
               <p className="text-xs text-slate-500 mt-1.5">
                 Minimal 6 karakter
@@ -274,7 +274,7 @@ export default function DataAkunPage({ student }) {
 
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">
-                Konfirmasi Password
+                Konfirmasi Kata Sandi
               </label>
               <input
                 type="password"
@@ -282,7 +282,7 @@ export default function DataAkunPage({ student }) {
                 value={passwordData.confirmPassword}
                 onChange={handlePasswordChange}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                placeholder="Ulangi password baru"
+                placeholder="Ulangi kata sandi baru"
               />
             </div>
 
@@ -327,7 +327,7 @@ export default function DataAkunPage({ student }) {
             <ul className="text-xs text-blue-700 space-y-1 ml-5 list-disc">
               <li>Gunakan kombinasi huruf besar, kecil, dan angka</li>
               <li>Hindari menggunakan informasi pribadi yang mudah ditebak</li>
-              <li>Ubah password secara berkala</li>
+              <li>Ubah kata sandi secara berkala</li>
             </ul>
           </div>
         </div>

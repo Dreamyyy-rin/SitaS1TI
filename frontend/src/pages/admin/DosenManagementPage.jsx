@@ -256,7 +256,7 @@ const DosenManagementPage = () => {
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm text-gray-600">Total Dosen</p>
+            <p className="text-sm text-gray-600">Jumlah Dosen</p>
             <p className="text-2xl font-bold text-gray-900">{users.length}</p>
           </div>
           <div>

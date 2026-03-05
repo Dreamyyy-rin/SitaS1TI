@@ -137,7 +137,7 @@ export default function ReviewView({
               onClick={() => toggleChat(mhs.id)}
               className="w-full flex items-center justify-between px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
             >
-              <span className="font-medium">Diskusi Review</span>
+              <span className="font-medium">Diskusi Tinjauan</span>
               {expandedChat === mhs.id ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (

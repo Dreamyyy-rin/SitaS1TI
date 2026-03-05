@@ -12,7 +12,7 @@ const RequestDosenView = ({
   <div className="space-y-6">
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Request Dosen Pembimbing
+        Permintaan Dosen Pembimbing
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -93,14 +93,14 @@ const RequestDosenView = ({
       </div>
       {requestDosenBaru.length === 0 && (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-sm">Tidak ada request dosen pembimbing</p>
+          <p className="text-sm">Tidak ada permintaan dosen pembimbing</p>
         </div>
       )}
     </div>
 
     <div className="bg-white rounded-lg shadow-md p-6">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
-        Request Ganti Dosen Pembimbing
+        Permintaan Ganti Dosen Pembimbing
       </h3>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -175,7 +175,7 @@ const RequestDosenView = ({
       </div>
       {requestGantiDosen.length === 0 && (
         <div className="text-center py-12 text-gray-400">
-          <p className="text-sm">Tidak ada request ganti dosen pembimbing</p>
+          <p className="text-sm">Tidak ada permintaan ganti dosen pembimbing</p>
         </div>
       )}
     </div>

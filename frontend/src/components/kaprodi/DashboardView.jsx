@@ -7,7 +7,7 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-500 text-sm">Total Request</p>
+            <p className="text-gray-500 text-sm">Total Permintaan</p>
             <p className="text-2xl font-bold text-[#0B2F7F] mt-1">{stats.total_request ?? 0}</p>
           </div>
           <div className="bg-blue-100 p-3 rounded-full">

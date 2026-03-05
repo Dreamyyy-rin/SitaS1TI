@@ -87,7 +87,7 @@ export default function RequestBimbinganPage() {
       const data = await res.json();
       if (data.success) {
         alert(
-          "✓ Request berhasil disetujui. Request akan hilang dari list setelah Kaprodi dan minimal 1 Dosen Pembimbing menyetujui.",
+          "✓ Request berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi dan semua Dosen Pembimbing menyetujui.",
         );
         // Reload data from backend to get updated list
         window.location.reload();
@@ -151,10 +151,10 @@ export default function RequestBimbinganPage() {
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">
-              Request Bimbingan
+              Permintaan Bimbingan
             </h1>
             <p className="text-gray-600 mt-2">
-              Daftar mahasiswa yang mengajukan request bimbingan
+              Daftar mahasiswa yang mengajukan permintaan bimbingan
             </p>
           </div>
 

@@ -156,6 +156,59 @@ def assign_reviewer():
     return ResponseFormatter.error("Gagal assign reviewer", 400)
 
 
+@kaprodi_bp.post("/change-pembimbing")
+@token_required
+@role_required("kaprodi")
+def direct_change_pembimbing():
+    """Kaprodi langsung ganti dosen pembimbing tanpa request/persetujuan"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    mahasiswa_id = data.get("mahasiswa_id", "").strip()
+    slot = data.get("slot", "").strip()          # "pembimbing_1" atau "pembimbing_2"
+    new_dosen_id = data.get("new_dosen_id", "").strip()
+
+    if not mahasiswa_id or not slot or not new_dosen_id:
+        return ResponseFormatter.error("mahasiswa_id, slot, dan new_dosen_id wajib diisi", 400)
+
+    if slot not in ("pembimbing_1", "pembimbing_2"):
+        return ResponseFormatter.error("Slot harus pembimbing_1 atau pembimbing_2", 400)
+
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    new_dosen = User.find_by_id(new_dosen_id)
+    if not new_dosen or new_dosen.get("role") != "dosen":
+        return ResponseFormatter.error("Dosen tidak ditemukan", 404)
+
+    # Jangan samakan dengan reviewer
+    if new_dosen_id == mahasiswa.get("reviewer_id"):
+        return ResponseFormatter.error("Dosen pembimbing tidak boleh sama dengan reviewer", 400)
+
+    # Jangan samakan pembimbing 1 dan 2
+    other_slot = "pembimbing_2_id" if slot == "pembimbing_1" else "pembimbing_1_id"
+    if new_dosen_id == mahasiswa.get(other_slot):
+        return ResponseFormatter.error("Pembimbing 1 dan Pembimbing 2 tidak boleh sama", 400)
+
+    old_dosen_id = mahasiswa.get(f"{slot}_id")
+
+    if Mahasiswa.update_pembimbing_slot(mahasiswa_id, slot, new_dosen_id):
+        # Kirim notifikasi ke mahasiswa
+        Notification.create(
+            recipient_email=mahasiswa.get("email"),
+            recipient_name=mahasiswa.get("nama"),
+            subject=f"Dosen pembimbing diganti oleh kaprodi",
+            body=f"Dosen {slot.replace('_', ' ')} Anda telah diganti oleh kaprodi menjadi {new_dosen.get('nama')}.",
+            event_type="pembimbing_changed_by_kaprodi",
+        )
+        return ResponseFormatter.success(
+            message=f"Dosen {slot.replace('_', ' ')} berhasil diganti menjadi {new_dosen.get('nama')}"
+        )
+
+    return ResponseFormatter.error("Gagal mengubah pembimbing", 400)
+
+
 @kaprodi_bp.get("/pembimbing-requests")
 @token_required
 @role_required("kaprodi")

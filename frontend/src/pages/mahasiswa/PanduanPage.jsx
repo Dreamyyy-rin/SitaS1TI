@@ -4,34 +4,34 @@ export default function PanduanPage() {
   const steps = [
     {
       number: "01",
-      title: "Dashboard",
+      title: "Dasbor",
       description: "Cek status dan progres terkini",
       details:
-        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, dosen pembimbing, dan timeline progres. Anda juga dapat mengajukan permintaan pergantian dosen pembimbing.",
+        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, informasi dosen pembimbing, dan progres timeline. Anda dapat melihat status TTU 1, TTU 2, dan TTU 3 secara langsung dari halaman ini.",
       color: "blue",
     },
     {
       number: "02",
-      title: "Upload TTU",
-      description: "Upload draf TTU",
+      title: "Unggah TTU",
+      description: "Unggah draf dokumen TTU",
       details:
-        "Upload dokumen Tugas Talenta Unggul Anda. Pastikan format dokumen sesuai dengan ketentuan yang berlaku. Setiap tahapan TTU harus disetujui dosen pembimbing sebelum lanjut ke tahap berikutnya.",
+        "Unggah dokumen Tugas Talenta Unggul Anda sesuai tahapan (TTU 1, TTU 2). Pastikan format dokumen sesuai ketentuan. Setiap tahapan TTU harus disetujui oleh dosen pembimbing sebelum lanjut ke tahap berikutnya. Setelah TTU 2 disetujui, Anda akan diarahkan ke menu Daftar Tinjauan untuk mengunggah TTU 3.",
       color: "green",
     },
     {
       number: "03",
       title: "Bimbingan",
-      description: "Informasi dan komunikasi dengan dosen pembimbing",
+      description: "Informasi dosen pembimbing Anda",
       details:
-        "Lihat informasi lengkap dosen pembimbing utama dan pembimbing kedua Anda, termasuk nama, email, dan NIDN. Gunakan menu ini untuk melihat detail pembimbing yang ditugaskan untuk membimbing tugas akhir Anda.",
+        "Lihat informasi lengkap dosen pembimbing utama dan pembimbing kedua Anda, termasuk nama, email, dan NIDN. Anda juga dapat mengajukan permintaan pergantian dosen pembimbing dari halaman ini. Permintaan harus disetujui oleh kaprodi dan dosen pembimbing yang bersangkutan.",
       color: "purple",
     },
     {
       number: "04",
-      title: "Daftar Review",
-      description: "Upload file TTU yang sudah disetujui",
+      title: "Daftar Tinjauan",
+      description: "Unggah TTU 3 dan diskusi dengan dosen",
       details:
-        "Menu ini hanya dapat diakses setelah TTU 2 Anda disetujui oleh dosen pembimbing. Upload file Tugas Talenta Unggul yang telah mendapat persetujuan untuk direview oleh tim akademik.",
+        "Menu ini tersedia setelah TTU 2 disetujui oleh dosen pembimbing. Unggah file TTU 3 untuk ditinjau oleh dosen peninjau. Anda juga dapat berkomunikasi dengan dosen peninjau dan dosen pembimbing melalui fitur diskusi tinjauan yang tersedia di halaman ini.",
       color: "orange",
     },
     {

@@ -109,7 +109,7 @@ export default function DosenDashboard() {
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">
-              Dashboard Dosen
+              Dasbor Dosen
             </h1>
             {user && (
               <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>

@@ -68,7 +68,7 @@ const DeadlineCard = ({
       
         <div>
           <label className="block text-sm font-semibold text-slate-700 mb-2">
-            Tanggal Deadline
+            Tanggal Batas Waktu
           </label>
           <input
             type="date"

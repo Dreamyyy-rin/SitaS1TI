@@ -32,13 +32,13 @@ const SidebarKaprodi = ({
       items: [
         {
           key: "dashboard",
-          label: "Dashboard",
+          label: "Dasbor",
           view: "dashboard",
           icon: LayoutDashboard,
         },
         {
           key: "request-pembimbing",
-          label: "Request Pembimbing",
+          label: "Permintaan Pembimbing",
           view: "request-pembimbing",
           icon: ClipboardList,
           badge: totalRequests,
@@ -51,7 +51,7 @@ const SidebarKaprodi = ({
         },
         {
           key: "review",
-          label: "Review",
+          label: "Tinjauan",
           view: "review",
           icon: FileCheck,
         },
@@ -62,7 +62,7 @@ const SidebarKaprodi = ({
       items: [
         {
           key: "plotting",
-          label: "Plotting Reviewer",
+          label: "Penempatan Peninjau",
           view: "plotting",
           icon: GitBranch,
         },
@@ -85,7 +85,7 @@ const SidebarKaprodi = ({
       items: [
         {
           key: "deadline",
-          label: "Deadline TTU",
+          label: "Batas Waktu TTU",
           view: "deadline",
           icon: CalendarClock,
         },

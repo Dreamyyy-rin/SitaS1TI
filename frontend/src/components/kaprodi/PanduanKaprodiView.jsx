@@ -4,50 +4,50 @@ const PanduanKaprodiView = () => {
   const steps = [
     {
       number: "01",
-      title: "Dashboard",
-      description: "Monitor aktivitas dan statistik program studi",
+      title: "Dasbor",
+      description: "Pantau aktivitas dan statistik program studi",
       details:
-        "Halaman utama menampilkan ringkasan aktivitas terkini, jumlah request yang masuk, mahasiswa aktif, TTU yang telah selesai, dan total dosen pembimbing. Pantau perkembangan program studi secara real-time.",
+        "Halaman utama menampilkan ringkasan aktivitas terkini, jumlah permintaan yang masuk, mahasiswa aktif, TTU yang telah selesai, dan total dosen pembimbing. Pantau perkembangan program studi secara langsung.",
       color: "blue",
     },
     {
       number: "02",
-      title: "Request Bimbingan",
-      description: "Kelola request bimbingan dari mahasiswa ke dosen",
+      title: "Permintaan Pembimbing",
+      description: "Kelola permintaan bimbingan dari mahasiswa ke dosen",
       details:
-        "Lihat daftar mahasiswa yang mengajukan request untuk dibimbing oleh dosen tertentu. Review judul yang diajukan mahasiswa. Setujui atau tolak request sesuai pertimbangan akademik. Sistem akan mengirim notifikasi ke dosen terkait setelah persetujuan Kaprodi.",
+        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh dosen tertentu. Tinjau judul yang diajukan mahasiswa. Setujui atau tolak permintaan sesuai pertimbangan akademik. Mahasiswa baru dapat masuk ke dasbor setelah disetujui oleh Kaprodi dan dosen pembimbing yang bersangkutan.",
       color: "purple",
     },
     {
       number: "03",
       title: "Mahasiswa Bimbingan",
-      description: "Lihat progres mahasiswa yang sedang bimbingan",
+      description: "Lihat progres dan ganti pembimbing mahasiswa",
       details:
-        "Monitor progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM. Tombol Accept untuk memvalidasi penyelesaian bimbingan.",
+        "Pantau progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Kaprodi dapat langsung mengganti dosen pembimbing mahasiswa tanpa melalui proses permintaan menggunakan tombol 'Ganti Pembimbing'.",
       color: "green",
     },
     {
       number: "04",
-      title: "Review",
-      description: "Review dan beri komentar pada berkas TTU mahasiswa",
+      title: "Tinjauan",
+      description: "Tinjau berkas TTU mahasiswa",
       details:
-        "Lihat berkas TTU 2 yang telah diunggah mahasiswa. Preview file untuk melihat isi dokumen. Berikan komentar dan feedback pada setiap berkas. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM. Gunakan tombol 'Kirim' untuk mengirim komentar atau 'Accept' untuk menyetujui berkas.",
+        "Lihat berkas TTU yang telah diunggah mahasiswa. Pantau status tinjauan dan persetujuan dari dosen reviewer. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM.",
       color: "orange",
     },
     {
       number: "05",
-      title: "Request Dosen",
+      title: "Permintaan Dosen",
       description: "Kelola pengajuan dan perubahan dosen pembimbing",
       details:
-        "Terdapat dua jenis request: (1) Request Dosen Pembimbing - pengajuan dosen pembimbing baru dari mahasiswa, dan (2) Request Ganti Dosen Pembimbing - permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap request sesuai pertimbangan akademik.",
+        "Terdapat dua jenis permintaan: (1) Permintaan Dosen Pembimbing — pengajuan dosen pembimbing baru dari mahasiswa, dan (2) Permintaan Ganti Dosen Pembimbing — permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap permintaan sesuai pertimbangan akademik.",
       color: "indigo",
     },
     {
       number: "06",
-      title: "Plotting Reviewer",
-      description: "Tetapkan dosen reviewer untuk mahasiswa",
+      title: "Penentuan Peninjau",
+      description: "Tetapkan dosen peninjau (reviewer) untuk mahasiswa",
       details:
-        "Pilih dosen reviewer untuk setiap mahasiswa yang akan mengikuti TTU. Sistem secara otomatis tidak menampilkan dosen pembimbing pada dropdown pilihan reviewer. Pastikan reviewer memiliki keahlian yang sesuai dengan topik penelitian mahasiswa.",
+        "Pilih dosen peninjau untuk setiap mahasiswa yang akan mengikuti TTU 3. Sistem secara otomatis tidak menampilkan dosen pembimbing pada pilihan peninjau. Pastikan peninjau memiliki keahlian yang sesuai dengan topik penelitian mahasiswa.",
       color: "slate",
     },
     {
@@ -63,15 +63,15 @@ const PanduanKaprodiView = () => {
       title: "Manajemen Dosen",
       description: "Kelola data dosen pembimbing program studi",
       details:
-        "Tambah dosen pembimbing baru dengan data lengkap (nama, NIP, email). Lihat jumlah mahasiswa bimbingan aktif setiap dosen. Hapus data dosen yang sudah tidak aktif. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP. Monitor total dosen dan total mahasiswa bimbingan di program studi.",
+        "Tambah dosen pembimbing baru dengan data lengkap (nama, NIP, email). Lihat jumlah mahasiswa bimbingan aktif setiap dosen. Hapus data dosen yang sudah tidak aktif. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP. Pantau total dosen dan total mahasiswa bimbingan di program studi.",
       color: "red",
     },
     {
       number: "09",
-      title: "Deadline TTU",
-      description: "Atur jadwal deadline untuk setiap tahap TTU",
+      title: "Batas Waktu TTU",
+      description: "Atur jadwal batas waktu untuk setiap tahap TTU",
       details:
-        "Tentukan tanggal deadline untuk TTU 1 (Ujian Proposal), TTU 2 (Ujian Hasil), dan TTU 3 (Ujian Review). Sistem akan menampilkan status deadline (terlewat, mendekati, atau masih lama). Lihat ringkasan semua deadline dalam satu tabel.",
+        "Tentukan tanggal batas waktu untuk TTU 1 (Ujian Proposal), TTU 2 (Ujian Hasil), dan TTU 3 (Ujian Review). Sistem akan menampilkan status batas waktu (terlewat, mendekati, atau masih lama). Lihat ringkasan semua batas waktu dalam satu tabel.",
       color: "cyan",
     },
     {
@@ -79,7 +79,7 @@ const PanduanKaprodiView = () => {
       title: "Data Akun",
       description: "Kelola informasi akun Kaprodi",
       details:
-        "Lihat dan edit informasi profil Kaprodi seperti nama, email, dan nomor telepon. Ubah password untuk keamanan akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
+        "Lihat dan ubah informasi profil Kaprodi seperti nama, email, dan nomor telepon. Perbarui kata sandi untuk keamanan akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
       color: "pink",
     },
   ];

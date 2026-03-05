@@ -10,10 +10,10 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
     {
       label: "MENU UTAMA",
       items: [
-        { key: "home", label: "Dashboard", view: "home", icon: "dashboard" },
+        { key: "home", label: "Dasbor", view: "home", icon: "dashboard" },
         {
           key: "upload-ttu",
-          label: "Upload TTU",
+          label: "Unggah TTU",
           view: "upload-ttu",
           icon: "upload",
         },
@@ -25,7 +25,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
         },
         {
           key: "daftar-review",
-          label: "Daftar Review",
+          label: "Daftar Tinjauan",
           view: "daftar-review",
           icon: "clipboard-list",
         },

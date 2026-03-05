@@ -229,6 +229,73 @@ const KaprodiDashboard = () => {
     }
   };
 
+  const handleChangePembimbing = async (mahasiswaId, slot, newDosenId) => {
+    const token = localStorage.getItem("sita_token");
+    try {
+      const res = await fetch(`${API}/api/kaprodi/change-pembimbing`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          mahasiswa_id: mahasiswaId,
+          slot: slot,
+          new_dosen_id: newDosenId,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`\u2713 ${data.message}`);
+        // Refresh mahasiswa data
+        const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const mhsData = await mhsRes.json();
+        if (mhsData.success) {
+          const dosenList = availableDosen;
+          const mhsList = (mhsData.data || []).map((m) => {
+            const ttu = m.ttu_status || {};
+            const p1 = m.pembimbing_1_id
+              ? dosenList.find((d) => d._id === m.pembimbing_1_id)
+              : null;
+            const p2 = m.pembimbing_2_id
+              ? dosenList.find((d) => d._id === m.pembimbing_2_id)
+              : null;
+            return {
+              id: m._id,
+              nama: m.nama || "-",
+              nim: m.nim || "-",
+              prodi: m.prodi || "-",
+              email: m.email || "-",
+              dosen: p1 ? p1.nama : "-",
+              dosen2: p2 ? p2.nama : "-",
+              reviewer: m.reviewer || "-",
+              ttu1: ttu.ttu_1?.status === "approved",
+              ttu2: ttu.ttu_2?.status === "approved",
+              ttu3: ttu.ttu_3?.status === "approved",
+              ttu_status: ttu,
+              status:
+                m.onboarding_status === "approved"
+                  ? "active"
+                  : m.onboarding_status,
+              onboarding_status: m.onboarding_status,
+              pembimbing_1_id: m.pembimbing_1_id,
+              pembimbing_2_id: m.pembimbing_2_id,
+              reviewer_id: m.reviewer_id,
+            };
+          });
+          setMahasiswaBimbingan(mhsList);
+        }
+      } else {
+        alert("\u274C " + (data.message || "Gagal mengganti pembimbing"));
+      }
+    } catch (err) {
+      console.error(err);
+      alert("\u274C Gagal menghubungi server");
+    }
+  };
+
   const handleApprove = (id) => {
     setSelectedRequestId(id);
     setShowApproveModal(true);
@@ -369,11 +436,11 @@ const KaprodiDashboard = () => {
   const getPageTitle = () => {
     switch (activeMenu) {
       case "dashboard":
-        return "Dashboard Kaprodi";
+        return "Dasbor Kaprodi";
       case "request-pembimbing":
-        return "Request Pembimbing";
+        return "Permintaan Pembimbing";
       case "plotting":
-        return "Plotting Reviewer";
+        return "Penempatan Peninjau";
       case "mahasiswa-bimbingan":
         return "Mahasiswa Bimbingan";
       case "riwayat":
@@ -381,15 +448,15 @@ const KaprodiDashboard = () => {
       case "data-dosen":
         return "Manajemen Dosen";
       case "review":
-        return "Review";
+        return "Tinjauan";
       case "deadline":
-        return "Deadline TTU";
+        return "Batas Waktu TTU";
       case "data-akun":
         return "Data Akun";
       case "panduan":
         return "Panduan";
       default:
-        return "Dashboard Kaprodi";
+        return "Dasbor Kaprodi";
     }
   };
 
@@ -427,8 +494,10 @@ const KaprodiDashboard = () => {
         return (
           <MahasiswaBimbinganView
             mahasiswaBimbingan={mahasiswaBimbingan}
+            availableDosen={availableDosen}
             userData={userData}
             onAccept={handleAccept}
+            onChangePembimbing={handleChangePembimbing}
           />
         );
       case "riwayat":

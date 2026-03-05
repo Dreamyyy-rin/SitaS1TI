@@ -164,9 +164,9 @@ export default function ReviewDosenPage() {
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">Review</h1>
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">Tinjauan</h1>
             <p className="text-gray-600 mt-2">
-              Review TTU mahasiswa bimbingan Anda
+              Tinjauan TTU mahasiswa bimbingan Anda
             </p>
           </div>
 

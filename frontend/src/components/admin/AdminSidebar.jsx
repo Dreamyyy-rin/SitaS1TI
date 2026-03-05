@@ -9,7 +9,7 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
     {
       label: "MENU UTAMA",
       items: [
-        { key: "dashboard", label: "Dashboard", icon: "dashboard" },
+        { key: "dashboard", label: "Dasbor", icon: "dashboard" },
         { key: "dosen", label: "Manajemen Dosen", icon: "user-check" },
         { key: "mahasiswa", label: "Manajemen Mahasiswa", icon: "users" },
       ],

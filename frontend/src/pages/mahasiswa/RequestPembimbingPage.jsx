@@ -145,18 +145,46 @@ const RequestPembimbingPage = () => {
           )}
 
           {pendingRequest ? (
-            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 mt-0.5" />
-              <div>
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-4 text-sm text-blue-800 flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+              <div className="space-y-2">
                 <p className="font-semibold">
                   Request pembimbing sedang diproses
                 </p>
-                <p className="text-xs mt-1">
-                  Status:{" "}
-                  {pendingRequest.overall_status === "pending"
-                    ? "Menunggu"
-                    : pendingRequest.overall_status || "Menunggu"}
-                </p>
+                <div className="text-xs space-y-1">
+                  <p className="flex items-center gap-2">
+                    <span className={`inline-block w-2 h-2 rounded-full ${
+                      pendingRequest.status_kaprodi === "approved" ? "bg-green-500" 
+                      : pendingRequest.status_kaprodi === "rejected" ? "bg-red-500" 
+                      : "bg-yellow-500"
+                    }`}></span>
+                    Kaprodi: {pendingRequest.status_kaprodi === "approved" ? "Disetujui" 
+                      : pendingRequest.status_kaprodi === "rejected" ? "Ditolak" 
+                      : "Menunggu"}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <span className={`inline-block w-2 h-2 rounded-full ${
+                      pendingRequest.status_dosen_1 === "approved" ? "bg-green-500" 
+                      : pendingRequest.status_dosen_1 === "rejected" ? "bg-red-500" 
+                      : "bg-yellow-500"
+                    }`}></span>
+                    Dosen Pembimbing 1: {pendingRequest.status_dosen_1 === "approved" ? "Disetujui" 
+                      : pendingRequest.status_dosen_1 === "rejected" ? "Ditolak" 
+                      : "Menunggu"}
+                  </p>
+                  {pendingRequest.status_dosen_2 !== undefined && pendingRequest.requested_pembimbing_2_id && (
+                    <p className="flex items-center gap-2">
+                      <span className={`inline-block w-2 h-2 rounded-full ${
+                        pendingRequest.status_dosen_2 === "approved" ? "bg-green-500" 
+                        : pendingRequest.status_dosen_2 === "rejected" ? "bg-red-500" 
+                        : "bg-yellow-500"
+                      }`}></span>
+                      Dosen Pembimbing 2: {pendingRequest.status_dosen_2 === "approved" ? "Disetujui" 
+                        : pendingRequest.status_dosen_2 === "rejected" ? "Ditolak" 
+                        : "Menunggu"}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           ) : (

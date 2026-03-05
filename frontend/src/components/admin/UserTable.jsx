@@ -77,7 +77,7 @@ const UserTable = ({
                     className="inline-flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-blue-200 hover:text-blue-600 hover:bg-blue-50 transition"
                   >
                     <Edit className="h-4 w-4" />
-                    Edit
+                    Ubah
                   </button>
                   <button
                     onClick={() => onDelete?.(user)}

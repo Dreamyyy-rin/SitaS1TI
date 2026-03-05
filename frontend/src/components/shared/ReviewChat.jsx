@@ -95,7 +95,7 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
       case "reviewer":
         return (
           <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-100 text-purple-700">
-            Reviewer
+            Peninjau
           </span>
         );
       case "pembimbing":
@@ -136,7 +136,7 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
       <div className="bg-gradient-to-r from-[#0B2F7F] to-[#1a4fc4] px-5 py-3 flex items-center gap-2">
         <MessageCircle className="w-5 h-5 text-white" />
-        <h3 className="text-white font-semibold text-sm">Diskusi Review TTU 3</h3>
+        <h3 className="text-white font-semibold text-sm">Diskusi Tinjauan TTU 3</h3>
         <span className="text-white/60 text-xs ml-auto">
           {comments.length} pesan
         </span>
@@ -153,7 +153,7 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
           <div className="flex flex-col items-center justify-center h-full text-slate-400">
             <MessageCircle className="w-10 h-10 mb-2 opacity-30" />
             <p className="text-sm">Belum ada pesan</p>
-            <p className="text-xs mt-1">Mulai diskusi tentang review TTU 3</p>
+            <p className="text-xs mt-1">Mulai diskusi tentang tinjauan TTU 3</p>
           </div>
         ) : (
           comments.map((comment) => (

@@ -13,7 +13,7 @@ const DeadlineSummaryTable = ({
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden mb-8">
       <div className="px-6 py-4 bg-slate-50 border-b border-slate-200">
-        <h3 className="text-lg font-bold text-slate-800">Ringkasan Deadline</h3>
+        <h3 className="text-lg font-bold text-slate-800">Ringkasan Batas Waktu</h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -23,7 +23,7 @@ const DeadlineSummaryTable = ({
                 Tahap
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
-                Tanggal Deadline
+                Tanggal Batas Waktu
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase">
                 Status

@@ -146,7 +146,7 @@ const TTU3RequirementsPage = () => {
       case "submitted":
         return (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            <Clock className="w-3 h-3" /> Menunggu Review
+            <Clock className="w-3 h-3" /> Menunggu Tinjauan
           </span>
         );
       case "approved":
@@ -175,10 +175,10 @@ const TTU3RequirementsPage = () => {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <FileCheck className="w-7 h-7 text-purple-600" />
-          Review Persyaratan TTU 3
+          Tinjauan Persyaratan TTU 3
         </h1>
         <p className="text-gray-600 mt-1">
-          Review dan kelola berkas persyaratan TTU 3 mahasiswa
+          Tinjau dan kelola berkas persyaratan TTU 3 mahasiswa
         </p>
       </div>
 
@@ -187,7 +187,7 @@ const TTU3RequirementsPage = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Menunggu Review</p>
+              <p className="text-sm text-gray-600">Menunggu Tinjauan</p>
               <p className="text-2xl font-bold text-yellow-600">
                 {statusCounts.submitted}
               </p>
@@ -238,7 +238,7 @@ const TTU3RequirementsPage = () => {
             className="px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none"
           >
             <option value="all">Semua Status</option>
-            <option value="submitted">Menunggu Review</option>
+            <option value="submitted">Menunggu Tinjauan</option>
             <option value="approved">Disetujui</option>
             <option value="rejected">Ditolak</option>
           </select>
@@ -273,7 +273,7 @@ const TTU3RequirementsPage = () => {
                     File
                   </th>
                   <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                    Tanggal Upload
+                    Tanggal Unggah
                   </th>
                   <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
                     Status

@@ -80,7 +80,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      Total Dosen
+                      Jumlah Dosen
                     </p>
                     <p className="text-3xl font-bold text-gray-900 mt-2">
                       {totalDosen}
@@ -96,7 +96,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      Total Mahasiswa
+                      Jumlah Mahasiswa
                     </p>
                     <p className="text-3xl font-bold text-gray-900 mt-2">
                       {totalMahasiswa}
@@ -112,7 +112,7 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      User Aktif
+                      Pengguna Aktif
                     </p>
                     <p className="text-3xl font-bold text-gray-900 mt-2">
                       {userAktif}

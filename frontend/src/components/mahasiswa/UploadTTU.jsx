@@ -205,15 +205,15 @@ const UploadTTU = ({ onSwitchToReview }) => {
           {ttuStatus?.ttu_3?.status !== "approved" && (
             <>
               <p className="text-gray-600 mb-6">
-                Untuk mengupload TTU 3, silakan gunakan menu{" "}
-                <span className="font-semibold text-blue-700">Daftar Review</span>.
+                Untuk mengunggah TTU 3, silakan gunakan menu{" "}
+                <span className="font-semibold text-blue-700">Daftar Tinjauan</span>.
               </p>
               {onSwitchToReview && (
                 <button
                   onClick={onSwitchToReview}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
                 >
-                  Buka Daftar Review
+                  Buka Daftar Tinjauan
                   <ArrowRight className="w-4 h-4" />
                 </button>
               )}
@@ -241,8 +241,8 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 File Berhasil Dikirim
               </h3>
               <p className="text-sm text-gray-600">
-                File Anda telah dikirim untuk review. Anda dapat membatalkan
-                pengajuan jika ingin mengupload file baru.
+                File Anda telah dikirim untuk ditinjau. Anda dapat membatalkan
+                pengajuan jika ingin mengunggah file baru.
               </p>
             </div>
           </div>
@@ -271,7 +271,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
             Batalkan Pengajuan
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
-            Membatalkan pengajuan akan memungkinkan Anda untuk mengupload file
+            Membatalkan pengajuan akan memungkinkan Anda untuk mengunggah file
             baru
           </p>
         </div>
@@ -303,7 +303,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {isDragging ? "Lepaskan file di sini" : "Drag & Drop File Anda"}
+                {isDragging ? "Lepaskan file di sini" : "Seret & Lepas File Anda"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 atau klik tombol di bawah untuk memilih file
@@ -331,7 +331,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
           {selectedFile && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                File Preview
+                Pratinjau File
               </h3>
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
                 <div className="flex items-start gap-4">
@@ -344,13 +344,13 @@ const UploadTTU = ({ onSwitchToReview }) => {
                     </p>
                     <p className="text-xs text-gray-600">
                       {formatFileSize(selectedFile.size)} •{" "}
-                      {selectedFile.type || "Unknown type"}
+                      {selectedFile.type || "Tipe tidak dikenal"}
                     </p>
                   </div>
                   <button
                     onClick={handleRemoveFile}
                     className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-colors"
-                    title="Remove file"
+                    title="Hapus file"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -363,7 +363,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
                 >
                   <Eye className="w-4 h-4" />
-                  Preview
+                  Pratinjau
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -373,7 +373,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                   {isUploading ? (
                     <>
                       <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      Mengupload...
+                      Mengunggah...
                     </>
                   ) : (
                     <>
@@ -486,7 +486,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
               </h3>
 
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                Anda dapat mengupload file baru setelah pembatalan.
+                Anda dapat mengunggah file baru setelah pembatalan.
               </p>
 
               <div className="flex items-center gap-3 w-full">

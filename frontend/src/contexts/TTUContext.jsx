@@ -121,7 +121,7 @@ export const TTUProvider = ({ children }) => {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success === false) {
-        throw new Error(result.error || "Gagal mengupload file");
+        throw new Error(result.error || "Gagal mengunggah file");
       }
 
       // Reload TTU status and history to get updated state from server
@@ -129,7 +129,7 @@ export const TTUProvider = ({ children }) => {
       await loadSubmissionHistory();
       return true;
     } catch (err) {
-      setUploadError(err.message || "Gagal mengupload file");
+      setUploadError(err.message || "Gagal mengunggah file");
       return false;
     } finally {
       setIsUploading(false);

@@ -137,9 +137,11 @@ class PembimbingRequest(BaseModel):
         if "rejected" in [status_kaprodi, status_dosen_1, status_dosen_2]:
             return "rejected"
         
-        # Approved if: Kaprodi approved AND at least one dosen approved
-        if status_kaprodi == "approved":
-            if status_dosen_1 == "approved" or status_dosen_2 == "approved":
-                return "approved"
+        # Approved only if ALL parties approved (kaprodi + dosen 1 + dosen 2)
+        # Note: status_dosen_2 is auto-set to "approved" when no pembimbing_2
+        if (status_kaprodi == "approved"
+                and status_dosen_1 == "approved"
+                and status_dosen_2 == "approved"):
+            return "approved"
         
         return "pending"

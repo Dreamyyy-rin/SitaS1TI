@@ -195,7 +195,7 @@ const UploadTTU3 = ({ student }) => {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success === false) {
-        throw new Error(result.error || "Gagal upload file");
+        throw new Error(result.error || "Gagal mengunggah file");
       }
 
       setSelectedFile(null);
@@ -206,7 +206,7 @@ const UploadTTU3 = ({ student }) => {
       await loadTTU3Status();
       await loadTTU3History();
     } catch (err) {
-      setUploadError(err.message || "Gagal upload file");
+      setUploadError(err.message || "Gagal mengunggah file");
     } finally {
       setIsUploading(false);
     }
@@ -255,9 +255,9 @@ const UploadTTU3 = ({ student }) => {
     return (
       <div className="space-y-6 animate-fade-in">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-slate-800">Daftar Review</h2>
+          <h2 className="text-2xl font-bold text-slate-800">Daftar Tinjauan</h2>
           <div className="text-sm text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 font-medium">
-            Review TTU
+            Tinjauan TTU
           </div>
         </div>
 
@@ -290,9 +290,9 @@ const UploadTTU3 = ({ student }) => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-slate-800">Daftar Review</h2>
+          <h2 className="text-2xl font-bold text-slate-800">Daftar Tinjauan</h2>
           <p className="text-sm text-slate-500 mt-1">
-            Upload file Tugas Talenta Unggul 3 untuk direview oleh dosen reviewer
+            Unggah file Tugas Talenta Unggul 3 untuk ditinjau oleh dosen peninjau
           </p>
         </div>
         <div className="text-sm text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 font-medium">
@@ -305,11 +305,11 @@ const UploadTTU3 = ({ student }) => {
           <CheckCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-blue-900 mb-1">
-              Petunjuk Upload File TTU 3
+              Petunjuk Unggah File TTU 3
             </p>
             <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
               <li>TTU 2 Anda sudah disetujui oleh dosen pembimbing</li>
-              <li>Upload file TTU 3 untuk direview oleh dosen reviewer yang diplot oleh kaprodi</li>
+              <li>Unggah file TTU 3 untuk ditinjau oleh dosen peninjau yang ditentukan oleh kaprodi</li>
               <li>Format file: PDF, DOC, DOCX, PPT, PPTX</li>
               <li>Maksimal ukuran file adalah 50MB</li>
             </ul>
@@ -335,7 +335,7 @@ const UploadTTU3 = ({ student }) => {
                 File TTU 3 Berhasil Dikirim
               </h3>
               <p className="text-sm text-gray-600">
-                File Anda telah dikirim untuk review oleh dosen reviewer.
+                File Anda telah dikirim untuk ditinjau oleh dosen peninjau.
               </p>
             </div>
           </div>
@@ -409,7 +409,7 @@ const UploadTTU3 = ({ student }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {isDragging ? "Lepaskan file di sini" : "Drag & Drop File Anda"}
+                {isDragging ? "Lepaskan file di sini" : "Seret & Lepas File Anda"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 atau klik tombol di bawah untuk memilih file
@@ -437,7 +437,7 @@ const UploadTTU3 = ({ student }) => {
           {selectedFile && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                File Preview
+                Pratinjau File
               </h3>
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-4">
                 <div className="flex items-start gap-4">
@@ -450,13 +450,13 @@ const UploadTTU3 = ({ student }) => {
                     </p>
                     <p className="text-xs text-gray-600">
                       {formatFileSize(selectedFile.size)} •{" "}
-                      {selectedFile.type || "Unknown type"}
+                      {selectedFile.type || "Tipe tidak dikenal"}
                     </p>
                   </div>
                   <button
                     onClick={handleRemoveFile}
                     className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-colors"
-                    title="Remove file"
+                    title="Hapus file"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -469,7 +469,7 @@ const UploadTTU3 = ({ student }) => {
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
                 >
                   <Eye className="w-4 h-4" />
-                  Preview
+                  Pratinjau
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -479,7 +479,7 @@ const UploadTTU3 = ({ student }) => {
                   {isUploading ? (
                     <>
                       <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      Mengupload...
+                      Mengunggah...
                     </>
                   ) : (
                     <>
@@ -597,7 +597,7 @@ const UploadTTU3 = ({ student }) => {
               </h3>
 
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                Anda dapat mengupload file baru setelah pembatalan.
+                Anda dapat mengunggah file baru setelah pembatalan.
               </p>
 
               <div className="flex items-center gap-3 w-full">

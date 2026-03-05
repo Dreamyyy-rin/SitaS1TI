@@ -13,7 +13,7 @@ export default function DashboardView({
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Request Bimbingan</p>
+              <p className="text-gray-500 text-sm">Permintaan Bimbingan</p>
               <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
                 {stats.total_request ?? requestBimbingan.length}
               </p>
@@ -27,7 +27,7 @@ export default function DashboardView({
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-500 text-sm">Total Mahasiswa</p>
+              <p className="text-gray-500 text-sm">Jumlah Mahasiswa</p>
               <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
                 {stats.total_mahasiswa ?? mahasiswaBimbingan.length}
               </p>

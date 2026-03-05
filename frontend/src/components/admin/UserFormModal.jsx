@@ -234,11 +234,11 @@ const UserFormModal = ({
 
           <div>
             <label className="text-sm font-semibold text-slate-600">
-              Password Baru
-            </label>
-            {initialData && (
+                Kata Sandi Baru
+              </label>
+              {initialData && (
               <p className="mt-1 text-xs text-slate-500">
-                Kosongkan jika tidak ingin mereset password.
+                Kosongkan jika tidak ingin mengatur ulang kata sandi.
               </p>
             )}
             <input
@@ -249,8 +249,8 @@ const UserFormModal = ({
               className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
               placeholder={
                 initialData
-                  ? "Kosongkan jika tidak ingin mereset"
-                  : "Masukkan password"
+                  ? "Kosongkan jika tidak ingin mengatur ulang"
+                  : "Masukkan kata sandi"
               }
               required={!initialData}
             />

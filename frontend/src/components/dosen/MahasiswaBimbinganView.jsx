@@ -117,10 +117,10 @@ export default function MahasiswaBimbinganView({
                         <button
                           onClick={() => onOpenChat(mhs)}
                           className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center gap-1"
-                          title="Diskusi Review"
+                          title="Diskusi Tinjauan"
                         >
                           <MessageCircle className="w-4 h-4" />
-                          Chat
+                          Obrolan
                         </button>
                       )}
                     </div>

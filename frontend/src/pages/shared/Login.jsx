@@ -13,25 +13,25 @@ const Login = () => {
 
   const roleConfig = {
     mahasiswa: {
-      title: "Login sebagai Mahasiswa",
+      title: "Masuk sebagai Mahasiswa",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-[#0B2F7F] hover:bg-indigo-900",
     },
     dosen: {
-      title: "Login sebagai Dosen & Admin",
+      title: "Masuk sebagai Dosen & Admin",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-orange-600 hover:bg-orange-700",
     },
     kaprodi: {
-      title: "Login sebagai Kaprodi",
+      title: "Masuk sebagai Kaprodi",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-teal-600 hover:bg-teal-700",
     },
     superadmin: {
-      title: "Login sebagai Superadmin",
+      title: "Masuk sebagai Superadmin",
       usernameLabel: "Email",
       usernamePlaceholder: "Masukkan email Anda",
       buttonColor: "bg-gray-700 hover:bg-gray-800",
@@ -49,7 +49,7 @@ const Login = () => {
     setError("");
 
     if (!formData.username.trim() || !formData.password.trim()) {
-      setError("Email dan password wajib diisi");
+      setError("Email dan kata sandi wajib diisi");
       return;
     }
 
@@ -73,7 +73,7 @@ const Login = () => {
 
       const result = await response.json().catch(() => ({}));
       if (!response.ok || result.success === false) {
-        throw new Error(result.error || "Login gagal");
+        throw new Error(result.error || "Gagal masuk");
       }
 
       const token = result?.data?.token;
@@ -103,7 +103,7 @@ const Login = () => {
         }
       }
     } catch (err) {
-      setError(err.message || "Login gagal");
+      setError(err.message || "Gagal masuk");
     } finally {
       setIsSubmitting(false);
     }
@@ -214,7 +214,7 @@ const Login = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-slate-700 mb-2"
               >
-                Password
+                Kata Sandi
               </label>
               <div className="relative">
                 <input
@@ -224,7 +224,7 @@ const Login = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder="Masukkan password Anda"
+                  placeholder="Masukkan kata sandi Anda"
                   className={`w-full px-4 py-3 pr-12 border border-slate-300 rounded-xl focus:ring-2 ${role === "mahasiswa" ? "focus:ring-blue-500" : "focus:ring-orange-500"} focus:border-transparent outline-none transition-all`}
                 />
                 <button
@@ -273,7 +273,7 @@ const Login = () => {
                 config.buttonColor || "bg-blue-600"
               } text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2`}
             >
-              {isSubmitting ? "Mohon Tunggu..." : "Login"}
+              {isSubmitting ? "Mohon Tunggu..." : "Masuk"}
             </button>
           </form>
         </div>

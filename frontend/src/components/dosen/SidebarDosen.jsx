@@ -27,13 +27,13 @@ const SidebarDosen = ({
       items: [
         {
           key: "dashboard",
-          label: "Dashboard",
+          label: "Dasbor",
           view: "dashboard",
           icon: LayoutDashboard,
         },
         {
           key: "request-bimbingan",
-          label: "Request Bimbingan",
+          label: "Permintaan Bimbingan",
           view: "request-bimbingan",
           icon: ClipboardList,
           badge: requestCount,
@@ -46,7 +46,7 @@ const SidebarDosen = ({
         },
         {
           key: "review",
-          label: "Review",
+          label: "Tinjauan",
           view: "review",
           icon: FileCheck,
         },
