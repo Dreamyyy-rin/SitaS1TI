@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { Users, CheckCircle, Clock } from "lucide-react";
+import { Users, CheckCircle, Clock, MessageCircle } from "lucide-react";
 
 export default function MahasiswaBimbinganView({
   mahasiswaBimbingan = [],
   onPreviewFile,
   onAcceptMahasiswa,
   onRejectMahasiswa,
+  onOpenChat,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -105,12 +106,24 @@ export default function MahasiswaBimbinganView({
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onPreviewFile(mhs, "TTU")}
-                      className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
-                    >
-                      Lihat File
-                    </button>
+                    <div className="flex gap-2 justify-center">
+                      <button
+                        onClick={() => onPreviewFile(mhs, "TTU")}
+                        className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                      >
+                        Lihat File
+                      </button>
+                      {onOpenChat && (
+                        <button
+                          onClick={() => onOpenChat(mhs)}
+                          className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center gap-1"
+                          title="Diskusi Review"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Chat
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex gap-2 justify-center">

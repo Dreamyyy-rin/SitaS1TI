@@ -10,7 +10,6 @@ export default function ReviewDosenPage() {
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const [reviewComments, setReviewComments] = useState({});
   const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
   const [requestCount, setRequestCount] = useState(() => {
     const cached = localStorage.getItem("dosen_request_count");
@@ -59,6 +58,7 @@ export default function ReviewDosenPage() {
               nim: m.nim || "-",
               prodi: m.prodi || "-",
               email: m.email || "-",
+              judul: m.judul || "-",
               pembimbing: m.pembimbing_1 || "-",
               ttu1: ["submitted", "reviewed", "approved"].includes(
                 ttu.ttu_1?.status,
@@ -69,6 +69,7 @@ export default function ReviewDosenPage() {
               ttu3: ["submitted", "reviewed", "approved"].includes(
                 ttu.ttu_3?.status,
               ),
+              ttu3Status: ttu.ttu_3?.status,
               ttu_status: ttu,
               submissions: m.submissions || [],
             };
@@ -86,15 +87,20 @@ export default function ReviewDosenPage() {
     email: profile?.email || "-",
   };
 
-  const handleCommentChange = (mahasiswaId, comment) => {
-    setReviewComments((prev) => ({
-      ...prev,
-      [mahasiswaId]: comment,
-    }));
-  };
-
   const handlePreviewFile = (mahasiswa, ttuType) => {
-    alert(`Preview file ${ttuType} untuk ${mahasiswa.nama}`);
+    // Find the latest ttu_3 submission for this mahasiswa
+    const ttu3Sub = (mahasiswa.submissions || []).find(
+      (s) => s.ttu_number === "ttu_3"
+    );
+    if (ttu3Sub) {
+      const token = localStorage.getItem("sita_token");
+      window.open(
+        `${API}/api/dosen/submissions/${ttu3Sub._id}/download?token=${token}`,
+        "_blank"
+      );
+    } else {
+      alert("File TTU 3 belum diupload");
+    }
   };
 
   const handleAcceptReview = (mahasiswa) => {
@@ -177,8 +183,7 @@ export default function ReviewDosenPage() {
           {!isLoading && (
             <ReviewView
               mahasiswaBimbingan={mahasiswaBimbingan}
-              reviewComments={reviewComments}
-              onCommentChange={handleCommentChange}
+              currentDosenId={profile?._id || profile?.user_id}
               onPreviewFile={handlePreviewFile}
               onAcceptReview={handleAcceptReview}
             />

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, FileText, Download, CheckCircle, XCircle } from "lucide-react";
+import { X, FileText, Download, CheckCircle, XCircle, MessageCircle } from "lucide-react";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import MahasiswaBimbinganView from "../../components/dosen/MahasiswaBimbinganView";
+import ReviewChat from "../../components/shared/ReviewChat";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -23,6 +24,9 @@ export default function MahasiswaBimbinganPage() {
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedMahasiswaId, setSelectedMahasiswaId] = useState(null);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMahasiswaId, setChatMahasiswaId] = useState(null);
+  const [chatMahasiswaName, setChatMahasiswaName] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -118,28 +122,12 @@ export default function MahasiswaBimbinganPage() {
     }
   };
 
-  const handleDownloadFile = async (filePath) => {
+  const handleDownloadFile = (submissionId) => {
     const token = localStorage.getItem("sita_token");
-    try {
-      const res = await fetch(`${API}/api/dosen/file/${filePath}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        alert("Gagal mengambil file");
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      window.open(url, "_blank");
-
-      // Clean up after a delay
-      setTimeout(() => window.URL.revokeObjectURL(url), 100);
-    } catch (err) {
-      console.error(err);
-      alert("Gagal membuka file");
-    }
+    window.open(
+      `${API}/api/dosen/submissions/${submissionId}/download?token=${token}`,
+      "_blank",
+    );
   };
 
   const handleAcceptMahasiswa = (id) => {
@@ -304,6 +292,12 @@ export default function MahasiswaBimbinganPage() {
       });
   };
 
+  const handleOpenChat = (mhs) => {
+    setChatMahasiswaId(mhs.id);
+    setChatMahasiswaName(mhs.nama);
+    setShowChat(true);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("sita_token");
     localStorage.removeItem("sita_user");
@@ -354,6 +348,7 @@ export default function MahasiswaBimbinganPage() {
               onPreviewFile={handlePreviewFile}
               onAcceptMahasiswa={handleAcceptMahasiswa}
               onRejectMahasiswa={handleRejectMahasiswa}
+              onOpenChat={handleOpenChat}
             />
           )}
         </div>
@@ -454,7 +449,7 @@ export default function MahasiswaBimbinganPage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => handleDownloadFile(sub.file_path)}
+                        onClick={() => handleDownloadFile(sub._id)}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
                       >
                         <Download className="w-4 h-4" />
@@ -551,6 +546,42 @@ export default function MahasiswaBimbinganPage() {
                   Ya, Tolak
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Review Chat Modal */}
+      {showChat && chatMahasiswaId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setShowChat(false)}
+          ></div>
+          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 transform transition-all max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                  Diskusi Review
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {chatMahasiswaName}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowChat(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 pt-2">
+              <ReviewChat
+                role="dosen"
+                mahasiswaId={chatMahasiswaId}
+                currentUserId={profile?._id || profile?.user_id}
+              />
             </div>
           </div>
         </div>

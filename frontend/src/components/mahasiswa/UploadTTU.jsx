@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Clock,
   History,
+  ArrowRight,
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
 
@@ -137,15 +138,17 @@ const UploadTTU = ({ onSwitchToReview }) => {
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Upload Tugas Talenta Unggul {currentStage}
+          Upload Tugas Talenta Unggul {currentStage <= 2 ? currentStage : 2}
         </h2>
         <p className="text-gray-600">
-          Silakan upload draf untuk TTU {currentStage}
+          {currentStage <= 2
+            ? `Silakan upload draf untuk TTU ${currentStage}`
+            : "TTU 1 dan TTU 2 telah diselesaikan"}
         </p>
         <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
           <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
             <span className="w-2 h-2 bg-blue-500 rounded-full "></span>
-            TTU {currentStage} dari 3
+            TTU {currentStage <= 2 ? currentStage : 2} dari 3
           </span>
           {ttuStatus && (
             <span
@@ -190,7 +193,34 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </div>
       )}
 
-      {ttuStatus && ttuStatus[`ttu_${currentStage}`]?.status === "locked" ? (
+      {/* Stage 3 - TTU3 should be uploaded from Daftar Review */}
+      {currentStage >= 3 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-green-200 p-8 text-center">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-900 mb-2">
+            {ttuStatus?.ttu_3?.status === "approved"
+              ? "Semua TTU Telah Diselesaikan!"
+              : "TTU 1 & TTU 2 Telah Disetujui!"}
+          </h3>
+          {ttuStatus?.ttu_3?.status !== "approved" && (
+            <>
+              <p className="text-gray-600 mb-6">
+                Untuk mengupload TTU 3, silakan gunakan menu{" "}
+                <span className="font-semibold text-blue-700">Daftar Review</span>.
+              </p>
+              {onSwitchToReview && (
+                <button
+                  onClick={onSwitchToReview}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+                >
+                  Buka Daftar Review
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      ) : ttuStatus && ttuStatus[`ttu_${currentStage}`]?.status === "locked" ? (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
           <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">

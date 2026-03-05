@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, ChevronDown, ChevronUp } from "lucide-react";
+import ReviewChat from "../shared/ReviewChat";
+
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 export default function ReviewView({
   mahasiswaBimbingan = [],
-  reviewComments = {},
-  onCommentChange,
   onPreviewFile,
   onAcceptReview,
+  currentDosenId,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedChat, setExpandedChat] = useState(null);
 
- 
   const mahasiswaWithTtu3 = mahasiswaBimbingan.filter((mhs) => mhs.ttu3);
 
   const mahasiswaForReview = mahasiswaWithTtu3.filter((mhs) => {
@@ -20,6 +22,10 @@ export default function ReviewView({
       mhs.nim.toLowerCase().includes(query)
     );
   });
+
+  const toggleChat = (id) => {
+    setExpandedChat(expandedChat === id ? null : id);
+  };
 
   return (
     <div className="space-y-6">
@@ -48,116 +54,109 @@ export default function ReviewView({
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  No
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Mahasiswa
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Judul
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  File TTU 3
-                </th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
-                  Komentar Review
-                </th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  Aksi
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {mahasiswaForReview.map((mhs, index) => (
-                <tr key={mhs.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm">{index + 1}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <div>
-                      <p className="font-semibold text-slate-800">{mhs.nama}</p>
-                      <p className="text-xs text-slate-500">{mhs.nim}</p>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm">{mhs.judul}</td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onPreviewFile(mhs, "TTU 2")}
-                      className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
-                    >
-                      Lihat File
-                    </button>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 items-center">
-                      <textarea
-                        value={reviewComments[mhs.id] || ""}
-                        onChange={(e) =>
-                          onCommentChange(mhs.id, e.target.value)
-                        }
-                        placeholder="Tulis komentar review..."
-                        rows={2}
-                        className="flex-1 px-3 py-2 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                      />
-                      <button
-                        onClick={() => {
-                          const comment = reviewComments[mhs.id] || "";
-                          if (comment.trim()) {
-                            alert(
-                              `Komentar untuk ${mhs.nama} terkirim: "${comment}"`,
-                            );
-                          } else {
-                            alert("Silakan tulis komentar terlebih dahulu");
-                          }
-                        }}
-                        className="bg-[#0B2F7F] text-white px-3 py-2 rounded hover:bg-blue-800 text-sm font-medium whitespace-nowrap h-fit"
-                      >
-                        Kirim
-                      </button>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => onAcceptReview(mhs)}
-                      className="bg-[#0B2F7F] text-white px-4 py-1 rounded hover:bg-blue-800 text-sm font-medium"
-                    >
-                      Accept
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {mahasiswaForReview.length === 0 && mahasiswaWithTtu3.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center py-16">
+          <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500 text-lg">
+            Data mahasiswa tidak ditemukan
+          </p>
+          <p className="text-slate-400 text-sm mt-2">
+            Tidak ada mahasiswa yang cocok dengan pencarian "{searchQuery}"
+          </p>
         </div>
+      )}
 
-        {mahasiswaForReview.length === 0 && mahasiswaWithTtu3.length > 0 && (
-          <div className="text-center py-16">
-            <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">
-              Data mahasiswa tidak ditemukan
-            </p>
-            <p className="text-slate-400 text-sm mt-2">
-              Tidak ada mahasiswa yang cocok dengan pencarian "{searchQuery}"
-            </p>
-          </div>
-        )}
+      {mahasiswaWithTtu3.length === 0 && (
+        <div className="bg-white rounded-lg shadow-md p-6 text-center py-16">
+          <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+          <p className="text-slate-500 text-lg">
+            Belum ada submission untuk direview
+          </p>
+          <p className="text-slate-400 text-sm mt-2">
+            Mahasiswa yang sudah upload TTU 3 akan muncul di sini
+          </p>
+        </div>
+      )}
 
-        {mahasiswaWithTtu3.length === 0 && (
-          <div className="text-center py-16">
-            <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">
-              Belum ada submission untuk direview
-            </p>
-            <p className="text-slate-400 text-sm mt-2">
-              Mahasiswa yang sudah upload TTU 3 akan muncul di sini
-            </p>
+      {mahasiswaForReview.map((mhs) => (
+        <div
+          key={mhs.id}
+          className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden"
+        >
+          {/* Header row */}
+          <div className="p-5 flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-1">
+                <h3 className="text-lg font-bold text-slate-800">
+                  {mhs.nama}
+                </h3>
+                <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                  {mhs.nim}
+                </span>
+                {mhs.ttu3Status === "approved" && (
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-700">
+                    Disetujui
+                  </span>
+                )}
+                {(mhs.ttu3Status === "submitted" ||
+                  mhs.ttu3Status === "reviewed") && (
+                  <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-yellow-100 text-yellow-700">
+                    {mhs.ttu3Status === "reviewed" ? "Ditinjau" : "Diajukan"}
+                  </span>
+                )}
+              </div>
+              {mhs.judul && mhs.judul !== "-" && (
+                <p className="text-sm text-slate-600 mt-1">
+                  <span className="font-medium text-slate-500">Judul:</span>{" "}
+                  {mhs.judul}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onPreviewFile(mhs, "TTU 3")}
+                className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+              >
+                Lihat File
+              </button>
+              {mhs.ttu3Status !== "approved" && (
+                <button
+                  onClick={() => onAcceptReview(mhs)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
+                >
+                  Setujui TTU 3
+                </button>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+
+          {/* Chat toggle */}
+          <div className="border-t border-slate-100">
+            <button
+              onClick={() => toggleChat(mhs.id)}
+              className="w-full flex items-center justify-between px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              <span className="font-medium">Diskusi Review</span>
+              {expandedChat === mhs.id ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
+
+            {expandedChat === mhs.id && (
+              <div className="border-t border-slate-100">
+                <ReviewChat
+                  mahasiswaId={mhs.id}
+                  role="dosen"
+                  currentUserId={currentDosenId}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

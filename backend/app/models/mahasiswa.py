@@ -192,16 +192,26 @@ class Mahasiswa(BaseModel):
         if ttu_number == "ttu_1":
             update_fields["ttu_status.ttu_2.status"] = "open"
         elif ttu_number == "ttu_2":
-            # ttu_3 only open when requirement approved
-            doc = cls.collection().find_one({"_id": ObjectId(mahasiswa_id)})
-            ttu3_req = (doc or {}).get("ttu3_requirement", {})
-            if ttu3_req.get("status") == "approved":
-                update_fields["ttu_status.ttu_3.status"] = "open"
+            # TTU3 opens directly when TTU2 is approved
+            update_fields["ttu_status.ttu_3.status"] = "open"
 
         result = cls.collection().update_one(
             {"_id": ObjectId(mahasiswa_id)},
             {"$set": update_fields}
         )
+
+        # Also update the latest submission's status to "approved"
+        if result.modified_count > 0:
+            db = BaseModel.db()
+            db["submissions"].update_many(
+                {
+                    "mahasiswa_id": mahasiswa_id,
+                    "ttu_number": ttu_number,
+                    "status": {"$in": ["submitted", "reviewed"]},
+                },
+                {"$set": {"status": "approved", "approved_at": now}}
+            )
+
         return result.modified_count > 0
 
     @classmethod

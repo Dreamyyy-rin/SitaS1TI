@@ -1,9 +1,9 @@
 """
 Dosen routes blueprint
 """
-from flask import Blueprint, request, g, send_file
+from flask import Blueprint, request, g, Response
 from ..auth import token_required, role_required
-from ..models import Submission, PembimbingRequest, Mahasiswa, Notification, User
+from ..models import Submission, PembimbingRequest, Mahasiswa, Notification, User, ReviewComment
 from ..utils import Sanitizer, ResponseFormatter
 
 dosen_bp = Blueprint("dosen", __name__, url_prefix="/api/dosen")
@@ -74,6 +74,7 @@ def list_mahasiswa_review():
             "nim": m.get("nim"),
             "prodi": m.get("prodi"),
             "email": m.get("email"),
+            "judul": m.get("judul"),
             "pembimbing_1": pembimbing_1.get("nama") if pembimbing_1 else None,
             "ttu_status": ttu,
             "submissions": submissions,
@@ -373,18 +374,96 @@ def get_ttu_submission_history(mahasiswa_id, ttu_number):
     return ResponseFormatter.success(data=history, message=f"Total revisi: {len(history)}")
 
 
-@dosen_bp.get("/file/<path:file_path>")
+@dosen_bp.get("/submissions/<submission_id>/download")
 @token_required
 @role_required("dosen")
-def download_file(file_path):
-    """Download atau preview file submission"""
-    import os
-    full_path = os.path.join(os.getcwd(), file_path)
+def download_file(submission_id):
+    """Download file submission dari database"""
+    submission = Submission.get_by_id(submission_id)
+    if not submission:
+        return ResponseFormatter.error("Submission tidak ditemukan", 404)
     
-    if not os.path.exists(full_path):
+    # Check if dosen is pembimbing or reviewer
+    mahasiswa = Mahasiswa.find_by_id(submission.get("mahasiswa_id"))
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+    
+    dosen_id = g.current_user.get("user_id")
+    is_pembimbing = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    is_reviewer = dosen_id == mahasiswa.get("reviewer_id")
+    
+    if not (is_pembimbing or is_reviewer):
+        return ResponseFormatter.error("Anda tidak memiliki akses ke file ini", 403)
+    
+    file_info = Submission.get_file_data(submission_id)
+    if not file_info:
         return ResponseFormatter.error("File tidak ditemukan", 404)
     
-    try:
-        return send_file(full_path, as_attachment=False)
-    except Exception as e:
-        return ResponseFormatter.error(f"Gagal mengambil file: {str(e)}", 500)
+    resp = Response(
+        file_info["file_data"],
+        mimetype=file_info["file_content_type"],
+        headers={
+            "Content-Disposition": f'inline; filename="{file_info["file_name"]}"',
+            "Content-Length": str(len(file_info["file_data"])),
+        }
+    )
+    # Allow CORS for file downloads
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    return resp
+
+
+@dosen_bp.get("/mahasiswa/<mahasiswa_id>/review-comments")
+@token_required
+@role_required("dosen")
+def get_review_comments(mahasiswa_id):
+    """Get review comments for a mahasiswa's TTU3 review"""
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    dosen_id = g.current_user.get("user_id")
+    is_pembimbing = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    is_reviewer = dosen_id == mahasiswa.get("reviewer_id")
+
+    if not (is_pembimbing or is_reviewer):
+        return ResponseFormatter.error("Anda tidak memiliki akses", 403)
+
+    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id)
+    return ResponseFormatter.success(data=comments, message=f"Total: {len(comments)}")
+
+
+@dosen_bp.post("/mahasiswa/<mahasiswa_id>/review-comments")
+@token_required
+@role_required("dosen")
+def post_review_comment(mahasiswa_id):
+    """Post a review comment as dosen (pembimbing or reviewer)"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    message = (data.get("message") or "").strip()
+    if not message:
+        return ResponseFormatter.error("Pesan tidak boleh kosong", 400)
+
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    dosen_id = g.current_user.get("user_id")
+    dosen_nama = g.current_user.get("nama", "Dosen")
+    is_pembimbing = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    is_reviewer = dosen_id == mahasiswa.get("reviewer_id")
+
+    if not (is_pembimbing or is_reviewer):
+        return ResponseFormatter.error("Anda tidak memiliki akses", 403)
+
+    sender_role = "reviewer" if is_reviewer else "pembimbing"
+
+    comment = ReviewComment.create(
+        mahasiswa_id=mahasiswa_id,
+        sender_id=dosen_id,
+        sender_name=dosen_nama,
+        sender_role=sender_role,
+        message=message,
+    )
+
+    return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)

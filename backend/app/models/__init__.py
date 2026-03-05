@@ -8,6 +8,7 @@ from .submission import Submission
 from .notification import Notification
 from .pembimbing_request import PembimbingRequest
 from .ttu3_requirement import TTU3Requirement
+from .review_comment import ReviewComment
 
 __all__ = [
     "BaseModel",
@@ -18,4 +19,5 @@ __all__ = [
     "Notification",
     "PembimbingRequest",
     "TTU3Requirement",
+    "ReviewComment",
 ]

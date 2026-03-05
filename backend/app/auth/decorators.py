@@ -19,6 +19,10 @@ def token_required(f):
             except IndexError:
                 return jsonify({"success": False, "error": "Format header tidak valid"}), 401
         
+        # Fallback: support token as query parameter (for file downloads in browser)
+        if not token:
+            token = request.args.get("token")
+        
         if not token:
             return jsonify({"success": False, "error": "Token diperlukan"}), 401
         

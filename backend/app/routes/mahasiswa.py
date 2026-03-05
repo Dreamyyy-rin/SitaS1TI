@@ -1,21 +1,18 @@
 """
 Mahasiswa routes blueprint
 """
-from flask import Blueprint, request, g
+from flask import Blueprint, request, g, Response
 from werkzeug.utils import secure_filename
-import os
+import mimetypes
 from ..auth import AuthService, token_required, role_required
-from ..models import Mahasiswa, Submission, Notification, User, PembimbingRequest, TTU3Requirement
+from ..models import Mahasiswa, Submission, Notification, User, PembimbingRequest, TTU3Requirement, ReviewComment
 from ..utils import Sanitizer, Validator, ResponseFormatter
 
 mahasiswa_bp = Blueprint("mahasiswa", __name__, url_prefix="/api/mahasiswa")
 
-UPLOAD_FOLDER = "uploads"
 ALLOWED_EXTENSIONS = {"pdf", "docx", "doc", "txt", "pptx"}
 ALLOWED_REQUIREMENT_EXTENSIONS = {"pdf", "docx", "doc"}
 MAX_FILE_SIZE_MB = 50
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
 @mahasiswa_bp.post("/register")
@@ -231,7 +228,7 @@ def create_change_request():
 @token_required
 @role_required("mahasiswa")
 def upload(ttu_number):
-    """Upload submission"""
+    """Upload submission - file disimpan di database"""
     if ttu_number not in ["ttu_1", "ttu_2", "ttu_3"]:
         return ResponseFormatter.error("TTU harus: ttu_1, ttu_2, atau ttu_3", 400)
     
@@ -245,16 +242,15 @@ def upload(ttu_number):
     if not Validator.validate_file_extension(file.filename, ALLOWED_EXTENSIONS):
         return ResponseFormatter.error(f"File harus: {', '.join(ALLOWED_EXTENSIONS)}", 400)
     
-    file_size = len(file.read())
-    file.seek(0)
+    file_data = file.read()
+    file_size = len(file_data)
     
     if not Validator.validate_file_size(file_size, MAX_FILE_SIZE_MB):
         return ResponseFormatter.error(f"File max {MAX_FILE_SIZE_MB}MB", 400)
     
     filename = secure_filename(file.filename)
     filename = Sanitizer.sanitize_filename(filename)
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file.save(file_path)
+    content_type = file.content_type or mimetypes.guess_type(filename)[0] or "application/octet-stream"
     
     mahasiswa_id = g.current_user.get("mahasiswa_id")
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
@@ -265,18 +261,14 @@ def upload(ttu_number):
     current_status = ttu_status.get("status")
     if current_status not in ["open", "needs_revision"]:
         return ResponseFormatter.error("TTU belum dibuka atau sudah selesai", 400)
-
-    if ttu_number == "ttu_3":
-        ttu3_req = mahasiswa.get("ttu3_requirement", {})
-        if ttu3_req.get("status") != "approved":
-            return ResponseFormatter.error("Persyaratan TTU 3 belum disetujui superadmin", 400)
     
     submission = Submission.create(
         mahasiswa_id=mahasiswa_id,
         ttu_number=ttu_number,
-        file_path=file_path,
         file_name=filename,
-        file_size=file_size
+        file_size=file_size,
+        file_data=file_data,
+        file_content_type=content_type,
     )
     
     Notification.create(
@@ -298,7 +290,7 @@ def upload(ttu_number):
 @token_required
 @role_required("mahasiswa")
 def upload_ttu3_requirement():
-    """Upload berkas persyaratan TTU3"""
+    """Upload berkas persyaratan TTU3 - file disimpan di database"""
     if "file" not in request.files:
         return ResponseFormatter.error("File tidak ada", 400)
 
@@ -309,23 +301,23 @@ def upload_ttu3_requirement():
     if not Validator.validate_file_extension(file.filename, ALLOWED_REQUIREMENT_EXTENSIONS):
         return ResponseFormatter.error(f"File harus: {', '.join(ALLOWED_REQUIREMENT_EXTENSIONS)}", 400)
 
-    file_size = len(file.read())
-    file.seek(0)
+    file_data = file.read()
+    file_size = len(file_data)
 
     if not Validator.validate_file_size(file_size, MAX_FILE_SIZE_MB):
         return ResponseFormatter.error(f"File max {MAX_FILE_SIZE_MB}MB", 400)
 
     filename = secure_filename(file.filename)
     filename = Sanitizer.sanitize_filename(filename)
-    file_path = os.path.join(UPLOAD_FOLDER, f"ttu3_req_{filename}")
-    file.save(file_path)
+    content_type = file.content_type or mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
     mahasiswa_id = g.current_user.get("mahasiswa_id")
     requirement = TTU3Requirement.create(
         mahasiswa_id=mahasiswa_id,
-        file_path=file_path,
         file_name=filename,
         file_size=file_size,
+        file_data=file_data,
+        file_content_type=content_type,
     )
 
     Mahasiswa.update_ttu3_requirement_status(mahasiswa_id, "submitted")
@@ -438,3 +430,66 @@ def get_comments(submission_id):
         data={"comments": submission.get("comments", [])},
         message="Comments"
     )
+
+
+@mahasiswa_bp.get("/submissions/<submission_id>/download")
+@token_required
+@role_required("mahasiswa")
+def download_submission_file(submission_id):
+    """Download file submission dari database"""
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    submission = Submission.get_by_id(submission_id)
+    
+    if not submission or submission.get("mahasiswa_id") != mahasiswa_id:
+        return ResponseFormatter.error("Submission tidak ditemukan", 404)
+    
+    file_info = Submission.get_file_data(submission_id)
+    if not file_info:
+        return ResponseFormatter.error("File tidak ditemukan", 404)
+    
+    return Response(
+        file_info["file_data"],
+        mimetype=file_info["file_content_type"],
+        headers={
+            "Content-Disposition": f'inline; filename="{file_info["file_name"]}"',
+            "Content-Length": str(len(file_info["file_data"])),
+        }
+    )
+
+
+@mahasiswa_bp.get("/review-comments")
+@token_required
+@role_required("mahasiswa")
+def get_review_comments():
+    """Get review comments for this mahasiswa's TTU3"""
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id)
+    return ResponseFormatter.success(data=comments, message=f"Total: {len(comments)}")
+
+
+@mahasiswa_bp.post("/review-comments")
+@token_required
+@role_required("mahasiswa")
+def post_review_comment():
+    """Post a review comment as mahasiswa"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+
+    message = (data.get("message") or "").strip()
+    if not message:
+        return ResponseFormatter.error("Pesan tidak boleh kosong", 400)
+
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    comment = ReviewComment.create(
+        mahasiswa_id=mahasiswa_id,
+        sender_id=mahasiswa_id,
+        sender_name=mahasiswa.get("nama", "Mahasiswa"),
+        sender_role="mahasiswa",
+        message=message,
+    )
+
+    return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)

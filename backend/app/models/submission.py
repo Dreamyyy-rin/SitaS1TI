@@ -1,6 +1,7 @@
 """
 Submission model
 """
+import base64
 from datetime import datetime
 from typing import Optional, List
 from bson import ObjectId
@@ -24,16 +25,17 @@ class Submission(BaseModel):
         return db["mahasiswa"]
     
     @classmethod
-    def create(cls, mahasiswa_id: str, ttu_number: str, file_path: str, 
-               file_name: str, file_size: int) -> dict:
-        """Buat submission baru"""
+    def create(cls, mahasiswa_id: str, ttu_number: str, file_name: str,
+               file_size: int, file_data: bytes, file_content_type: str = "application/octet-stream") -> dict:
+        """Buat submission baru - file disimpan sebagai binary di DB"""
         submission = {
             "_id": ObjectId(),
             "mahasiswa_id": mahasiswa_id,
             "ttu_number": ttu_number,
             "file_name": file_name,
-            "file_path": file_path,
             "file_size": file_size,
+            "file_data": base64.b64encode(file_data).decode("utf-8"),
+            "file_content_type": file_content_type,
             "uploaded_at": datetime.utcnow(),
             "status": "submitted",
             "comments": [],
@@ -53,13 +55,22 @@ class Submission(BaseModel):
         )
         
         submission["_id"] = str(result.inserted_id)
+        submission.pop("file_data", None)
         return submission
     
     @classmethod
+    def _strip_file_data(cls, doc: dict) -> dict:
+        """Strip file_data from document for listing (too large)"""
+        if doc:
+            doc.pop("file_data", None)
+        return doc
+
+    @classmethod
     def get_by_mahasiswa_ttu(cls, mahasiswa_id: str, ttu_number: str) -> Optional[dict]:
-        """Get latest submission by mahasiswa & TTU"""
+        """Get latest submission by mahasiswa & TTU (without file_data)"""
         doc = cls.collection().find_one(
             {"mahasiswa_id": mahasiswa_id, "ttu_number": ttu_number},
+            {"file_data": 0},
             sort=[("uploaded_at", -1)]
         )
         return cls.to_dict(doc) if doc else None
@@ -68,23 +79,43 @@ class Submission(BaseModel):
     def get_all_by_mahasiswa_ttu(cls, mahasiswa_id: str, ttu_number: str) -> List[dict]:
         """Get ALL submissions (history) for mahasiswa & TTU, sorted by upload date desc"""
         docs = cls.collection().find(
-            {"mahasiswa_id": mahasiswa_id, "ttu_number": ttu_number}
+            {"mahasiswa_id": mahasiswa_id, "ttu_number": ttu_number},
+            {"file_data": 0}
         ).sort("uploaded_at", -1)
         return cls.to_list(docs)
     
     @classmethod
-    def get_by_id(cls, submission_id: str) -> Optional[dict]:
+    def get_by_id(cls, submission_id: str, include_file: bool = False) -> Optional[dict]:
         """Get submission by ID"""
         try:
-            doc = cls.collection().find_one({"_id": ObjectId(submission_id)})
+            projection = None if include_file else {"file_data": 0}
+            doc = cls.collection().find_one({"_id": ObjectId(submission_id)}, projection)
             return cls.to_dict(doc) if doc else None
+        except:
+            return None
+
+    @classmethod
+    def get_file_data(cls, submission_id: str) -> Optional[dict]:
+        """Get file data for download"""
+        try:
+            doc = cls.collection().find_one(
+                {"_id": ObjectId(submission_id)},
+                {"file_data": 1, "file_name": 1, "file_content_type": 1}
+            )
+            if doc and doc.get("file_data"):
+                return {
+                    "file_data": base64.b64decode(doc["file_data"]),
+                    "file_name": doc.get("file_name", "file"),
+                    "file_content_type": doc.get("file_content_type", "application/octet-stream"),
+                }
+            return None
         except:
             return None
     
     @classmethod
     def get_by_mahasiswa(cls, mahasiswa_id: str) -> List[dict]:
-        """Get all submissions by mahasiswa"""
-        docs = cls.collection().find({"mahasiswa_id": mahasiswa_id})
+        """Get all submissions by mahasiswa (without file_data)"""
+        docs = cls.collection().find({"mahasiswa_id": mahasiswa_id}, {"file_data": 0})
         return cls.to_list(docs)
     
     @classmethod
