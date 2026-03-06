@@ -61,9 +61,9 @@ const PanduanKaprodiView = () => {
     {
       number: "08",
       title: "Manajemen Dosen",
-      description: "Kelola data dosen pembimbing program studi",
+      description: "Lihat data dosen pembimbing program studi",
       details:
-        "Tambah dosen pembimbing baru dengan data lengkap (nama, NIP, email). Lihat jumlah mahasiswa bimbingan aktif setiap dosen. Hapus data dosen yang sudah tidak aktif. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP. Pantau total dosen dan total mahasiswa bimbingan di program studi.",
+        "Lihat daftar dosen pembimbing dengan informasi lengkap (nama, NIP, email, status). Monitor jumlah mahasiswa bimbingan aktif setiap dosen. Status 'Aktif' menandakan dosen tersebut dapat dipilih sebagai pembimbing oleh mahasiswa. Pengelolaan data dosen (tambah/hapus/ubah status) dilakukan oleh Superadmin. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP.",
       color: "red",
     },
     {

@@ -24,6 +24,8 @@ const UserFormModal = ({
   });
 
   useEffect(() => {
+    if (!isOpen) return;
+
     if (initialData) {
       setFormData({
         name: initialData.name || "",
@@ -42,7 +44,7 @@ const UserFormModal = ({
       role: defaultRole,
       prodi: "Teknik Informatika",
     });
-  }, [initialData, defaultRole]);
+  }, [isOpen, initialData, defaultRole]);
 
   if (!isOpen) return null;
 
@@ -234,9 +236,9 @@ const UserFormModal = ({
 
           <div>
             <label className="text-sm font-semibold text-slate-600">
-                Kata Sandi Baru
-              </label>
-              {initialData && (
+              Kata Sandi Baru
+            </label>
+            {initialData && (
               <p className="mt-1 text-xs text-slate-500">
                 Kosongkan jika tidak ingin mengatur ulang kata sandi.
               </p>

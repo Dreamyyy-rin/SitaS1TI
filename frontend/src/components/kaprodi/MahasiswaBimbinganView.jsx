@@ -46,9 +46,8 @@ const MahasiswaBimbinganView = ({
     return availableDosen.filter((d) => !excludeIds.has(d._id));
   };
 
-  
   const activeMahasiswa = mahasiswaBimbingan.filter(
-    (mhs) => mhs.onboarding_status === "approved" || mhs.status === "active"
+    (mhs) => mhs.onboarding_status === "approved" || mhs.status === "active",
   );
 
   const filteredMahasiswa = activeMahasiswa.filter((mhs) => {
@@ -91,22 +90,43 @@ const MahasiswaBimbinganView = ({
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Nama</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">NIM</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Dosen Pembimbing</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reviewer</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 1</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 2</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">TTU 3</th>
-                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Aksi</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Nama
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  NIM
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Dosen Pembimbing
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Reviewer
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  TTU 1
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  TTU 2
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  TTU 3
+                </th>
+                <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
+                  Aksi
+                </th>
               </tr>
             </thead>
             <tbody>
               {filteredMahasiswa.map((mhs) => (
                 <tr key={mhs.id} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-semibold">{mhs.nama}</td>
+                  <td className="px-4 py-3 text-sm font-semibold">
+                    {mhs.nama}
+                  </td>
                   <td className="px-4 py-3 text-sm">{mhs.nim}</td>
-                  <td className="px-4 py-3 text-sm">{mhs.dosen}{mhs.dosen2 && mhs.dosen2 !== "-" ? `, ${mhs.dosen2}` : ""}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {mhs.dosen}
+                    {mhs.dosen2 && mhs.dosen2 !== "-" ? `, ${mhs.dosen2}` : ""}
+                  </td>
                   <td className="px-4 py-3 text-sm">{mhs.reviewer || "-"}</td>
                   <td className="px-4 py-3 text-center">
                     {mhs.ttu1 ? (
@@ -147,7 +167,9 @@ const MahasiswaBimbinganView = ({
         {filteredMahasiswa.length === 0 && activeMahasiswa.length > 0 && (
           <div className="text-center py-16">
             <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">Data mahasiswa tidak ditemukan</p>
+            <p className="text-slate-500 text-lg">
+              Data mahasiswa tidak ditemukan
+            </p>
             <p className="text-slate-400 text-sm mt-2">
               Tidak ada mahasiswa yang cocok dengan pencarian "{searchQuery}"
             </p>
@@ -157,7 +179,9 @@ const MahasiswaBimbinganView = ({
         {activeMahasiswa.length === 0 && (
           <div className="text-center py-16">
             <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">Belum ada mahasiswa bimbingan</p>
+            <p className="text-slate-500 text-lg">
+              Belum ada mahasiswa bimbingan
+            </p>
             <p className="text-slate-400 text-sm mt-2">
               Mahasiswa yang sudah memiliki pembimbing akan muncul di sini
             </p>
@@ -186,10 +210,13 @@ const MahasiswaBimbinganView = ({
             </div>
 
             <div className="mb-4 p-3 bg-slate-50 rounded-lg">
-              <p className="text-sm font-semibold text-slate-700">{changingMhs.nama}</p>
+              <p className="text-sm font-semibold text-slate-700">
+                {changingMhs.nama}
+              </p>
               <p className="text-xs text-slate-500">NIM: {changingMhs.nim}</p>
               <p className="text-xs text-slate-500 mt-1">
-                Pembimbing 1: {changingMhs.dosen || "-"} | Pembimbing 2: {changingMhs.dosen2 || "-"}
+                Pembimbing 1: {changingMhs.dosen || "-"} | Pembimbing 2:{" "}
+                {changingMhs.dosen2 || "-"}
               </p>
             </div>
 
@@ -220,10 +247,10 @@ const MahasiswaBimbinganView = ({
                   onChange={(e) => setSelectedDosenId(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="">-- Pilih Dosen --</option>
+                  <option value="">Pilih Dosen</option>
                   {getDosenOptions().map((d) => (
                     <option key={d._id} value={d._id}>
-                      {d.nama} ({d.nidn || d.nip || "-"}) — {d.active_students_count ?? 0} mhs
+                      {d.nama}
                     </option>
                   ))}
                 </select>

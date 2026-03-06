@@ -15,6 +15,24 @@ React (Vite) frontend + Flask + MongoDB.
 
 ## Jalankan Lokal
 
+### MongoDB (Wajib)
+
+**Opsi 1: MongoDB Atlas (Recommended - Gratis)**
+
+1. Buat akun di [MongoDB Atlas](https://www.mongodb.com/cloud/atlas/register)
+2. Buat cluster gratis (M0)
+3. Whitelist IP: 0.0.0.0/0 (allow from anywhere)
+4. Buat user database
+5. Copy connection string ke `backend/.env`
+
+**Opsi 2: MongoDB Lokal**
+
+```bash
+# Download dari https://www.mongodb.com/try/download/community
+# Install dan jalankan:
+mongod --dbpath C:\data\db
+```
+
 ### Backend
 
 ```bash
@@ -70,7 +88,12 @@ Frontend: http://localhost:5173
 ### Backend (.env)
 
 ```
-MONGO_URI=mongodb://localhost:27017/sita
+# MongoDB Atlas
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/sita?retryWrites=true&w=majority
+
+# Atau MongoDB Lokal
+# MONGO_URI=mongodb://localhost:27017/sita
+
 SECRET_KEY=dev-secret-key
 CORS_ORIGINS=http://localhost:5173
 ```
@@ -78,7 +101,7 @@ CORS_ORIGINS=http://localhost:5173
 ### Frontend (.env)
 
 ```
-VITE_API_URL=http://localhost:8000
+VITE_API_BASE_URL=http://localhost:8000
 ```
 
 ## 👥 User Roles

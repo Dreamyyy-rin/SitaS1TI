@@ -13,7 +13,7 @@ import {
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-const DosenManagementPage = () => {
+const DosenManagementPage = ({ onDataChange }) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -100,6 +100,7 @@ const DosenManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchDosen();
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil memperbarui dosen",
@@ -133,6 +134,7 @@ const DosenManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchDosen();
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil menambahkan dosen",
@@ -175,6 +177,7 @@ const DosenManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil menghapus dosen",
@@ -201,6 +204,7 @@ const DosenManagementPage = () => {
           u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
         ),
       );
+      onDataChange?.();
     }
 
     setShowDeleteModal(false);

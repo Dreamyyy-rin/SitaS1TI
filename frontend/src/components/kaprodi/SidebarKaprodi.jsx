@@ -9,7 +9,6 @@ import {
   GitBranch,
   History,
   UsersRound,
-  CalendarClock,
   UserCog,
   BookOpen,
   LogOut,
@@ -83,12 +82,6 @@ const SidebarKaprodi = ({
     {
       label: "PENGATURAN",
       items: [
-        {
-          key: "deadline",
-          label: "Batas Waktu TTU",
-          view: "deadline",
-          icon: CalendarClock,
-        },
         {
           key: "data-akun",
           label: "Data Akun",

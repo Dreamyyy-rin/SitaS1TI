@@ -1,22 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { X, Plus, Trash2, UserCircle, Mail, IdCard, Users } from "lucide-react";
+import { Users, UserCircle, CheckCircle, XCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const KaprodiManajemenDosen = () => {
   const [dosenList, setDosenList] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  const [showModal, setShowModal] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [selectedDosen, setSelectedDosen] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [formData, setFormData] = useState({
-    name: "",
-    nip: "",
-    email: "",
-  });
-  const [errors, setErrors] = useState({});
 
   const getToken = () => localStorage.getItem("sita_token");
 
@@ -29,9 +19,15 @@ const KaprodiManajemenDosen = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (data.success) setDosenList(data.data || []);
+      if (data.success) {
+        setDosenList(data.data || []);
+      } else {
+        console.error("Error response:", data);
+        setDosenList([]);
+      }
     } catch (err) {
       console.error("Failed to load dosen", err);
+      setDosenList([]);
     } finally {
       setLoading(false);
     }
@@ -40,102 +36,6 @@ const KaprodiManajemenDosen = () => {
   useEffect(() => {
     fetchDosenList();
   }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) {
-      newErrors.name = "Nama lengkap harus diisi";
-    }
-    if (!formData.nip.trim()) {
-      newErrors.nip = "NIP/NIDN harus diisi";
-    } else if (!/^\d{10,18}$/.test(formData.nip)) {
-      newErrors.nip = "NIP/NIDN harus 10-18 digit angka";
-    }
-    if (!formData.email.trim()) {
-      newErrors.email = "Email harus diisi";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Format email tidak valid";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleAddDosen = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    const token = getToken();
-    if (!token) return;
-
-    try {
-      const res = await fetch(`${API}/api/kaprodi/register-dosen`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nama: formData.name,
-          nidn: formData.nip,
-          email: formData.email,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setShowModal(false);
-        setFormData({ name: "", nip: "", email: "" });
-        setErrors({});
-        fetchDosenList();
-      } else {
-        setErrors({ email: data.message || "Gagal menambahkan dosen" });
-      }
-    } catch {
-      setErrors({ email: "Gagal menghubungi server" });
-    }
-  };
-
-  const handleDeleteDosen = (dosen) => {
-    setSelectedDosen(dosen);
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDelete = async () => {
-    const token = getToken();
-    if (!token || !selectedDosen) return;
-
-    try {
-      const res = await fetch(`${API}/api/kaprodi/dosen/${selectedDosen._id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (data.success) {
-        setShowDeleteConfirm(false);
-        setSelectedDosen(null);
-        fetchDosenList();
-      } else {
-        alert(data.message || "Gagal menghapus dosen");
-      }
-    } catch {
-      alert("Gagal menghubungi server");
-    }
-  };
-
-  const openModal = () => {
-    setFormData({ name: "", nip: "", email: "" });
-    setErrors({});
-    setShowModal(true);
-  };
-
 
   const filteredDosenList = dosenList.filter((dosen) => {
     const query = searchQuery.toLowerCase();
@@ -149,16 +49,15 @@ const KaprodiManajemenDosen = () => {
     <div className="space-y-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <div className="flex items-center right justify-between mb-6">
-            <button
-              onClick={openModal}
-              className="flex items-center gap-2 px-6 py-3 bg-[#0B2F7F] text-white rounded-xl font-semibold hover:bg-blue-800 transition-all duration-200"
-            >
-              <Plus className="w-5 h-5" />
-              Tambah Dosen
-            </button>
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-slate-800 mb-2">
+              Data Dosen Pembimbing
+            </h2>
+            <p className="text-slate-600">
+              Daftar dosen pembimbing yang dapat dipilih mahasiswa. Pengelolaan
+              dosen dilakukan oleh Superadmin.
+            </p>
           </div>
-
 
           <div className="relative mb-6">
             <input
@@ -204,7 +103,7 @@ const KaprodiManajemenDosen = () => {
                 <p className="text-sm text-slate-600 mb-1">Total Bimbingan</p>
                 <p className="text-3xl font-bold text-slate-800">
                   {dosenList.reduce(
-                    (sum, d) => sum + d.active_students_count,
+                    (sum, d) => sum + (d.active_students_count || 0),
                     0,
                   )}
                 </p>
@@ -234,10 +133,10 @@ const KaprodiManajemenDosen = () => {
                     Email
                   </th>
                   <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                    Jumlah Bimbingan
+                    Status
                   </th>
                   <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                    Aksi
+                    Jumlah Bimbingan
                   </th>
                 </tr>
               </thead>
@@ -260,17 +159,22 @@ const KaprodiManajemenDosen = () => {
                       {dosen.email}
                     </td>
                     <td className="px-4 py-3 text-center">
+                      {dosen.is_active ? (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-green-50 text-green-700">
+                          <CheckCircle className="w-4 h-4" />
+                          Aktif
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-semibold bg-red-50 text-red-700">
+                          <XCircle className="w-4 h-4" />
+                          Non-Aktif
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-50 text-blue-700">
                         {dosen.active_students_count || 0} Mahasiswa
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <button
-                        onClick={() => handleDeleteDosen(dosen)}
-                        className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700 text-sm font-medium"
-                      >
-                        Hapus
-                      </button>
                     </td>
                   </tr>
                 ))}
@@ -293,161 +197,12 @@ const KaprodiManajemenDosen = () => {
               <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-500 text-lg">Belum ada data dosen</p>
               <p className="text-slate-400 text-sm mt-2">
-                Klik tombol "Tambah Dosen" untuk menambah data baru
+                Hubungi Superadmin untuk menambahkan data dosen
               </p>
             </div>
           )}
         </div>
       </div>
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-            onClick={() => setShowModal(false)}
-          />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 border border-slate-100">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <h2 className="text-2xl font-bold text-slate-800 mb-6">
-              Tambah Dosen Baru
-            </h2>
-
-            <form onSubmit={handleAddDosen} className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Nama Lengkap
-                </label>
-                <div className="relative">
-                  <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Contoh: Dr. Budi Santoso, M.Kom"
-                    className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.name
-                        ? "border-red-300 bg-red-50"
-                        : "border-slate-200"
-                    }`}
-                  />
-                </div>
-                {errors.name && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.name}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  NIP/NIDN
-                </label>
-                <div className="relative">
-                  <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    name="nip"
-                    value={formData.nip}
-                    onChange={handleInputChange}
-                    placeholder="198501152010121001"
-                    maxLength={18}
-                    className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono ${
-                      errors.nip
-                        ? "border-red-300 bg-red-50"
-                        : "border-slate-200"
-                    }`}
-                  />
-                </div>
-                {errors.nip && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.nip}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="dosen@university.ac.id"
-                    className={`w-full pl-11 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                      errors.email
-                        ? "border-red-300 bg-red-50"
-                        : "border-slate-200"
-                    }`}
-                  />
-                </div>
-                {errors.email && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.email}</p>
-                )}
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-[#0B2F7F] to-blue-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
-                >
-                  Simpan
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {showDeleteConfirm && selectedDosen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
-            onClick={() => setShowDeleteConfirm(false)}
-          />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 border border-slate-100">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">
-                Hapus Data Dosen?
-              </h3>
-              <p className="text-slate-600 mb-6">
-                Anda akan menghapus data <strong>{selectedDosen.nama}</strong>.
-                Tindakan ini tidak dapat dibatalkan.
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="flex-1 px-6 py-3 border border-slate-200 text-slate-600 rounded-xl font-semibold hover:bg-slate-50 transition-colors"
-                >
-                  Batal
-                </button>
-                <button
-                  onClick={confirmDelete}
-                  className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl font-semibold hover:bg-red-700 transition-colors"
-                >
-                  Ya, Hapus
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

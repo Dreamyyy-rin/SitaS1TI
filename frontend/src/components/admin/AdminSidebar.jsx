@@ -81,27 +81,30 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
 
   return (
     <>
-      <aside className="w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)]">
-        <div className="px-8 py-8 flex items-center gap-4">
+      <aside className="w-16 md:w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)] transition-all duration-200">
+        {/* Logo */}
+        <div className="px-0 md:px-8 py-8 flex items-center justify-center md:justify-start gap-4">
           <img
             src="/fti.png"
             alt="Logo FTI"
-            className="w-10 h-10 rounded-full object-cover shadow-md border border-white"
+            className="w-10 h-10 rounded-full object-cover shadow-md border border-white flex-shrink-0"
           />
-
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+          <h1 className="hidden md:block text-xl font-bold text-slate-800 tracking-tight whitespace-nowrap">
             SITA <span className="text-[#0B2F7F]">S1 TI</span>
           </h1>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
-          {menuSections.map((section, sectionIndex) => (
+        <nav className="flex-1 px-2 md:px-4 space-y-1 overflow-y-auto">
+          {menuSections.map((section) => (
             <div key={section.label}>
-              <div className="px-4 mb-2 mt-4">
+              {/* Section label: hanya muncul di desktop */}
+              <div className="hidden md:block px-4 mb-2 mt-4">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   {section.label}
                 </span>
               </div>
+              {/* Di mobile: spacer kecil */}
+              <div className="block md:hidden mt-3" />
 
               {section.items.map((item) => {
                 const isActive = activeMenu === item.key;
@@ -109,14 +112,15 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
                   <button
                     key={item.key}
                     onClick={() => onMenuClick(item.key)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                    title={item.label}
+                    className={`w-full flex items-center justify-center md:justify-start gap-3 px-0 md:px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
                       isActive
                         ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     <svg
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 flex-shrink-0 ${
                         isActive
                           ? "text-[#0B2F7F]"
                           : "text-slate-400 group-hover:text-slate-600"
@@ -150,7 +154,7 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
                         <path d="M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 016.5 22H20V2H6.5A2.5 2.5 0 004 4.5v15zm0 0v-15M9 10h6m-6 4h6" />
                       )}
                     </svg>
-                    <span>{item.label}</span>
+                    <span className="hidden md:block">{item.label}</span>
                   </button>
                 );
               })}
@@ -158,27 +162,45 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
-                <Icon name="user" className="w-6 h-6" />
-              </div>
-
-              <div className="text-left overflow-hidden">
-                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
-                  {admin?.name || "Superadmin"}
-                </p>
-
-                <p className="text-xs text-slate-500 font-mono">
-                  Administrator
-                </p>
-              </div>
+        {/* User section */}
+        <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-center md:justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
+            {/* Avatar */}
+            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+              <Icon name="user" className="w-6 h-6" />
             </div>
 
+            {/* Name + role: hanya desktop */}
+            <div className="hidden md:block text-left overflow-hidden flex-1 ml-3">
+              <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
+                {admin?.name || "Superadmin"}
+              </p>
+              <p className="text-xs text-slate-500 font-mono">Administrator</p>
+            </div>
+
+            {/* Logout button: hanya desktop */}
             <button
               onClick={handleLogoutClick}
-              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+              className="hidden md:flex text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+              title="Keluar"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+
+            {/* Logout button: hanya mobile (langsung di bawah avatar) */}
+            <button
+              onClick={handleLogoutClick}
+              className="md:hidden text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 absolute bottom-3 left-1/2 -translate-x-1/2"
               title="Keluar"
             >
               <svg

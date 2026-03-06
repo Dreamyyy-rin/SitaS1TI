@@ -11,13 +11,14 @@ const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [stats, setStats] = useState({
     totalDosen: 0,
     totalMahasiswa: 0,
     userAktif: 0,
   });
 
-  useEffect(() => {
+  const fetchStats = () => {
     const token = localStorage.getItem("sita_token");
     if (!token) {
       navigate("/login?role=superadmin");
@@ -48,7 +49,15 @@ const AdminDashboard = () => {
         userAktif: activeUsers,
       });
     });
-  }, []);
+  };
+
+  const handleDataChange = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, [activeMenu, refreshTrigger]);
 
   const handleMenuClick = (menuKey) => {
     setActiveMenu(menuKey);
@@ -168,9 +177,9 @@ const AdminDashboard = () => {
           </div>
         );
       case "dosen":
-        return <DosenManagementPage />;
+        return <DosenManagementPage onDataChange={handleDataChange} />;
       case "mahasiswa":
-        return <MahasiswaManagementPage />;
+        return <MahasiswaManagementPage onDataChange={handleDataChange} />;
       case "panduan":
         return <PanduanSuperadminPage />;
       default:

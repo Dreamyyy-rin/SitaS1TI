@@ -317,63 +317,6 @@ def reject_pembimbing_request(request_id):
     """Reject request pembimbing"""
     return _update_request_for_kaprodi(request_id, "rejected")
 
-
-# ─── Dosen Management ───────────────────────────────────────────────
-
-@kaprodi_bp.post("/register-dosen")
-@token_required
-@role_required("kaprodi")
-def register_dosen():
-    """Register dosen baru oleh kaprodi"""
-    data = request.get_json(force=True) or {}
-    data = Sanitizer.sanitize_dict(data)
-
-    nama = data.get("nama", "").strip()
-    email = data.get("email", "").strip()
-    nidn = data.get("nidn", "").strip()
-    password = data.get("password", "").strip() or "dosen12345"
-
-    if not nama or not email or not nidn:
-        return ResponseFormatter.error("Nama, email, dan NIP/NIDN wajib diisi", 400)
-
-    if not Validator.validate_email(email):
-        return ResponseFormatter.error("Email tidak valid", 400)
-
-    if User.find_by_email(email):
-        return ResponseFormatter.error("Email sudah terdaftar", 400)
-
-    password_hash = AuthService.hash_password(password)
-    user = User.create(
-        email=email,
-        password_hash=password_hash,
-        nama=nama,
-        role="dosen",
-        nidn=nidn,
-    )
-
-    return ResponseFormatter.success(
-        data={"user_id": user["_id"], "email": user["email"]},
-        message="Dosen berhasil ditambahkan",
-        status_code=201
-    )
-
-
-@kaprodi_bp.delete("/dosen/<dosen_id>")
-@token_required
-@role_required("kaprodi")
-def delete_dosen(dosen_id):
-    """Hapus dosen (soft delete)"""
-    dosen = User.find_by_id(dosen_id)
-    if not dosen:
-        return ResponseFormatter.error("Dosen tidak ditemukan", 404)
-    if dosen.get("role") != "dosen":
-        return ResponseFormatter.error("User bukan dosen", 400)
-
-    if User.delete(dosen_id):
-        return ResponseFormatter.success(message="Dosen berhasil dihapus")
-    return ResponseFormatter.error("Gagal menghapus dosen", 400)
-
-
 # ─── Deadline Management ────────────────────────────────────────────
 
 @kaprodi_bp.get("/deadlines")

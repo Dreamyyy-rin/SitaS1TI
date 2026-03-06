@@ -120,9 +120,10 @@ const Landing = () => {
           </button>
         </div>
 
-        <p className="mt-12 text-slate-400 text-sm font-medium">
+        <p className="mt-12 text-slate-400 text-sm font-medium text-center">
           © {new Date().getFullYear()} Fakultas Teknologi Informasi Universitas
-          Kristen Satya Wacana Salatiga
+          Kristen Satya Wacana Salatiga. <br />
+          Developed by Felicia Wijaya & Oivicko Ekagani Irwanto
         </p>
       </div>
     </div>

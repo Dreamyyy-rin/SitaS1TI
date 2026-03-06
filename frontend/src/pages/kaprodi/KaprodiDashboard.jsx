@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { CheckCircle, XCircle } from "lucide-react";
 import SidebarKaprodi from "../../components/kaprodi/SidebarKaprodi";
 import KaprodiManajemenDosen from "./KaprodiManajemenDosen";
-import KaprodiDeadlineTTU from "./KaprodiDeadlineTTU";
 import DashboardView from "../../components/kaprodi/DashboardView";
 import RequestDosenView from "../../components/kaprodi/RequestDosenView";
 import MahasiswaBimbinganView from "../../components/kaprodi/MahasiswaBimbinganView";
@@ -452,8 +451,6 @@ const KaprodiDashboard = () => {
         return "Manajemen Dosen";
       case "review":
         return "Tinjauan";
-      case "deadline":
-        return "Batas Waktu TTU";
       case "data-akun":
         return "Data Akun";
       case "panduan":
@@ -515,8 +512,6 @@ const KaprodiDashboard = () => {
         return <KaprodiManajemenDosen />;
       case "review":
         return <ReviewView mahasiswaBimbingan={mahasiswaBimbingan} />;
-      case "deadline":
-        return <KaprodiDeadlineTTU />;
       case "data-akun":
         return <DataAkunKaprodiView userData={userData} />;
       case "panduan":

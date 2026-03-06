@@ -13,7 +13,7 @@ import {
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
-const MahasiswaManagementPage = () => {
+const MahasiswaManagementPage = ({ onDataChange }) => {
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -100,6 +100,7 @@ const MahasiswaManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchMahasiswa();
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil memperbarui mahasiswa",
@@ -131,6 +132,7 @@ const MahasiswaManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           await fetchMahasiswa();
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil menambahkan mahasiswa",
@@ -173,6 +175,7 @@ const MahasiswaManagementPage = () => {
         const data = await res.json();
         if (data.success) {
           setUsers((prev) => prev.filter((u) => u.id !== deletingUser.id));
+          onDataChange?.();
           setNotification({
             show: true,
             message: "Berhasil menghapus mahasiswa",
@@ -198,6 +201,7 @@ const MahasiswaManagementPage = () => {
           u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
         ),
       );
+      onDataChange?.();
     }
 
     setShowDeleteModal(false);
@@ -253,7 +257,6 @@ const MahasiswaManagementPage = () => {
         </div>
       </div>
 
-  
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <div>
@@ -351,7 +354,6 @@ const MahasiswaManagementPage = () => {
               </label>
             </div>
 
-        
             <div className="flex space-x-3 justify-end">
               <button
                 onClick={() => {
