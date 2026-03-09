@@ -1,6 +1,9 @@
 // API Configuration
+// - Development: gunakan VITE_API_BASE_URL dari .env (default: http://localhost:8000)
+// - Docker (nginx proxy): VITE_API_BASE_URL="" agar request ke /api/... lewat nginx
+const _envUrl = import.meta.env.VITE_API_BASE_URL;
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  _envUrl !== undefined && _envUrl !== null ? _envUrl : "http://localhost:8000";
 
 // Helper function untuk membuat URL lengkap
 export const getApiUrl = (endpoint) => {

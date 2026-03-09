@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: sita-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
+      MONGO_INITDB_DATABASE: sita
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - sita-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        # Kosongkan agar API call diarahkan lewat nginx proxy (same-origin)
+        # Atau isi dengan URL server Anda: http://192.168.1.10
+        VITE_API_BASE_URL: ""
+    container_name: sita-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-80}:80"
+    environment:
+      MONGO_URI: mongodb://${MONGO_USERNAME:-admin}:${MONGO_PASSWORD:-changeme}@mongodb:27017/sita?authSource=admin
+      SECRET_KEY: ${SECRET_KEY:-ganti-ini-di-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - sita-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  sita-network:
+    driver: bridge
