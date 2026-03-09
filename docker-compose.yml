@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   mongodb:
-    image: mongo:7
+    image: mongo:4.4
     container_name: sita-mongodb
     restart: unless-stopped
     environment:
@@ -14,7 +14,7 @@ services:
     networks:
       - sita-network
     healthcheck:
-      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
       interval: 10s
       timeout: 5s
       retries: 5
