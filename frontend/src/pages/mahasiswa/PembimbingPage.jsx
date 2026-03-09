@@ -18,7 +18,7 @@ const PembimbingPage = () => {
     slot: "pembimbing_1",
   });
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   useEffect(() => {
     loadSupervisorData();

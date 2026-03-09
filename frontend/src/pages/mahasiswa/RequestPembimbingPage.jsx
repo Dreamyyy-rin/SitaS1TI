@@ -15,7 +15,7 @@ const RequestPembimbingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");

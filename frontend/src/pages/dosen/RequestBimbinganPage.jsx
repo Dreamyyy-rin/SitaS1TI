@@ -31,7 +31,7 @@ export default function RequestBimbinganPage() {
         }
 
         const baseUrl =
-          import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+          import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
         const response = await fetch(
           `${baseUrl}/api/dosen/pembimbing-requests`,
           {
@@ -74,7 +74,7 @@ export default function RequestBimbinganPage() {
 
   const handleAcceptRequest = async (id) => {
     const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(
@@ -101,7 +101,7 @@ export default function RequestBimbinganPage() {
 
   const handleRejectRequest = async (id) => {
     const baseUrl =
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(

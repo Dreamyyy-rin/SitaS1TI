@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import DashboardView from "../../components/dosen/DashboardView";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function DosenDashboard() {
   const navigate = useNavigate();

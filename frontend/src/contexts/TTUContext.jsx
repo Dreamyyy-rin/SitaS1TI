@@ -17,7 +17,7 @@ export const useTTU = () => {
 };
 
 export const TTUProvider = ({ children }) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   const [currentStage, setCurrentStage] = useState(1);
   const [ttuStatus, setTtuStatus] = useState(null);

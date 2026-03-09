@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Send, MessageCircle, User } from "lucide-react";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 /**
  * ReviewChat - Chat component for TTU3 review discussion

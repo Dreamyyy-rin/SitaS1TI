@@ -42,7 +42,7 @@ export default function DataAkunPage({ student }) {
     }
 
     const token = localStorage.getItem("sita_token");
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
     try {
       const res = await fetch(`${baseUrl}/api/auth/change-password`, {

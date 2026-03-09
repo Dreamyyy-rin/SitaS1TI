@@ -40,7 +40,7 @@ const KaprodiDashboard = () => {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
 
-  const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("sita_user");

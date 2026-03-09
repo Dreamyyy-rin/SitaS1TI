@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ReviewChat from "../../components/shared/ReviewChat";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 const UploadTTU3 = ({ student }) => {
   const [selectedFile, setSelectedFile] = useState(null);

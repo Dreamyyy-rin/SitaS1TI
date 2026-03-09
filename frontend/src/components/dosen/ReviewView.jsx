@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FileText, ChevronDown, ChevronUp } from "lucide-react";
 import ReviewChat from "../shared/ReviewChat";
 
-const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function ReviewView({
   mahasiswaBimbingan = [],

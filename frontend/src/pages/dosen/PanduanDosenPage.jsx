@@ -10,7 +10,7 @@ export default function PanduanDosenPage() {
   const [error, setError] = useState("");
   const [requestCount, setRequestCount] = useState(0);
 
-  const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
