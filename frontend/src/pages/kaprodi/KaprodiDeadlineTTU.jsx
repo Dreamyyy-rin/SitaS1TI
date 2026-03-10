@@ -3,6 +3,7 @@ import { Save, Calendar, FileText, CheckCircle2 } from "lucide-react";
 import DeadlineCard from "../../components/kaprodi/DeadlineCard";
 import DeadlineSummaryTable from "../../components/kaprodi/DeadlineSummaryTable";
 import SuccessToast from "../../components/shared/SuccessToast";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -14,6 +15,12 @@ const KaprodiDeadlineTTU = () => {
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
+  });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -127,10 +134,20 @@ const KaprodiDeadlineTTU = () => {
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 3000);
       } else {
-        alert(data.message || "Gagal menyimpan deadline");
+        setNotif({
+          show: true,
+          title: "Gagal Menyimpan Deadline",
+          message: data.message || "Gagal menyimpan deadline",
+          reload: false,
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        title: "Gagal Menghubungi Server",
+        message: "Gagal menghubungi server",
+        reload: false,
+      });
     } finally {
       setSaving(false);
     }
@@ -212,6 +229,17 @@ const KaprodiDeadlineTTU = () => {
         </div>
 
         <SuccessToast show={showSuccess} />
+        <ConfirmModal
+          show={notif.show}
+          title={notif.title}
+          message={notif.message}
+          type={
+            notif.title.toLowerCase().includes("gagal") ? "error" : "success"
+          }
+          onClose={() =>
+            setNotif({ show: false, title: "", message: "", reload: false })
+          }
+        />
       </div>
     </div>
   );

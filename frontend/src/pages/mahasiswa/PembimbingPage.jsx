@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Mail, User, AlertCircle, Send } from "lucide-react";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const PembimbingPage = () => {
   const [pembimbing, setPembimbing] = useState({
@@ -11,6 +12,12 @@ const PembimbingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(null);
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
+  });
 
   const [formData, setFormData] = useState({
     newPembimbingId: "",
@@ -87,12 +94,22 @@ const PembimbingPage = () => {
     e.preventDefault();
 
     if (!formData.newPembimbingId || !formData.alasan.trim()) {
-      alert("Harap isi semua field yang diperlukan");
+      setNotif({
+        show: true,
+        title: "Field Wajib",
+        message: "Harap isi semua field yang diperlukan",
+        reload: false,
+      });
       return;
     }
 
     if (formData.alasan.trim().length < 20) {
-      alert("Alasan harus minimal 20 karakter");
+      setNotif({
+        show: true,
+        title: "Alasan Kurang Panjang",
+        message: "Alasan harus minimal 20 karakter",
+        reload: false,
+      });
       return;
     }
 
@@ -113,15 +130,30 @@ const PembimbingPage = () => {
 
       const result = await response.json();
       if (result.success) {
-        alert("✅ Permintaan pergantian pembimbing berhasil dikirim!");
+        setNotif({
+          show: true,
+          title: "Permintaan Berhasil",
+          message: "Permintaan pergantian pembimbing berhasil dikirim!",
+          reload: true,
+        });
         setShowRequestForm(false);
         setFormData({ newPembimbingId: "", alasan: "", slot: "pembimbing_1" });
         checkPendingRequest();
       } else {
-        alert(`❌ ${result.error || "Gagal mengirim permintaan"}`);
+        setNotif({
+          show: true,
+          title: "Permintaan Gagal",
+          message: result.error || "Gagal mengirim permintaan",
+          reload: false,
+        });
       }
     } catch (err) {
-      alert("❌ Terjadi kesalahan saat mengirim permintaan");
+      setNotif({
+        show: true,
+        title: "Kesalahan Server",
+        message: "Terjadi kesalahan saat mengirim permintaan",
+        reload: false,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -413,6 +445,21 @@ const PembimbingPage = () => {
           </p>
         </div>
       )}
+      <ConfirmModal
+        show={notif.show}
+        title={notif.title}
+        message={notif.message}
+        type={
+          notif.title.toLowerCase().includes("gagal") ||
+          notif.title.toLowerCase().includes("kesalahan")
+            ? "error"
+            : "success"
+        }
+        onClose={() => {
+          setNotif({ show: false, title: "", message: "", reload: false });
+          if (notif.reload) window.location.reload();
+        }}
+      />
     </div>
   );
 };

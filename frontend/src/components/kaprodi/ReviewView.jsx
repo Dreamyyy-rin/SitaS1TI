@@ -1,10 +1,17 @@
 import React, { useState } from "react";
 import { FileText } from "lucide-react";
+import ConfirmModal from "../shared/ConfirmModal";
 
 const ReviewView = ({ mahasiswaBimbingan }) => {
   const [reviewComments, setReviewComments] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    type: "info",
+  });
 
   const handleCommentChange = (mahasiswaId, comment) => {
     setReviewComments((prev) => ({
@@ -15,20 +22,27 @@ const ReviewView = ({ mahasiswaBimbingan }) => {
 
   const handleAcceptReview = (mahasiswa) => {
     const comment = reviewComments[mahasiswa.id] || "";
-    alert(
-      `Review untuk ${mahasiswa.nama} diterima!\nKomentar: ${comment || "Tidak ada komentar"}`,
-    );
+    setNotif({
+      show: true,
+      title: "Review Diterima",
+      message: `Review untuk ${mahasiswa.nama} diterima!\nKomentar: ${comment || "Tidak ada komentar"}`,
+      type: "success",
+    });
   };
 
   const handlePreviewFile = (mahasiswa) => {
     setSelectedFile(mahasiswa);
-    alert(`Preview file TTU 2 untuk ${mahasiswa.nama}`);
+    setNotif({
+      show: true,
+      title: "Preview File",
+      message: `Preview file TTU 2 untuk ${mahasiswa.nama}`,
+      type: "info",
+    });
   };
 
-  //get mahasiswa yang sudah upload TTU 2 before search filter
+
   const mahasiswaWithTtu2 = mahasiswaBimbingan.filter((mhs) => mhs.ttu2);
 
-  //filter mahasiswa yang sudah upload TTU 2 by search query
   const mahasiswaForReview = mahasiswaWithTtu2.filter((mhs) => {
     const query = searchQuery.toLowerCase();
     return (

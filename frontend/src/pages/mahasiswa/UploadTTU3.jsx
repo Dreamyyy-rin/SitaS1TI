@@ -12,6 +12,7 @@ import {
   Trash2,
 } from "lucide-react";
 import ReviewChat from "../../components/shared/ReviewChat";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -235,7 +236,7 @@ const UploadTTU3 = ({ student }) => {
       await loadTTU3Status();
       await loadTTU3History();
     } catch (err) {
-      alert("Gagal membatalkan pengajuan. Silakan coba lagi.");
+      console.error("Gagal membatalkan pengajuan. Silakan coba lagi.");
     }
     setShowCancelDialog(false);
   };
@@ -628,6 +629,16 @@ const UploadTTU3 = ({ student }) => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        show={notif.show}
+        title={notif.title}
+        message={notif.message}
+        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
+        onClose={() =>
+          setNotif({ show: false, title: "", message: "", reload: false })
+        }
+      />
     </div>
   );
 };

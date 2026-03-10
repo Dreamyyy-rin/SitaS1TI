@@ -21,7 +21,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           key: "bimbingan",
           label: "Bimbingan",
           view: "bimbingan",
-          icon: "user-tie",
+          icon: "user",
         },
         {
           key: "pesan",
@@ -44,7 +44,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           key: "data-akun",
           label: "Data Akun",
           view: "data-akun",
-          icon: "user-cog",
+          icon: "user",
         },
       ],
     },
@@ -182,7 +182,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                       {item.icon === "chat" && (
                         <path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                       )}
-                      {item.icon === "user-tie" && (
+                      {item.icon === "user" && (
                         <>
                           <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           <path d="M12 14v8m0-8l-2 3m2-3l2 3" />
@@ -193,7 +193,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                           <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                         </>
                       )}
-                      {item.icon === "user-cog" && (
+                      {item.icon === "user" && (
                         <>
                           <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
                           <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
@@ -218,12 +218,14 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                 <Icon name="user" className="w-6 h-6" />
               </div>
 
-              <div className="hidden md:block text-left overflow-hidden">
-                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
+              <div className="hidden md:block text-left overflow-hidden max-w-[140px]">
+                <p
+                  className="text-sm font-bold text-slate-700 truncate whitespace-nowrap overflow-hidden group-hover:text-[#0B2F7F] transition-colors max-w-full"
+                  title={toTitleCase(student?.name) || "Felicia Wijaya"}
+                >
                   {toTitleCase(student?.name) || "Felicia Wijaya"}
                 </p>
-
-                <p className="text-xs text-slate-500 font-mono">
+                <p className="text-xs text-slate-500 font-mono truncate whitespace-nowrap overflow-hidden max-w-full">
                   {student?.nim || "672023009"}
                 </p>
               </div>

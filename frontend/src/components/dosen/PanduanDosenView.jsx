@@ -5,25 +5,24 @@ export default function PanduanDosenView() {
     {
       number: "01",
       title: "Dasbor",
-      description: "Pantau aktivitas bimbingan dan statistik mahasiswa",
-      details:
-        "Halaman utama menampilkan ringkasan aktivitas terkini, jumlah permintaan bimbingan yang masuk, total mahasiswa bimbingan, dan TTU yang telah selesai. Pantau perkembangan bimbingan mahasiswa secara langsung.",
+      description: "Statistik bimbingan dan aktivitas mahasiswa",
+      details: "Menampilkan statistik bimbingan dan aktivitas mahasiswa.",
       color: "blue",
     },
     {
       number: "02",
       title: "Permintaan Bimbingan",
       description: "Terima atau tolak permintaan bimbingan dari mahasiswa",
-      details:
-        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh Anda. Tinjau judul yang diajukan mahasiswa. Terima permintaan jika topik sesuai dengan keahlian Anda. Mahasiswa akan otomatis menjadi mahasiswa bimbingan setelah mendapat persetujuan dari Anda dan Kaprodi.",
+      details: "Terima atau tolak permintaan bimbingan dari mahasiswa.",
       color: "purple",
     },
     {
       number: "03",
       title: "Mahasiswa Bimbingan",
-      description: "Lihat progres mahasiswa yang sedang Anda bimbing",
+      description:
+        "Pantau progres tugas akhir mahasiswa, setujui/tolak TTU, diskusi tinjauan",
       details:
-        "Pantau progres tugas akhir setiap mahasiswa bimbingan. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Lihat file yang telah diunggah mahasiswa. Gunakan tombol Terima/Tolak untuk menyetujui atau menolak TTU. Anda juga dapat membuka diskusi tinjauan untuk berkomunikasi dengan mahasiswa dan dosen peninjau.",
+        "Pantau progres tugas akhir mahasiswa, setujui/tolak TTU, diskusi tinjauan.",
       color: "green",
     },
     {
@@ -31,15 +30,14 @@ export default function PanduanDosenView() {
       title: "Tinjauan",
       description: "Tinjau berkas TTU 3 mahasiswa sebagai peninjau",
       details:
-        "Halaman ini muncul jika Anda ditunjuk sebagai dosen peninjau. Lihat berkas TTU 3 yang telah diunggah mahasiswa. Berikan komentar dan umpan balik melalui fitur diskusi tinjauan. Gunakan tombol 'Setujui TTU 3' untuk menyetujui berkas jika sudah memenuhi syarat.",
+        "Tinjau berkas TTU 3 mahasiswa sebagai peninjau, berikan komentar.",
       color: "orange",
     },
     {
       number: "05",
       title: "Data Akun",
-      description: "Kelola informasi akun dosen",
-      details:
-        "Lihat dan ubah informasi profil dosen seperti nama, email, dan nomor telepon. Perbarui kata sandi untuk keamanan akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
+      description: "Kelola dan ubah informasi profil dosen",
+      details: "Kelola dan ubah informasi profil dosen.",
       color: "cyan",
     },
   ];

@@ -46,7 +46,7 @@ const SidebarKaprodi = ({
           key: "mahasiswa-bimbingan",
           label: "Mahasiswa Bimbingan",
           view: "mahasiswa-bimbingan",
-          icon: Users,
+          icon: User,
         },
         // ...existing code...
       ],

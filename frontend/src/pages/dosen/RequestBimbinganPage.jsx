@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import RequestBimbinganView from "../../components/dosen/RequestBimbinganView";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 
 export default function RequestBimbinganPage() {
   const navigate = useNavigate();
+
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -12,6 +14,13 @@ export default function RequestBimbinganPage() {
   const [requestCount, setRequestCount] = useState(() => {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
+  });
+
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
   });
 
   useEffect(() => {
@@ -32,13 +41,16 @@ export default function RequestBimbinganPage() {
 
         const baseUrl =
           import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
         const response = await fetch(
           `${baseUrl}/api/dosen/pembimbing-requests`,
           {
             headers: { Authorization: `Bearer ${token}` },
           },
         );
+
         const result = await response.json().catch(() => ({}));
+
         if (!response.ok || result.success === false) {
           throw new Error(result.error || "Gagal memuat request");
         }
@@ -52,7 +64,7 @@ export default function RequestBimbinganPage() {
         }));
 
         setRequestBimbingan(normalized);
-        // Backend already filters by overall_status = pending, so count all returned data
+
         const count = (result.data || []).length;
         setRequestCount(count);
         localStorage.setItem("dosen_request_count", count.toString());
@@ -75,7 +87,9 @@ export default function RequestBimbinganPage() {
   const handleAcceptRequest = async (id) => {
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
     const token = localStorage.getItem("sita_token");
+
     try {
       const res = await fetch(
         `${baseUrl}/api/dosen/pembimbing-requests/${id}/approve`,
@@ -84,25 +98,41 @@ export default function RequestBimbinganPage() {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
+
       const data = await res.json();
+
       if (data.success) {
-        alert(
-          "✓ Request berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi dan semua Dosen Pembimbing menyetujui.",
-        );
-        // Reload data from backend to get updated list
-        window.location.reload();
+        setNotif({
+          show: true,
+          title: "Request Berhasil Disetujui",
+          message:
+            "Mahasiswa dapat masuk dashboard setelah Kaprodi dan semua Dosen Pembimbing menyetujui.",
+          reload: true,
+        });
       } else {
-        alert(data.message || data.error || "Gagal approve request");
+        setNotif({
+          show: true,
+          title: "Gagal Approve Request",
+          message: data.message || data.error || "Gagal approve request",
+          reload: false,
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        title: "Gagal Menghubungi Server",
+        message: "Gagal menghubungi server",
+        reload: false,
+      });
     }
   };
 
   const handleRejectRequest = async (id) => {
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+
     const token = localStorage.getItem("sita_token");
+
     try {
       const res = await fetch(
         `${baseUrl}/api/dosen/pembimbing-requests/${id}/reject`,
@@ -111,16 +141,31 @@ export default function RequestBimbinganPage() {
           headers: { Authorization: `Bearer ${token}` },
         },
       );
+
       const data = await res.json();
+
       if (data.success) {
-        alert("✓ Request berhasil ditolak.");
-        // Reload data from backend to get updated list
-        window.location.reload();
+        setNotif({
+          show: true,
+          title: "Request Berhasil Ditolak",
+          message: "Request berhasil ditolak.",
+          reload: true,
+        });
       } else {
-        alert(data.message || data.error || "Gagal reject request");
+        setNotif({
+          show: true,
+          title: "Gagal Reject Request",
+          message: data.message || data.error || "Gagal reject request",
+          reload: false,
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        title: "Gagal Menghubungi Server",
+        message: "Gagal menghubungi server",
+        reload: false,
+      });
     }
   };
 
@@ -163,11 +208,13 @@ export default function RequestBimbinganPage() {
               Memuat data...
             </div>
           )}
+
           {error && !isLoading && (
             <div className="mb-6 rounded-2xl border border-rose-200 bg-rose-50 px-6 py-4 text-rose-700">
               {error}
             </div>
           )}
+
           {!isLoading && (
             <RequestBimbinganView
               requestBimbingan={requestBimbingan}
@@ -177,6 +224,17 @@ export default function RequestBimbinganPage() {
           )}
         </div>
       </main>
+
+      <ConfirmModal
+        show={notif.show}
+        title={notif.title}
+        message={notif.message}
+        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
+        onClose={() => {
+          setNotif({ show: false, title: "", message: "", reload: false });
+          if (notif.reload) window.location.reload();
+        }}
+      />
     </div>
   );
 }

@@ -10,6 +10,12 @@ const PlottingReviewerView = ({
   onSavePlotting,
 }) => {
   const [saving, setSaving] = useState(false);
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
+  });
 
   const getAvailableReviewers = (mhs) => {
     // Exclude pembimbing 1 & 2 from reviewer options
@@ -44,10 +50,20 @@ const PlottingReviewerView = ({
           }),
         });
       }
-      alert("Plotting reviewer berhasil disimpan!");
+      setNotif({
+        show: true,
+        title: "Plotting reviewer berhasil disimpan!",
+        message: "",
+        reload: true,
+      });
       window.location.reload();
     } catch (err) {
-      alert("Gagal menyimpan plotting reviewer");
+      setNotif({
+        show: true,
+        title: "Gagal menyimpan plotting reviewer",
+        message: "",
+        reload: false,
+      });
     } finally {
       setSaving(false);
     }
@@ -162,6 +178,17 @@ const PlottingReviewerView = ({
           </button>
         </div>
       )}
+
+      <ConfirmModal
+        show={notif.show}
+        title={notif.title}
+        message={notif.message}
+        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
+        onClose={() => {
+          setNotif({ show: false, title: "", message: "", reload: false });
+          if (notif.reload) window.location.reload();
+        }}
+      />
     </div>
   );
 };

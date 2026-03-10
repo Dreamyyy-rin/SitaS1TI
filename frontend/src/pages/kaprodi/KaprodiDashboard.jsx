@@ -237,7 +237,7 @@ const KaprodiDashboard = () => {
         </div>
       </main>
 
-      {/* INFO MODAL */}
+    
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div

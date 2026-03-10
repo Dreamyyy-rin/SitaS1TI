@@ -3,12 +3,12 @@ import React from "react";
 const TimelineCard = ({ student }) => {
   const ttuStages = ["TTU 1", "TTU 2", "TTU 3"];
 
-  // Compute step index from actual ttu_status
+ 
   const getStepIndex = () => {
     const ttu = student.ttu_status || {};
-    if (ttu.ttu_3?.status === "approved") return 3; // all done
-    if (ttu.ttu_2?.status === "approved") return 2;
-    if (ttu.ttu_1?.status === "approved") return 1;
+    if (ttu.ttu_3?.status === "Disetujui") return 3; 
+    if (ttu.ttu_2?.status === "Disetujui") return 2;
+    if (ttu.ttu_1?.status === "Disetujui") return 1;
     return 0;
   };
 
@@ -18,10 +18,10 @@ const TimelineCard = ({ student }) => {
     const ttu = student.ttu_status || {};
     const key = `ttu_${idx + 1}`;
     const status = ttu[key]?.status;
-    if (status === "approved") return "Selesai";
+    if (status === "Disetujui") return "Selesai";
     if (status === "reviewed") return "Sudah Direview";
-    if (status === "submitted") return "Menunggu Review";
-    if (status === "open") return "Sedang Dikerjakan";
+    if (status === "Diajukan") return "Menunggu Review";
+    if (status === "Terbuka") return "Sedang Dikerjakan";
     return "Terkunci";
   };
 

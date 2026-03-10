@@ -3,14 +3,6 @@ import { Send, MessageCircle, User, FileText, Download } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-/**
- * ReviewChat - Chat/comment component
- * @param {string} mahasiswaId - The mahasiswa ID (for dosen view)
- * @param {string} role - 'mahasiswa' | 'dosen'
- * @param {string} currentUserId - Current user's ID
- * @param {string} chatType - 'bimbingan' | 'review' (default: 'review')
- * @param {string} title - Custom header title
- */
 export default function ReviewChat({
   mahasiswaId,
   role = "mahasiswa",
@@ -181,10 +173,20 @@ export default function ReviewChat({
         setUserScrolledUp(false);
         setTimeout(() => scrollToBottom("smooth"), 100);
       } else {
-        alert(result.error || "Gagal mengirim komentar");
+        setNotif({
+          show: true,
+          title: result.error || "Gagal mengirim komentar",
+          message: "",
+          reload: false,
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        title: "Gagal menghubungi server",
+        message: "",
+        reload: false,
+      });
     } finally {
       setSending(false);
     }
@@ -198,16 +200,16 @@ export default function ReviewChat({
   };
 
   const FILE_STATUS_LABEL = {
-    approved: "Disetujui",
-    reviewed: "Ditinjau",
-    rejected: "Ditolak",
-    submitted: "Diajukan",
+    Disetujui: "Disetujui",
+    Ditinjau: "Ditinjau",
+    Ditolak: "Ditolak",
+    Diajukan: "Diajukan",
   };
   const FILE_STATUS_COLOR = {
-    approved: "text-green-600",
-    reviewed: "text-blue-600",
-    rejected: "text-red-500",
-    submitted: "text-yellow-600",
+    Disetujui: "text-green-600",
+    Ditinjau: "text-blue-600",
+    Ditolak: "text-red-500",
+    Diajukan: "text-yellow-600",
   };
 
   const getRoleBadge = (senderRole) => {
@@ -456,6 +458,15 @@ export default function ReviewChat({
           Tekan Enter untuk mengirim, Shift+Enter untuk baris baru
         </p>
       </div>
+      <ConfirmModal
+        show={notif.show}
+        title={notif.title}
+        message={notif.message}
+        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
+        onClose={() =>
+          setNotif({ show: false, title: "", message: "", reload: false })
+        }
+      />
     </div>
   );
 }

@@ -69,8 +69,8 @@ def register_user():
 def list_users():
     """List semua users"""
     role_filter = Sanitizer.sanitize_query_value(request.args.get("role"))
-    users = User.get_all(role=role_filter)
-    
+    status_filter = Sanitizer.sanitize_query_value(request.args.get("status"))
+    users = User.get_all(role=role_filter, status=status_filter)
     return ResponseFormatter.success(
         data=users,
         message=f"Total users: {len(users)}"
@@ -147,7 +147,8 @@ def update_user(user_id):
 @role_required("superadmin")
 def list_mahasiswa():
     """List semua mahasiswa"""
-    mahasiswa_list = Mahasiswa.get_all()
+    status_filter = Sanitizer.sanitize_query_value(request.args.get("status"))
+    mahasiswa_list = Mahasiswa.get_all(status=status_filter)
     for m in mahasiswa_list:
         m.pop("password_hash", None)
     return ResponseFormatter.success(

@@ -32,9 +32,12 @@ const DosenManagementPage = ({ onDataChange }) => {
     const token = localStorage.getItem("sita_token");
     if (!token) return;
     try {
-      const res = await fetch(`${API}/api/superadmin/users?role=dosen`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API}/api/superadmin/users?role=dosen&status=all`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       const data = await res.json();
       if (data.success) {
         const mapped = (data.data || []).map((u) => ({
@@ -198,7 +201,7 @@ const DosenManagementPage = ({ onDataChange }) => {
         });
       }
     } else {
-      // Soft delete - mark inactive locally
+      
       setUsers((prev) =>
         prev.map((u) =>
           u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
