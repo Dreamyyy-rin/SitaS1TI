@@ -7,7 +7,6 @@ const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 export default function ReviewView({
   mahasiswaBimbingan = [],
   onPreviewFile,
-  onAcceptReview,
   currentDosenId,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -87,9 +86,7 @@ export default function ReviewView({
           <div className="p-5 flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <h3 className="text-lg font-bold text-slate-800">
-                  {mhs.nama}
-                </h3>
+                <h3 className="text-lg font-bold text-slate-800">{mhs.nama}</h3>
                 <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                   {mhs.nim}
                 </span>
@@ -120,24 +117,16 @@ export default function ReviewView({
               >
                 Lihat File
               </button>
-              {mhs.ttu3Status !== "approved" && (
-                <button
-                  onClick={() => onAcceptReview(mhs)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
-                >
-                  Setujui TTU 3
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Chat toggle */}
+          {/* Comment toggle */}
           <div className="border-t border-slate-100">
             <button
               onClick={() => toggleChat(mhs.id)}
               className="w-full flex items-center justify-between px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
             >
-              <span className="font-medium">Diskusi Tinjauan</span>
+              <span className="font-medium">Komentar TTU 3</span>
               {expandedChat === mhs.id ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -151,6 +140,7 @@ export default function ReviewView({
                   mahasiswaId={mhs.id}
                   role="dosen"
                   currentUserId={currentDosenId}
+                  chatType="review"
                 />
               </div>
             )}

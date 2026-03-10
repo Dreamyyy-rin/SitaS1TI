@@ -12,7 +12,7 @@ mahasiswa_bp = Blueprint("mahasiswa", __name__, url_prefix="/api/mahasiswa")
 
 ALLOWED_EXTENSIONS = {"pdf", "docx", "doc", "txt", "pptx"}
 ALLOWED_REQUIREMENT_EXTENSIONS = {"pdf", "docx", "doc"}
-MAX_FILE_SIZE_MB = 50
+MAX_FILE_SIZE_MB = 10
 
 
 @mahasiswa_bp.post("/register")
@@ -463,9 +463,12 @@ def download_submission_file(submission_id):
 @token_required
 @role_required("mahasiswa")
 def get_review_comments():
-    """Get review comments for this mahasiswa's TTU3"""
+    """Get review comments for this mahasiswa, filtered by chat_type"""
     mahasiswa_id = g.current_user.get("mahasiswa_id")
-    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id)
+    chat_type = request.args.get("chat_type", "review")
+    if chat_type not in ("bimbingan", "review"):
+        chat_type = "review"
+    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id, chat_type=chat_type)
     return ResponseFormatter.success(data=comments, message=f"Total: {len(comments)}")
 
 
@@ -481,6 +484,10 @@ def post_review_comment():
     if not message:
         return ResponseFormatter.error("Pesan tidak boleh kosong", 400)
 
+    chat_type = (data.get("chat_type") or "review").strip()
+    if chat_type not in ("bimbingan", "review"):
+        chat_type = "review"
+
     mahasiswa_id = g.current_user.get("mahasiswa_id")
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
@@ -492,6 +499,7 @@ def post_review_comment():
         sender_name=mahasiswa.get("nama", "Mahasiswa"),
         sender_role="mahasiswa",
         message=message,
+        chat_type=chat_type,
     )
 
     return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)

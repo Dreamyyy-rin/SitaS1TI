@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ReviewChat from "../../components/shared/ReviewChat";
 
-const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+const API = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 const UploadTTU3 = ({ student }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -57,9 +57,10 @@ const UploadTTU3 = ({ student }) => {
         if (ttu3Status === "approved") {
           setShowCelebration(true);
         }
-        if (ttu3Status === "submitted" || ttu3Status === "reviewed") {
+        // Tampilkan file TTU 3 jika statusnya submitted, reviewed, atau approved
+        if (["submitted", "reviewed", "approved"].includes(ttu3Status)) {
           const ttu3Sub = (subsResult.data || []).find(
-            (s) => s.ttu_number === "ttu_3"
+            (s) => s.ttu_number === "ttu_3",
           );
           if (ttu3Sub) {
             setSubmittedFile({
@@ -278,11 +279,9 @@ const UploadTTU3 = ({ student }) => {
                 Menu ini Belum Dapat Diakses
               </h3>
               <p className="text-slate-600 leading-relaxed mb-6">
-                Selesaikan Tugas Talenta Unggul 2 Anda dan dapatkan persetujuan dari dosen pembimbing
-                untuk mengakses menu ini.
+                Selesaikan Tugas Talenta Unggul 2 Anda dan dapatkan persetujuan
+                dari dosen pembimbing untuk mengakses menu ini.
               </p>
-
-              
             </div>
           </div>
         </div>
@@ -296,7 +295,8 @@ const UploadTTU3 = ({ student }) => {
         <div>
           <h2 className="text-2xl font-bold text-slate-800">Daftar Tinjauan</h2>
           <p className="text-sm text-slate-500 mt-1">
-            Unggah file Tugas Talenta Unggul 3 untuk ditinjau oleh dosen peninjau
+            Unggah file Tugas Talenta Unggul 3 untuk ditinjau oleh dosen
+            peninjau
           </p>
         </div>
         <div className="text-sm text-slate-500 bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-100 font-medium">
@@ -313,9 +313,12 @@ const UploadTTU3 = ({ student }) => {
             </p>
             <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
               <li>TTU 2 Anda sudah disetujui oleh dosen pembimbing</li>
-              <li>Unggah file TTU 3 untuk ditinjau oleh dosen peninjau yang ditentukan oleh kaprodi</li>
+              <li>
+                Unggah file TTU 3 untuk ditinjau oleh dosen peninjau yang
+                ditentukan oleh kaprodi
+              </li>
               <li>Format file: PDF, DOC, DOCX, PPT, PPTX</li>
-              <li>Maksimal ukuran file adalah 50MB</li>
+              <li>Maksimal ukuran file adalah 10MB</li>
             </ul>
           </div>
         </div>
@@ -375,15 +378,31 @@ const UploadTTU3 = ({ student }) => {
             </div>
           </div>
 
-          {submittedFile.status === "submitted" && (
+          {/* Preview & cancel buttons */}
+          <div className="flex gap-3">
             <button
-              onClick={handleCancelSubmission}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors"
+              onClick={() => {
+                const token = localStorage.getItem("sita_token");
+                window.open(
+                  `${API}/api/mahasiswa/submissions/${submittedFile.submission_id}/download?token=${token}`,
+                  "_blank",
+                );
+              }}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium rounded-lg transition-colors"
             >
-              <Trash2 className="w-4 h-4" />
-              Batalkan Pengajuan
+              <Eye className="w-4 h-4" />
+              Lihat File
             </button>
-          )}
+            {submittedFile.status === "submitted" && (
+              <button
+                onClick={handleCancelSubmission}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-medium rounded-lg transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Batalkan
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <>
@@ -413,7 +432,9 @@ const UploadTTU3 = ({ student }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {isDragging ? "Lepaskan file di sini" : "Seret & Lepas File Anda"}
+                {isDragging
+                  ? "Lepaskan file di sini"
+                  : "Seret & Lepas File Anda"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 atau klik tombol di bawah untuk memilih file
@@ -433,7 +454,7 @@ const UploadTTU3 = ({ student }) => {
                 Pilih File
               </button>
               <p className="text-xs text-gray-500 mt-4">
-                Format yang didukung: PDF, DOC, DOCX, PPT, PPTX (Max 50MB)
+                Format yang didukung: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)
               </p>
             </div>
           </div>
@@ -498,91 +519,24 @@ const UploadTTU3 = ({ student }) => {
         </>
       )}
 
-      {/* Review Chat */}
+      {/* Komentar dari Dosen Peninjau - selalu tampil */}
       {currentUserId && (
-        <ReviewChat
-          role="mahasiswa"
-          currentUserId={currentUserId}
-        />
-      )}
-
-      {/* Submission History */}
-      {submissionHistory && submissionHistory.length > 0 && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <History className="w-5 h-5 text-slate-600" />
-            <h3 className="text-lg font-semibold text-gray-900">
-              Riwayat Upload TTU 3
-            </h3>
-            <span className="text-sm text-slate-500">
-              ({submissionHistory.length} file)
-            </span>
+        <div>
+          <div className="mb-2">
+            <p className="text-sm text-slate-500">
+              Komentar dari dosen peninjau akan muncul di sini. Anda dapat
+              membalas komentar tersebut.
+            </p>
           </div>
-
-          {loadingHistory ? (
-            <div className="text-center py-8 text-slate-500">
-              <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full mx-auto mb-3"></div>
-              Memuat riwayat...
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {submissionHistory.map((sub, index) => (
-                <div
-                  key={sub._id || index}
-                  className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-blue-500" />
-                        <span className="font-medium text-slate-800 text-sm">
-                          {sub.file_name}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            sub.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : sub.status === "reviewed"
-                                ? "bg-blue-100 text-blue-700"
-                                : sub.status === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {sub.status === "approved"
-                            ? "Disetujui"
-                            : sub.status === "reviewed"
-                              ? "Ditinjau"
-                              : sub.status === "rejected"
-                                ? "Ditolak"
-                                : "Diajukan"}
-                        </span>
-                        {index === 0 && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
-                            Terbaru
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <Clock className="w-3 h-3" />
-                        {new Date(sub.uploaded_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <ReviewChat
+            role="mahasiswa"
+            currentUserId={currentUserId}
+            chatType="review"
+            fullHeight={true}
+          />
         </div>
       )}
 
-      {/* Celebration Popup - TTU 3 Approved */}
       {showCelebration && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -614,9 +568,12 @@ const UploadTTU3 = ({ student }) => {
 
             <div className="bg-[#0B2F7F]/5 border border-[#0B2F7F]/10 rounded-2xl p-5 mb-6 text-left">
               <p className="text-sm text-slate-500 italic leading-relaxed">
-                Pergi ke taman memetik melati,<br />
-                Melati putih harum baunya.<br />
-                Selamat atas tugas akhir yang telah diselesaikan hari ini,<br />
+                Pergi ke taman memetik melati,
+                <br />
+                Melati putih harum baunya.
+                <br />
+                Selamat atas tugas akhir yang telah diselesaikan hari ini,
+                <br />
                 Semoga sukses selalu menyertai langkahmu ke depannya.
               </p>
             </div>

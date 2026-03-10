@@ -6,6 +6,7 @@ import ProfileCard from "../../components/mahasiswa/ProfileCard";
 import TimelineCard from "../../components/mahasiswa/TimelineCard";
 import UploadTTUPage from "./UploadTTUPage";
 import PembimbingPage from "./PembimbingPage";
+import PesanPage from "./BimbinganPage";
 import UploadTTU3 from "./UploadTTU3";
 import DataAkunPage from "../shared/DataAkunPage";
 import PanduanPage from "./PanduanPage";
@@ -125,7 +126,12 @@ export default function MahasiswaDashboard() {
   );
 
   const UploadTTUView = () => (
-    <UploadTTUPage onSwitchToReview={() => setView("review-bimbingan")} />
+    <UploadTTUPage
+      onSwitchToReview={() => {
+        setView("daftar-review");
+        setActiveMenu("daftar-review");
+      }}
+    />
   );
 
   return (
@@ -162,6 +168,7 @@ export default function MahasiswaDashboard() {
             {view === "home" && <HomeView />}
             {view === "upload-ttu" && <UploadTTUView />}
             {view === "bimbingan" && <PembimbingPage />}
+            {view === "pesan" && <PesanPage />}
             {view === "daftar-review" && <UploadTTU3 student={student} />}
             {view === "data-akun" && <DataAkunPage student={student} />}
             {view === "panduan" && <PanduanPage />}

@@ -90,13 +90,13 @@ export default function ReviewDosenPage() {
   const handlePreviewFile = (mahasiswa, ttuType) => {
     // Find the latest ttu_3 submission for this mahasiswa
     const ttu3Sub = (mahasiswa.submissions || []).find(
-      (s) => s.ttu_number === "ttu_3"
+      (s) => s.ttu_number === "ttu_3",
     );
     if (ttu3Sub) {
       const token = localStorage.getItem("sita_token");
       window.open(
         `${API}/api/dosen/submissions/${ttu3Sub._id}/download?token=${token}`,
-        "_blank"
+        "_blank",
       );
     } else {
       alert("File TTU 3 belum diupload");
@@ -185,7 +185,6 @@ export default function ReviewDosenPage() {
               mahasiswaBimbingan={mahasiswaBimbingan}
               currentDosenId={profile?._id || profile?.user_id}
               onPreviewFile={handlePreviewFile}
-              onAcceptReview={handleAcceptReview}
             />
           )}
         </div>

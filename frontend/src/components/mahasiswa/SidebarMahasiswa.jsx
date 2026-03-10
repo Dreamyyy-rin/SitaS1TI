@@ -24,6 +24,12 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           icon: "user-tie",
         },
         {
+          key: "pesan",
+          label: "Pesan",
+          view: "pesan",
+          icon: "chat",
+        },
+        {
           key: "daftar-review",
           label: "Daftar Tinjauan",
           view: "daftar-review",

@@ -51,7 +51,7 @@ class Validator:
         return ext in allowed_extensions
     
     @staticmethod
-    def validate_file_size(file_size: int, max_size_mb: int = 50) -> bool:
+    def validate_file_size(file_size: int, max_size_mb: int = 10) -> bool:
         """Validate file size"""
         max_bytes = max_size_mb * 1024 * 1024
         return 0 < file_size <= max_bytes

@@ -151,6 +151,10 @@ const Login = () => {
         .animation-delay-2000 {
           animation-delay: 2s;
         }
+        /* Hide Edge default eye icon */
+        input[type="password"]::-ms-reveal {
+          display: none;
+        }
       `}</style>
 
       <div className="absolute top-1/4 -left-20 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>

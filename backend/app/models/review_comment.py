@@ -18,10 +18,11 @@ class ReviewComment(BaseModel):
 
     @classmethod
     def create(cls, mahasiswa_id: str, sender_id: str, sender_name: str,
-               sender_role: str, message: str) -> dict:
+               sender_role: str, message: str, chat_type: str = "review") -> dict:
         """
         Buat komentar baru.
         sender_role: 'mahasiswa' | 'pembimbing' | 'reviewer'
+        chat_type: 'bimbingan' | 'review'
         """
         doc = {
             "_id": ObjectId(),
@@ -30,6 +31,7 @@ class ReviewComment(BaseModel):
             "sender_name": sender_name,
             "sender_role": sender_role,
             "message": message,
+            "chat_type": chat_type,
             "created_at": datetime.utcnow(),
         }
         result = cls.collection().insert_one(doc)
@@ -37,11 +39,19 @@ class ReviewComment(BaseModel):
         return doc
 
     @classmethod
-    def get_by_mahasiswa(cls, mahasiswa_id: str) -> List[dict]:
-        """Get all comments for a mahasiswa's TTU3 review, sorted by time asc"""
-        docs = cls.collection().find(
-            {"mahasiswa_id": mahasiswa_id}
-        ).sort("created_at", 1)
+    def get_by_mahasiswa(cls, mahasiswa_id: str, chat_type: Optional[str] = None) -> List[dict]:
+        """Get comments for a mahasiswa, optionally filtered by chat_type"""
+        query: dict = {"mahasiswa_id": mahasiswa_id}
+        if chat_type:
+            # Support legacy docs (no chat_type field) as 'review'
+            if chat_type == "review":
+                query["$or"] = [
+                    {"chat_type": "review"},
+                    {"chat_type": {"$exists": False}},
+                ]
+            else:
+                query["chat_type"] = chat_type
+        docs = cls.collection().find(query).sort("created_at", 1)
         return cls.to_list(docs)
 
     @classmethod
