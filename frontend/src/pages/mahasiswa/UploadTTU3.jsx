@@ -27,6 +27,12 @@ const UploadTTU3 = ({ student }) => {
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
+  });
   const fileInputRef = useRef(null);
 
   const token = localStorage.getItem("sita_token");

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Send, MessageCircle, User, FileText, Download } from "lucide-react";
+import ConfirmModal from "./ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -19,6 +20,12 @@ export default function ReviewChat({
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notif, setNotif] = useState({
+    show: false,
+    title: "",
+    message: "",
+    reload: false,
+  });
 
   const pollRef = useRef(null);
   const messagesEndRef = useRef(null);

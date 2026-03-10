@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ConfirmModal from "../shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -18,7 +19,7 @@ const PlottingReviewerView = ({
   });
 
   const getAvailableReviewers = (mhs) => {
-    // Exclude pembimbing 1 & 2 from reviewer options
+    
     return availableDosen.filter(
       (d) => d._id !== mhs.pembimbing_1_id && d._id !== mhs.pembimbing_2_id,
     );
@@ -30,7 +31,7 @@ const PlottingReviewerView = ({
 
     setSaving(true);
     try {
-      // Save each reviewer assignment
+      
       for (const [mahasiswaId, reviewerId] of Object.entries(
         selectedReviewers,
       )) {
@@ -69,7 +70,7 @@ const PlottingReviewerView = ({
     }
   };
 
-  // Only show mahasiswa that have pembimbing assigned
+  
   const eligibleMahasiswa = mahasiswaBimbingan.filter((m) => m.pembimbing_1_id);
 
   return (

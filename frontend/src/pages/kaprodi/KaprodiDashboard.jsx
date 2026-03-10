@@ -13,6 +13,26 @@ import PlottingReviewerView from "../../components/kaprodi/PlottingReviewerView"
 import ReviewView from "../../components/kaprodi/ReviewView";
 
 const KaprodiDashboard = () => {
+  useEffect(() => {
+    const token = localStorage.getItem("sita_token");
+    // Fetch mahasiswa
+    fetch(`${API}/api/kaprodi/mahasiswa`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success) setMahasiswaBimbingan(res.data || []);
+      });
+
+    // Fetch dosen
+    fetch(`${API}/api/kaprodi/dosen-list`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.success) setAvailableDosen(res.data || []);
+      });
+  }, []);
   const navigate = useNavigate();
 
   const [activeMenu, setActiveMenu] = useState("dashboard");
@@ -128,7 +148,7 @@ const KaprodiDashboard = () => {
         return "Mahasiswa Bimbingan";
       case "riwayat":
         return "Riwayat Bimbingan";
-        
+
       case "data-dosen":
         return "Manajemen Dosen";
       case "data-akun":
@@ -213,7 +233,9 @@ const KaprodiDashboard = () => {
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
       <SidebarKaprodi
         activeMenu={activeMenu}
-        onMenuClick={setActiveMenu}
+        onMenuClick={(key, view) => {
+          setActiveMenu(key);
+        }}
         onLogout={handleLogout}
         user={userData}
         totalRequests={totalRequests}
@@ -237,7 +259,6 @@ const KaprodiDashboard = () => {
         </div>
       </main>
 
-    
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div

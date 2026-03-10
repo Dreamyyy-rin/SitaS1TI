@@ -13,10 +13,10 @@ export default function ReviewDosenPage() {
   const [error, setError] = useState("");
   const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
   const [requestCount, setRequestCount] = useState(() => {
-    const [notif, setNotif] = useState({ show: false, title: "", message: "" });
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [notif, setNotif] = useState({ show: false, title: "", message: "" });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");

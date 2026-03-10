@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toTitleCase } from "../../utils/textFormatter";
 
+
 const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
