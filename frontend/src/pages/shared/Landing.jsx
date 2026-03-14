@@ -49,10 +49,9 @@ const Landing = () => {
           Selamat Datang di
         </h2>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 mb-8 mt-4">
-          <div className="group relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
+        <div className="flex flex-row items-center justify-center gap-6 md:gap-10 mb-4 mt-4 w-full">
+          <div className="group relative w-20 h-20 md:w-28 md:h-28 flex-shrink-0">
             <div className="absolute inset-0 bg-white rounded-full shadow-xl shadow-slate-200"></div>
-
             <img
               src="/fti.png"
               alt="Logo UKSW"
@@ -68,20 +67,18 @@ const Landing = () => {
               }}
             />
           </div>
-
-          <div className="flex flex-col items-center text-center">
-            <h1 className="text-6xl md:text-7xl font-bold text-slate-800 leading-none tracking-tighter">
-              SITA S1 TI UKSW
-            </h1>
-
-            <div className="h-2 w-full bg-uksw rounded-full my-2"></div>
-            <p className="text-lg md:text-xl font-bold text-uksw tracking-[0.2em] uppercase">
-              Sistem Informasi Tugas Akhir S1 TI UKSW
-            </p>
-          </div>
+          <h1 className="text-6xl md:text-8xl font-bold text-slate-800 leading-none tracking-tighter text-left">
+            SITI
+          </h1>
+        </div>
+        <div className="flex flex-col items-center text-center w-full">
+          <div className="h-2 w-full max-w-xl bg-uksw rounded-full my-2 mx-auto"></div>
+          <p className="text-lg md:text-xl font-bold text-uksw tracking-[0.2em] uppercase">
+            Sistem Informasi Tugas Akhir S1 TI UKSW
+          </p>
         </div>
 
-        <div className="w-full max-w-3xl overflow-hidden py-3 mb-12 border-y border-slate-200 bg-white/50 backdrop-blur-sm">
+        <div className="w-full max-w-3xl overflow-hidden py-3 mb-12 border-y border-slate-200 bg-white/50 backdrop-blur-sm mt-6">
           <div className="whitespace-nowrap animate-marquee">
             <span className="text-slate-500 font-medium tracking-wide mx-4">
               Selamat datang di Sistem Informasi Tugas Akhir S1 Teknik

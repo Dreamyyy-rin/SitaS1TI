@@ -84,7 +84,7 @@ export default function MahasiswaDashboard() {
       return fallback;
     }
 
-    // Compute current stage from ttu_status
+    
     const ttu = profile.ttu_status || {};
     let stage = "TTU 1";
     if (ttu.ttu_3?.status === "approved") {
@@ -97,7 +97,7 @@ export default function MahasiswaDashboard() {
       stage = "TTU 1";
     }
 
-    // Get supervisor name from pembimbing state
+    
     const supervisorName = pembimbing?.pembimbing_1?.nama || "Belum ditetapkan";
 
     return {
@@ -125,7 +125,12 @@ export default function MahasiswaDashboard() {
   );
 
   const UploadTTUView = () => (
-    <UploadTTUPage onSwitchToReview={() => setView("review-bimbingan")} />
+    <UploadTTUPage
+      onSwitchToReview={() => {
+        setView("daftar-review");
+        setActiveMenu("daftar-review");
+      }}
+    />
   );
 
   return (

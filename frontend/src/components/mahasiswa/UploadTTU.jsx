@@ -26,6 +26,21 @@ const UploadTTU = ({ onSwitchToReview }) => {
     loadingHistory,
     loadSubmissionHistory,
   } = useTTU();
+
+  // Ambil file terbaru dari submissionHistory untuk currentStage
+  const latestSubmittedFile = React.useMemo(() => {
+    if (!submissionHistory || submissionHistory.length === 0) return null;
+    const stageKey = `ttu_${currentStage}`;
+    // Filter hanya submission untuk stage ini dan statusnya submitted/reviewed
+    const filtered = submissionHistory.filter(
+      (s) =>
+        s.ttu_number === stageKey &&
+        (s.status === "submitted" || s.status === "reviewed"),
+    );
+    if (filtered.length === 0) return null;
+    // Ambil yang terbaru (diasumsikan sudah urut, atau ambil yang paling akhir)
+    return filtered[filtered.length - 1];
+  }, [submissionHistory, currentStage]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -206,7 +221,10 @@ const UploadTTU = ({ onSwitchToReview }) => {
             <>
               <p className="text-gray-600 mb-6">
                 Untuk mengunggah TTU 3, silakan gunakan menu{" "}
-                <span className="font-semibold text-blue-700">Daftar Tinjauan</span>.
+                <span className="font-semibold text-blue-700">
+                  Daftar Tinjauan
+                </span>
+                .
               </p>
               {onSwitchToReview && (
                 <button
@@ -230,7 +248,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
             Selesaikan tahap sebelumnya terlebih dahulu
           </p>
         </div>
-      ) : submittedFile ? (
+      ) : latestSubmittedFile ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-start gap-4 mb-6">
             <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
@@ -254,10 +272,10 @@ const UploadTTU = ({ onSwitchToReview }) => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">
-                  {submittedFile.name}
+                  {latestSubmittedFile.file_name}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {formatFileSize(submittedFile.size)}
+                  {formatFileSize(latestSubmittedFile.file_size)}
                 </p>
               </div>
             </div>
@@ -303,7 +321,9 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {isDragging ? "Lepaskan file di sini" : "Seret & Lepas File Anda"}
+                {isDragging
+                  ? "Lepaskan file di sini"
+                  : "Seret & Lepas File Anda"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 atau klik tombol di bawah untuk memilih file
@@ -408,60 +428,80 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </div>
           ) : (
             <div className="space-y-3">
-              {submissionHistory.map((sub, index) => (
-                <div
-                  key={sub._id || index}
-                  className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="w-4 h-4 text-blue-500" />
-                        <span className="font-medium text-slate-600 text-xs uppercase">
-                          {sub.ttu_number.replace("_", " ")}
-                        </span>
-                        <span className="font-medium text-slate-800 text-sm">
-                          {sub.file_name}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            sub.status === "approved"
-                              ? "bg-green-100 text-green-700"
-                              : sub.status === "reviewed"
-                                ? "bg-blue-100 text-blue-700"
-                                : sub.status === "rejected"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {sub.status === "approved"
-                            ? "Disetujui"
-                            : sub.status === "reviewed"
-                              ? "Ditinjau"
-                              : sub.status === "rejected"
-                                ? "Ditolak"
-                                : "Diajukan"}
-                        </span>
-                        {index === 0 && (
-                          <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
-                            Terbaru
+              {/* Kelompokkan submission berdasarkan ttu_number */}
+              {["ttu_1", "ttu_2", "ttu_3"].map((ttuKey) => {
+                const submissions = submissionHistory.filter(
+                  (s) => s.ttu_number === ttuKey,
+                );
+                if (submissions.length === 0) return null;
+                // Cari submission yang sudah approved
+                const approvedSub = submissions.find(
+                  (s) => s.status === "approved",
+                );
+                // Urutkan berdasarkan uploaded_at (terbaru di atas)
+                const sortedSubs = [...submissions].sort(
+                  (a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at),
+                );
+                return sortedSubs.map((sub, idx) => (
+                  <div
+                    key={sub._id || `${ttuKey}-${idx}`}
+                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-4 h-4 text-blue-500" />
+                          <span className="font-medium text-slate-600 text-xs uppercase">
+                            {sub.ttu_number.replace("_", " ")}
                           </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-500">
-                        <Clock className="w-3 h-3" />
-                        {new Date(sub.uploaded_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                          <span className="font-medium text-slate-800 text-sm">
+                            {sub.file_name}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              (approvedSub && sub._id === approvedSub._id) ||
+                              sub.status === "approved"
+                                ? "bg-green-100 text-green-700"
+                                : sub.status === "reviewed"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : sub.status === "rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {(approvedSub && sub._id === approvedSub._id) ||
+                            sub.status === "approved"
+                              ? "Disetujui"
+                              : sub.status === "reviewed"
+                                ? "Ditinjau"
+                                : sub.status === "rejected"
+                                  ? "Ditolak"
+                                  : "Diajukan"}
+                          </span>
+                          {idx === 0 && (
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
+                              Terbaru
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <Clock className="w-3 h-3" />
+                          {new Date(sub.uploaded_at).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ));
+              })}
             </div>
           )}
         </div>

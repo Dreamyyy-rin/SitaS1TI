@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import RequestBimbinganView from "../../components/dosen/RequestBimbinganView";
 
 export default function RequestBimbinganPage() {
+  const [notif, setNotif] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,16 +93,29 @@ export default function RequestBimbinganPage() {
       );
       const data = await res.json();
       if (data.success) {
-        alert(
-          "✓ Request berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi dan semua Dosen Pembimbing menyetujui.",
-        );
-        // Reload data from backend to get updated list
-        window.location.reload();
+        setNotif({
+          show: true,
+          type: "success",
+          title: "Request Disetujui",
+          message:
+            "Permintaan berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi menyetujui.",
+        });
+        setTimeout(() => window.location.reload(), 1200);
       } else {
-        alert(data.message || data.error || "Gagal approve request");
+        setNotif({
+          show: true,
+          type: "error",
+          title: "Gagal",
+          message: data.message || data.error || "Gagal menerima permintaan",
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        type: "error",
+        title: "Koneksi Gagal",
+        message: "Gagal menghubungi server",
+      });
     }
   };
 
@@ -113,14 +133,28 @@ export default function RequestBimbinganPage() {
       );
       const data = await res.json();
       if (data.success) {
-        alert("✓ Request berhasil ditolak.");
-        // Reload data from backend to get updated list
-        window.location.reload();
+        setNotif({
+          show: true,
+          type: "success",
+          title: "Request Ditolak",
+          message: "✓ Request berhasil ditolak.",
+        });
+        setTimeout(() => window.location.reload(), 1200);
       } else {
-        alert(data.message || data.error || "Gagal reject request");
+        setNotif({
+          show: true,
+          type: "error",
+          title: "Gagal Reject Request",
+          message: data.message || data.error || "Gagal reject request",
+        });
       }
     } catch {
-      alert("Gagal menghubungi server");
+      setNotif({
+        show: true,
+        type: "error",
+        title: "Koneksi Gagal",
+        message: "Gagal menghubungi server",
+      });
     }
   };
 
@@ -132,6 +166,13 @@ export default function RequestBimbinganPage() {
 
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
+      <ConfirmModal
+        show={notif.show}
+        type={notif.type}
+        title={notif.title}
+        message={notif.message}
+        onClose={() => setNotif({ ...notif, show: false })}
+      />
       <SidebarDosen
         activeMenu="request-bimbingan"
         onMenuClick={(key) => {

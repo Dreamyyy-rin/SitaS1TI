@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Info, XCircle, CheckCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -10,6 +11,18 @@ const PlottingReviewerView = ({
   onSavePlotting,
 }) => {
   const [saving, setSaving] = useState(false);
+  // Notifikasi pop up
+  const [notification, setNotification] = useState({
+    open: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
+  const showNotification = ({ type = "info", title = "", message = "" }) => {
+    setNotification({ open: true, type, title, message });
+  };
+  const closeNotification = () =>
+    setNotification((prev) => ({ ...prev, open: false }));
 
   const getAvailableReviewers = (mhs) => {
     // Exclude pembimbing 1 & 2 from reviewer options
@@ -44,10 +57,18 @@ const PlottingReviewerView = ({
           }),
         });
       }
-      alert("Plotting reviewer berhasil disimpan!");
-      window.location.reload();
+      showNotification({
+        type: "success",
+        title: "Berhasil",
+        message: "Plotting reviewer berhasil disimpan!",
+      });
+      setTimeout(() => window.location.reload(), 1200);
     } catch (err) {
-      alert("Gagal menyimpan plotting reviewer");
+      showNotification({
+        type: "error",
+        title: "Gagal",
+        message: "Gagal menyimpan plotting reviewer",
+      });
     } finally {
       setSaving(false);
     }
@@ -58,6 +79,53 @@ const PlottingReviewerView = ({
 
   return (
     <div className="space-y-6">
+      {/* Notification Modal */}
+      {notification.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={closeNotification}
+          ></div>
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                  notification.type === "success"
+                    ? "bg-green-50 ring-green-50/50"
+                    : notification.type === "error"
+                      ? "bg-red-50 ring-red-50/50"
+                      : "bg-blue-50 ring-blue-50/50"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <CheckCircle
+                    className="w-8 h-8 text-green-500"
+                    strokeWidth={2}
+                  />
+                ) : notification.type === "error" ? (
+                  <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+                ) : (
+                  <Info className="w-8 h-8 text-blue-500" strokeWidth={2} />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                {notification.title}
+              </h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                {notification.message}
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={closeNotification}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="overflow-x-auto">
           <table className="w-full">

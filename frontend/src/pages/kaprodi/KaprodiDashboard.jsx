@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { CheckCircle, XCircle, Info } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle, XCircle } from "lucide-react";
 import SidebarKaprodi from "../../components/kaprodi/SidebarKaprodi";
 import KaprodiManajemenDosen from "./KaprodiManajemenDosen";
 import DashboardView from "../../components/kaprodi/DashboardView";
@@ -10,9 +10,33 @@ import DataAkunKaprodiView from "../../components/kaprodi/DataAkunKaprodiView";
 import PanduanKaprodiView from "../../components/kaprodi/PanduanKaprodiView";
 import RiwayatBimbinganView from "../../components/kaprodi/RiwayatBimbinganView";
 import PlottingReviewerView from "../../components/kaprodi/PlottingReviewerView";
-import ReviewView from "../../components/kaprodi/ReviewView";
+
 
 const KaprodiDashboard = () => {
+  
+  const [notification, setNotification] = useState({
+    open: false,
+    type: "info", 
+    title: "",
+    message: "",
+    onClose: null,
+  });
+
+  const showNotification = ({
+    type = "info",
+    title = "",
+    message = "",
+    onClose = null,
+  }) => {
+    setNotification({ open: true, type, title, message, onClose });
+  };
+
+  const closeNotification = () => {
+    setNotification((prev) => {
+      if (prev.onClose) prev.onClose();
+      return { ...prev, open: false };
+    });
+  };
   const navigate = useNavigate();
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [userData, setUserData] = useState(null);
@@ -225,9 +249,17 @@ const KaprodiDashboard = () => {
     // Mark bimbingan as validated by kaprodi (informational only)
     const mhs = mahasiswaBimbingan.find((m) => m.id === id);
     if (mhs && mhs.ttu1 && mhs.ttu2 && mhs.ttu3) {
-      alert(`Mahasiswa ${mhs.nama} sudah menyelesaikan seluruh TTU.`);
+      showNotification({
+        type: "success",
+        title: "Validasi TTU",
+        message: `Mahasiswa ${mhs.nama} sudah menyelesaikan seluruh TTU.`,
+      });
     } else {
-      alert(`Mahasiswa belum menyelesaikan seluruh TTU.`);
+      showNotification({
+        type: "error",
+        title: "Validasi TTU",
+        message: `Mahasiswa belum menyelesaikan seluruh TTU.`,
+      });
     }
   };
 
@@ -248,7 +280,11 @@ const KaprodiDashboard = () => {
       });
       const data = await res.json();
       if (data.success) {
-        alert(`\u2713 ${data.message}`);
+        showNotification({
+          type: "success",
+          title: "Berhasil",
+          message: data.message,
+        });
         // Refresh mahasiswa data
         const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -290,11 +326,19 @@ const KaprodiDashboard = () => {
           setMahasiswaBimbingan(mhsList);
         }
       } else {
-        alert("\u274C " + (data.message || "Gagal mengganti pembimbing"));
+        showNotification({
+          type: "error",
+          title: "Gagal",
+          message: data.message || "Gagal mengganti pembimbing",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("\u274C Gagal menghubungi server");
+      showNotification({
+        type: "error",
+        title: "Gagal",
+        message: "Gagal menghubungi server",
+      });
     }
   };
 
@@ -368,11 +412,19 @@ const KaprodiDashboard = () => {
           setMahasiswaBimbingan(mhsList);
         }
       } else {
-        alert("❌ " + (data.message || data.error || "Gagal approve request"));
+        showNotification({
+          type: "error",
+          title: "Gagal Approve",
+          message: data.message || data.error || "Gagal approve request",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("❌ Gagal menghubungi server");
+      showNotification({
+        type: "error",
+        title: "Gagal Approve",
+        message: "Gagal menghubungi server",
+      });
     } finally {
       setShowApproveModal(false);
       setSelectedRequestId(null);
@@ -403,18 +455,30 @@ const KaprodiDashboard = () => {
       );
       const data = await res.json();
       if (data.success) {
-        alert("✓ Request pembimbing ditolak.");
+        showNotification({
+          type: "success",
+          title: "Request Ditolak",
+          message: "Request pembimbing ditolak.",
+        });
         setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
         setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
         const newTotal = Math.max(0, totalRequests - 1);
         setTotalRequests(newTotal);
         localStorage.setItem("kaprodi_total_requests", newTotal.toString());
       } else {
-        alert("❌ " + (data.message || data.error || "Gagal reject request"));
+        showNotification({
+          type: "error",
+          title: "Gagal Reject",
+          message: data.message || data.error || "Gagal reject request",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("❌ Gagal menghubungi server");
+      showNotification({
+        type: "error",
+        title: "Gagal Reject",
+        message: "Gagal menghubungi server",
+      });
     } finally {
       setShowRejectModal(false);
       setSelectedRequestId(null);
@@ -449,8 +513,6 @@ const KaprodiDashboard = () => {
         return "Riwayat Bimbingan";
       case "data-dosen":
         return "Manajemen Dosen";
-      case "review":
-        return "Tinjauan";
       case "data-akun":
         return "Data Akun";
       case "panduan":
@@ -510,8 +572,6 @@ const KaprodiDashboard = () => {
         );
       case "data-dosen":
         return <KaprodiManajemenDosen />;
-      case "review":
-        return <ReviewView mahasiswaBimbingan={mahasiswaBimbingan} />;
       case "data-akun":
         return <DataAkunKaprodiView userData={userData} />;
       case "panduan":
@@ -624,6 +684,53 @@ const KaprodiDashboard = () => {
                   className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all transform active:scale-95"
                 >
                   Ya, Tolak
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Notification Modal */}
+      {notification.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={closeNotification}
+          ></div>
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div
+                className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 ring-4 ${
+                  notification.type === "success"
+                    ? "bg-green-50 ring-green-50/50"
+                    : notification.type === "error"
+                      ? "bg-red-50 ring-red-50/50"
+                      : "bg-blue-50 ring-blue-50/50"
+                }`}
+              >
+                {notification.type === "success" ? (
+                  <CheckCircle
+                    className="w-8 h-8 text-green-500"
+                    strokeWidth={2}
+                  />
+                ) : notification.type === "error" ? (
+                  <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+                ) : (
+                  <Info className="w-8 h-8 text-blue-500" strokeWidth={2} />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                {notification.title}
+              </h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                {notification.message}
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={closeNotification}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                >
+                  Tutup
                 </button>
               </div>
             </div>

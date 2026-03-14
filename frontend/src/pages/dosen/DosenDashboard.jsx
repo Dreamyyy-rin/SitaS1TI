@@ -55,7 +55,7 @@ export default function DosenDashboard() {
         if (mhsRes.success) setMahasiswaBimbingan(mhsRes.data || []);
         if (reqRes.success) {
           setRequestBimbingan(reqRes.data || []);
-          // Backend already filters by overall_status = pending, so count all returned data
+          
           const count = (reqRes.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());

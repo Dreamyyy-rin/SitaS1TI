@@ -139,6 +139,12 @@ const Login = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700;900&display=swap');
         .font-outfit { font-family: 'Outfit', sans-serif; }
+        
+        input::-ms-reveal,
+        input::-ms-clear {
+          display: none;
+        }
+        
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }

@@ -1,23 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Send, MessageCircle, User } from "lucide-react";
+import { Send, MessageCircle } from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
-/**
- * ReviewChat - Chat component for TTU3 review discussion
- * Used by mahasiswa, pembimbing, and reviewer
- *
- * @param {string} mahasiswaId - The mahasiswa ID (for dosen view)
- * @param {string} role - 'mahasiswa' | 'dosen'
- * @param {string} currentUserId - Current user's ID
- */
-export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUserId }) {
+export default function ReviewChat({
+  mahasiswaId,
+  role = "mahasiswa",
+  currentUserId,
+  disableAutoScroll = false,
+}) {
   const [comments, setComments] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  
+  // Refs untuk kontrol scroll
+  const scrollContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
+  const lastCountRef = useRef(0);
+  const didInitialScroll = useRef(false);
 
   const token = localStorage.getItem("sita_token");
 
@@ -44,21 +46,40 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
     }
   };
 
+  // Polling Effect
   useEffect(() => {
     loadComments();
-    // Poll every 10 seconds for new comments
+    didInitialScroll.current = false;
     pollRef.current = setInterval(loadComments, 10000);
     return () => clearInterval(pollRef.current);
   }, [mahasiswaId]);
 
+  // Smart Auto-Scroll Effect (Hanya container, bukan page)
   useEffect(() => {
-    // Auto-scroll to bottom when new comments arrive
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [comments]);
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    // Logika: Scroll jika data pertama masuk ATAU jumlah pesan bertambah
+    if (comments.length > 0) {
+      const isNewMessage = comments.length > lastCountRef.current;
+      
+      if (!didInitialScroll.current || (isNewMessage && !disableAutoScroll)) {
+        // Menggunakan scrollTo pada container agar page tidak ikut melompat
+        setTimeout(() => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: didInitialScroll.current ? "smooth" : "auto",
+          });
+        }, 100);
+
+        if (!didInitialScroll.current) didInitialScroll.current = true;
+      }
+    }
+    lastCountRef.current = comments.length;
+  }, [comments, disableAutoScroll]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
-
     try {
       setSending(true);
       const res = await fetch(getEndpoint(), {
@@ -73,11 +94,9 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
       if (result.success) {
         setNewMessage("");
         await loadComments();
-      } else {
-        alert(result.error || "Gagal mengirim komentar");
       }
     } catch {
-      alert("Gagal menghubungi server");
+      console.error("Gagal menghubungi server");
     } finally {
       setSending(false);
     }
@@ -91,59 +110,41 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
   };
 
   const getRoleBadge = (senderRole) => {
-    switch (senderRole) {
-      case "reviewer":
-        return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-100 text-purple-700">
-            Peninjau
-          </span>
-        );
-      case "pembimbing":
-        return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-700">
-            Pembimbing
-          </span>
-        );
-      case "mahasiswa":
-        return (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-green-100 text-green-700">
-            Mahasiswa
-          </span>
-        );
-      default:
-        return null;
-    }
+    const badges = {
+      reviewer: "bg-purple-100 text-purple-700",
+      pembimbing: "bg-blue-100 text-blue-700",
+      mahasiswa: "bg-green-100 text-green-700",
+    };
+    const label = { reviewer: "Peninjau", pembimbing: "Pembimbing", mahasiswa: "Mahasiswa" };
+    return senderRole in badges ? (
+      <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${badges[senderRole]}`}>
+        {label[senderRole]}
+      </span>
+    ) : null;
   };
 
   const getRoleColor = (senderRole) => {
-    switch (senderRole) {
-      case "reviewer":
-        return "bg-purple-50 border-purple-200";
-      case "pembimbing":
-        return "bg-blue-50 border-blue-200";
-      case "mahasiswa":
-        return "bg-green-50 border-green-200";
-      default:
-        return "bg-gray-50 border-gray-200";
-    }
-  };
-
-  const isOwnMessage = (comment) => {
-    return comment.sender_id === currentUserId;
+    const colors = {
+      reviewer: "bg-purple-50 border-purple-200",
+      pembimbing: "bg-blue-50 border-blue-200",
+      mahasiswa: "bg-green-50 border-green-200",
+    };
+    return colors[senderRole] || "bg-gray-50 border-gray-200";
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-[#0B2F7F] to-[#1a4fc4] px-5 py-3 flex items-center gap-2">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col w-full">
+      <div className="bg-gradient-to-r from-[#0B2F7F] to-[#1a4fc4] px-5 py-3 flex items-center gap-2 flex-shrink-0">
         <MessageCircle className="w-5 h-5 text-white" />
         <h3 className="text-white font-semibold text-sm">Diskusi Tinjauan TTU 3</h3>
-        <span className="text-white/60 text-xs ml-auto">
-          {comments.length} pesan
-        </span>
+        <span className="text-white/60 text-xs ml-auto">{comments.length} pesan</span>
       </div>
 
-      {/* Messages area */}
-      <div className="h-80 overflow-y-auto px-4 py-3 space-y-3 bg-slate-50/50">
+      <div
+        ref={scrollContainerRef}
+        className="overflow-y-auto px-4 py-3 space-y-3 bg-slate-50/50"
+        style={{ height: "384px" }}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-full text-slate-400 text-sm">
             <div className="animate-spin w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full mr-2"></div>
@@ -153,48 +154,34 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
           <div className="flex flex-col items-center justify-center h-full text-slate-400">
             <MessageCircle className="w-10 h-10 mb-2 opacity-30" />
             <p className="text-sm">Belum ada pesan</p>
-            <p className="text-xs mt-1">Mulai diskusi tentang tinjauan TTU 3</p>
           </div>
         ) : (
-          comments.map((comment) => (
-            <div
-              key={comment._id}
-              className={`flex ${isOwnMessage(comment) ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-xl px-4 py-2.5 border ${
-                  isOwnMessage(comment)
-                    ? "bg-[#0B2F7F] text-white border-[#0B2F7F] rounded-br-sm"
-                    : `${getRoleColor(comment.sender_role)} rounded-bl-sm`
-                }`}
-              >
-                {!isOwnMessage(comment) && (
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className={`text-xs font-bold ${isOwnMessage(comment) ? "text-white/80" : "text-slate-700"}`}>
-                      {comment.sender_name}
-                    </span>
-                    {getRoleBadge(comment.sender_role)}
-                  </div>
-                )}
-                <p className={`text-sm leading-relaxed whitespace-pre-wrap ${isOwnMessage(comment) ? "text-white" : "text-slate-700"}`}>
-                  {comment.message}
-                </p>
-                <p className={`text-[10px] mt-1 ${isOwnMessage(comment) ? "text-white/50" : "text-slate-400"}`}>
-                  {new Date(comment.created_at).toLocaleDateString("id-ID", {
-                    day: "numeric",
-                    month: "short",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
+          comments.map((comment) => {
+            const isOwn = comment.sender_id === currentUserId;
+            return (
+              <div key={comment._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
+                <div className={`max-w-[85%] rounded-xl px-4 py-2.5 border ${
+                  isOwn ? "bg-[#0B2F7F] text-white border-[#0B2F7F] rounded-br-sm" 
+                  : `${getRoleColor(comment.sender_role)} rounded-bl-sm`
+                }`}>
+                  {!isOwn && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-bold text-slate-700">{comment.sender_name}</span>
+                      {getRoleBadge(comment.sender_role)}
+                    </div>
+                  )}
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.message}</p>
+                  <p className={`text-[10px] mt-1 ${isOwn ? "text-white/50" : "text-slate-400"}`}>
+                    {new Date(comment.created_at).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input area */}
       <div className="border-t border-slate-200 px-4 py-3 bg-white">
         <div className="flex items-end gap-2">
           <textarea
@@ -203,24 +190,16 @@ export default function ReviewChat({ mahasiswaId, role = "mahasiswa", currentUse
             onKeyDown={handleKeyDown}
             placeholder="Tulis pesan..."
             rows={1}
-            className="flex-1 resize-none px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]/30 focus:border-[#0B2F7F] transition-all"
-            style={{ maxHeight: "100px" }}
+            className="flex-1 resize-none px-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]/30"
           />
           <button
             onClick={handleSend}
             disabled={!newMessage.trim() || sending}
-            className="flex items-center justify-center w-10 h-10 bg-[#0B2F7F] text-white rounded-xl hover:bg-[#0a2666] disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+            className="flex items-center justify-center w-10 h-10 bg-[#0B2F7F] text-white rounded-xl hover:bg-[#0a2666] disabled:bg-slate-300 transition-colors"
           >
-            {sending ? (
-              <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
+            <Send className="w-4 h-4" />
           </button>
         </div>
-        <p className="text-[10px] text-slate-400 mt-1.5 px-1">
-          Tekan Enter untuk mengirim, Shift+Enter untuk baris baru
-        </p>
       </div>
     </div>
   );

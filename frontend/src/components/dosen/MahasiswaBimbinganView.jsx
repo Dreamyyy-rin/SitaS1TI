@@ -106,22 +106,35 @@ export default function MahasiswaBimbinganView({
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <div className="flex gap-2 justify-center">
-                      <button
-                        onClick={() => onPreviewFile(mhs, "TTU")}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
-                      >
-                        Lihat File
-                      </button>
-                      {onOpenChat && (
+                    <div className="flex flex-col items-center gap-1 justify-center">
+                      <div className="flex gap-2 justify-center">
                         <button
-                          onClick={() => onOpenChat(mhs)}
-                          className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center gap-1"
-                          title="Diskusi Tinjauan"
+                          onClick={() => onPreviewFile(mhs, "TTU")}
+                          className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
                         >
-                          <MessageCircle className="w-4 h-4" />
-                          Obrolan
+                          Lihat File
                         </button>
+                        {onOpenChat && (
+                          <button
+                            onClick={() => onOpenChat(mhs)}
+                            className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center gap-1"
+                            title="Diskusi Tinjauan"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            Obrolan
+                          </button>
+                        )}
+                      </div>
+                      
+                      {(mhs.ttu1_accepted ||
+                        mhs.ttu2_accepted ||
+                        mhs.ttu3_accepted ||
+                        mhs.ttu1Status === "approved" ||
+                        mhs.ttu2Status === "approved" ||
+                        mhs.ttu3Status === "approved") && (
+                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-700">
+                          Diterima
+                        </span>
                       )}
                     </div>
                   </td>
@@ -129,13 +142,31 @@ export default function MahasiswaBimbinganView({
                     <div className="flex gap-2 justify-center">
                       <button
                         onClick={() => onAcceptMahasiswa(mhs.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm font-medium"
+                        disabled={
+                          !(mhs.ttu1 || mhs.ttu2 || mhs.ttu3) || mhs.ttu3
+                        }
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          mhs.ttu3
+                            ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                            : mhs.ttu1 || mhs.ttu2 || mhs.ttu3
+                              ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                        }`}
                       >
                         Terima
                       </button>
                       <button
                         onClick={() => onRejectMahasiswa(mhs.id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm font-medium"
+                        disabled={
+                          !(mhs.ttu1 || mhs.ttu2 || mhs.ttu3) || mhs.ttu3
+                        }
+                        className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                          mhs.ttu3
+                            ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                            : mhs.ttu1 || mhs.ttu2 || mhs.ttu3
+                              ? "bg-red-600 text-white hover:bg-red-700 cursor-pointer"
+                              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                        }`}
                       >
                         Tolak
                       </button>

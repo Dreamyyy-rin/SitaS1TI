@@ -26,7 +26,7 @@ const PesanPage = () => {
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data) {
-          // Use pembimbing_1 as the main pembimbing for chat
+         
           setPembimbing(res.data.pembimbing_1);
         }
       })

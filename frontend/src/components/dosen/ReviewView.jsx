@@ -87,9 +87,7 @@ export default function ReviewView({
           <div className="p-5 flex items-start justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-1">
-                <h3 className="text-lg font-bold text-slate-800">
-                  {mhs.nama}
-                </h3>
+                <h3 className="text-lg font-bold text-slate-800">{mhs.nama}</h3>
                 <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
                   {mhs.nim}
                 </span>

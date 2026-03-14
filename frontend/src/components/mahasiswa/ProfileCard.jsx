@@ -89,10 +89,17 @@ const ProfileCard = ({ student }) => {
             <div className="px-4 py-2 bg-blue-50 text-[#0B2F7F] rounded-lg font-bold text-lg border border-blue-100">
               {student.stage}
             </div>
-            <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-green-500"></span>
-              Sedang Berjalan
-            </p>
+            {student.stage === "Selesai" ? (
+              <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                Selesai
+              </p>
+            ) : (
+              <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                Sedang Berjalan
+              </p>
+            )}
           </div>
         </div>
       </div>

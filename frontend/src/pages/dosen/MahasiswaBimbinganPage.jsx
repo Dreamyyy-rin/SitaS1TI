@@ -1,6 +1,14 @@
 import React, { useState, useEffect } from "react";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 import { useNavigate } from "react-router-dom";
-import { X, FileText, Download, CheckCircle, XCircle, MessageCircle } from "lucide-react";
+import {
+  X,
+  FileText,
+  Download,
+  CheckCircle,
+  XCircle,
+  MessageCircle,
+} from "lucide-react";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import MahasiswaBimbinganView from "../../components/dosen/MahasiswaBimbinganView";
 import ReviewChat from "../../components/shared/ReviewChat";
@@ -8,6 +16,12 @@ import ReviewChat from "../../components/shared/ReviewChat";
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 export default function MahasiswaBimbinganPage() {
+  const [notif, setNotif] = useState({
+    show: false,
+    type: "info",
+    title: "",
+    message: "",
+  });
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -134,11 +148,11 @@ export default function MahasiswaBimbinganPage() {
     const mhs = mahasiswaBimbingan.find((m) => m.id === id);
     if (!mhs) return;
 
-    // Determine which TTU to approve based on current status
+  
     let ttuToApprove = null;
     const ttu = mhs.ttu_status || {};
 
-    // Check for submitted or reviewed TTU in order
+   
     if (ttu.ttu_1?.status === "submitted" || ttu.ttu_1?.status === "reviewed") {
       ttuToApprove = "ttu_1";
     } else if (
@@ -154,7 +168,12 @@ export default function MahasiswaBimbinganPage() {
     }
 
     if (!ttuToApprove) {
-      alert("Tidak ada TTU yang perlu di-ACC saat ini");
+      setNotif({
+        show: true,
+        type: "info",
+        title: "Tidak Ada TTU",
+        message: "Tidak ada TTU yang perlu di-ACC saat ini.",
+      });
       return;
     }
 
@@ -200,10 +219,22 @@ export default function MahasiswaBimbinganPage() {
         if (res.success) {
           window.location.reload();
         } else {
-          alert(res.message || "Gagal menyetujui TTU");
+          setNotif({
+            show: true,
+            type: "error",
+            title: "Gagal Menyetujui TTU",
+            message: res.message || "Gagal menyetujui TTU",
+          });
         }
       })
-      .catch(() => alert("Gagal menghubungi server"))
+      .catch(() =>
+        setNotif({
+          show: true,
+          type: "error",
+          title: "Koneksi Gagal",
+          message: "Gagal menghubungi server",
+        }),
+      )
       .finally(() => {
         setShowAcceptModal(false);
         setSelectedMahasiswaId(null);
@@ -233,7 +264,12 @@ export default function MahasiswaBimbinganPage() {
     }
 
     if (!ttuToReject) {
-      alert("Tidak ada TTU yang perlu ditinjau saat ini");
+      setNotif({
+        show: true,
+        type: "info",
+        title: "Tidak Ada TTU",
+        message: "Tidak ada TTU yang perlu ditinjau saat ini.",
+      });
       return;
     }
 
@@ -282,10 +318,22 @@ export default function MahasiswaBimbinganPage() {
         if (res.success) {
           window.location.reload();
         } else {
-          alert(res.message || "Gagal menolak TTU");
+          setNotif({
+            show: true,
+            type: "error",
+            title: "Gagal Menolak TTU",
+            message: res.message || "Gagal menolak TTU",
+          });
         }
       })
-      .catch(() => alert("Gagal menghubungi server"))
+      .catch(() =>
+        setNotif({
+          show: true,
+          type: "error",
+          title: "Koneksi Gagal",
+          message: "Gagal menghubungi server",
+        }),
+      )
       .finally(() => {
         setShowRejectModal(false);
         setSelectedMahasiswaId(null);
@@ -306,6 +354,13 @@ export default function MahasiswaBimbinganPage() {
 
   return (
     <div className="flex bg-[#F8FAFC] min-h-screen font-sans text-slate-600">
+      <ConfirmModal
+        show={notif.show}
+        type={notif.type}
+        title={notif.title}
+        message={notif.message}
+        onClose={() => setNotif({ ...notif, show: false })}
+      />
       <SidebarDosen
         activeMenu="mahasiswa-bimbingan"
         onMenuClick={(key) => {
@@ -464,7 +519,6 @@ export default function MahasiswaBimbinganPage() {
         </div>
       )}
 
-      {/* Accept Confirmation Modal */}
       {showAcceptModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -508,7 +562,6 @@ export default function MahasiswaBimbinganPage() {
         </div>
       )}
 
-      {/* Reject Confirmation Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div

@@ -207,17 +207,15 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
 
         <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center justify-center md:justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
                 <Icon name="user" className="w-6 h-6" />
               </div>
-
-              <div className="hidden md:block text-left overflow-hidden">
-                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
+              <div className="hidden md:block text-left flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
                   {toTitleCase(student?.name) || "Felicia Wijaya"}
                 </p>
-
-                <p className="text-xs text-slate-500 font-mono">
+                <p className="text-xs text-slate-500 font-mono truncate overflow-hidden text-ellipsis whitespace-nowrap">
                   {student?.nim || "672023009"}
                 </p>
               </div>

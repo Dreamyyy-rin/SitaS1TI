@@ -48,12 +48,6 @@ const SidebarKaprodi = ({
           view: "mahasiswa-bimbingan",
           icon: Users,
         },
-        {
-          key: "review",
-          label: "Tinjauan",
-          view: "review",
-          icon: FileCheck,
-        },
       ],
     },
     {
