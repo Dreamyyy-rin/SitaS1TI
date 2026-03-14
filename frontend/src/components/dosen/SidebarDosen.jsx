@@ -59,7 +59,7 @@ const SidebarDosen = ({
           key: "data-akun",
           label: "Data Akun",
           view: "data-akun",
-          icon: User,
+          icon: UserCog,
         },
       ],
     },
@@ -153,14 +153,11 @@ const SidebarDosen = ({
                 <User className="w-6 h-6" />
               </div>
 
-              <div className="text-left overflow-hidden max-w-[140px]">
-                <p
-                  className="text-sm font-bold text-slate-700 truncate whitespace-nowrap overflow-hidden group-hover:text-[#0B2F7F] transition-colors max-w-full"
-                  title={user?.name || "Dosen"}
-                >
+              <div className="text-left overflow-hidden">
+                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
                   {user?.name || "Dosen"}
                 </p>
-                <p className="text-xs text-slate-500 font-mono truncate whitespace-nowrap overflow-hidden max-w-full">
+                <p className="text-xs text-slate-500 font-mono">
                   {user?.nip || "Dosen Pembimbing"}
                 </p>
               </div>

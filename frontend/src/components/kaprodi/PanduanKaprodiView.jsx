@@ -5,73 +5,81 @@ const PanduanKaprodiView = () => {
     {
       number: "01",
       title: "Dasbor",
-      description: "Statistik aktivitas dan perkembangan program studi",
+      description: "Pantau aktivitas dan statistik program studi",
       details:
-        "Menampilkan statistik aktivitas, permintaan, mahasiswa aktif, TTU selesai, dan dosen pembimbing.",
+        "Halaman utama menampilkan ringkasan aktivitas terkini, jumlah permintaan yang masuk, mahasiswa aktif, TTU yang telah selesai, dan total dosen pembimbing. Pantau perkembangan program studi secara langsung.",
       color: "blue",
     },
     {
       number: "02",
       title: "Permintaan Pembimbing",
       description: "Kelola permintaan bimbingan dari mahasiswa ke dosen",
-      details: "Kelola permintaan bimbingan dari mahasiswa ke dosen.",
+      details:
+        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh dosen tertentu. Tinjau judul yang diajukan mahasiswa. Setujui atau tolak permintaan sesuai pertimbangan akademik. Mahasiswa baru dapat masuk ke dasbor setelah disetujui oleh Kaprodi dan dosen pembimbing yang bersangkutan.",
       color: "purple",
     },
     {
       number: "03",
       title: "Mahasiswa Bimbingan",
-      description: "Pantau progres tugas akhir mahasiswa, ganti pembimbing",
+      description: "Lihat progres dan ganti pembimbing mahasiswa",
       details:
-        "Pantau progres tugas akhir mahasiswa, ganti pembimbing jika diperlukan.",
+        "Pantau progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Kaprodi dapat langsung mengganti dosen pembimbing mahasiswa tanpa melalui proses permintaan menggunakan tombol 'Ganti Pembimbing'.",
       color: "green",
     },
     {
       number: "04",
       title: "Tinjauan",
-      description: "Lihat berkas TTU mahasiswa dan status tinjauan",
-      details: "Lihat berkas TTU mahasiswa dan status tinjauan.",
+      description: "Tinjau berkas TTU mahasiswa",
+      details:
+        "Lihat berkas TTU yang telah diunggah mahasiswa. Pantau status tinjauan dan persetujuan dari dosen reviewer. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM.",
       color: "orange",
     },
     {
       number: "05",
       title: "Permintaan Dosen",
       description: "Kelola pengajuan dan perubahan dosen pembimbing",
-      details: "Kelola pengajuan dan perubahan dosen pembimbing.",
+      details:
+        "Terdapat dua jenis permintaan: (1) Permintaan Dosen Pembimbing — pengajuan dosen pembimbing baru dari mahasiswa, dan (2) Permintaan Ganti Dosen Pembimbing — permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap permintaan sesuai pertimbangan akademik.",
       color: "indigo",
     },
     {
       number: "06",
       title: "Penentuan Peninjau",
-      description: "Tetapkan dosen peninjau untuk TTU 3",
-      details: "Tetapkan dosen peninjau untuk TTU 3.",
+      description: "Tetapkan dosen peninjau (reviewer) untuk mahasiswa",
+      details:
+        "Pilih dosen peninjau untuk setiap mahasiswa yang akan mengikuti TTU 3. Sistem secara otomatis tidak menampilkan dosen pembimbing pada pilihan peninjau. Pastikan peninjau memiliki keahlian yang sesuai dengan topik penelitian mahasiswa.",
       color: "slate",
     },
     {
       number: "07",
       title: "Riwayat Bimbingan",
       description: "Arsip mahasiswa yang telah menyelesaikan bimbingan",
-      details: "Arsip mahasiswa yang telah menyelesaikan bimbingan.",
+      details:
+        "Lihat data historis mahasiswa yang telah menyelesaikan seluruh tahapan TTU. Informasi meliputi nama mahasiswa, judul tugas akhir, dosen pembimbing, dan tanggal penyelesaian. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM. Berguna untuk evaluasi dan pelaporan program studi.",
       color: "teal",
     },
     {
       number: "08",
       title: "Manajemen Dosen",
       description: "Lihat data dosen pembimbing program studi",
-      details: "Lihat data dosen pembimbing program studi.",
+      details:
+        "Lihat daftar dosen pembimbing dengan informasi lengkap (nama, NIP, email, status). Monitor jumlah mahasiswa bimbingan aktif setiap dosen. Status 'Aktif' menandakan dosen tersebut dapat dipilih sebagai pembimbing oleh mahasiswa. Pengelolaan data dosen (tambah/hapus/ubah status) dilakukan oleh Superadmin. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP.",
       color: "red",
     },
     {
       number: "09",
       title: "Batas Waktu TTU",
       description: "Atur jadwal batas waktu untuk setiap tahap TTU",
-      details: "Atur jadwal batas waktu untuk setiap tahap TTU.",
+      details:
+        "Tentukan tanggal batas waktu untuk TTU 1 (Ujian Proposal), TTU 2 (Ujian Hasil), dan TTU 3 (Ujian Review). Sistem akan menampilkan status batas waktu (terlewat, mendekati, atau masih lama). Lihat ringkasan semua batas waktu dalam satu tabel.",
       color: "cyan",
     },
     {
       number: "10",
       title: "Data Akun",
       description: "Kelola informasi akun Kaprodi",
-      details: "Kelola informasi akun Kaprodi.",
+      details:
+        "Lihat dan ubah informasi profil Kaprodi seperti nama, email, dan nomor telepon. Perbarui kata sandi untuk keamanan akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
       color: "pink",
     },
   ];

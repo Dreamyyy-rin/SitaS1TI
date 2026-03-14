@@ -12,7 +12,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
-import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const UploadTTU = ({ onSwitchToReview }) => {
   const {
@@ -31,12 +30,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const fileInputRef = useRef(null);
-  const [notif, setNotif] = useState({
-    show: false,
-    title: "",
-    message: "",
-    reload: false,
-  });
 
   useEffect(() => {
     loadSubmissionHistory();
@@ -124,17 +117,8 @@ const UploadTTU = ({ onSwitchToReview }) => {
     const success = await cancelSubmission();
     setShowCancelDialog(false);
 
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-
     if (!success) {
-      setNotif({
-        show: true,
-        title: "Gagal membatalkan pengajuan. Silakan coba lagi.",
-        reload: false,
-      });
+      alert("Gagal membatalkan pengajuan. Silakan coba lagi.");
     }
   };
 
@@ -169,11 +153,11 @@ const UploadTTU = ({ onSwitchToReview }) => {
           {ttuStatus && (
             <span
               className={`inline-flex items-center px-3 py-1.5 rounded-lg font-medium text-xs ${
-                ttuStatus[`ttu_${currentStage}`]?.status === "Terbuka"
+                ttuStatus[`ttu_${currentStage}`]?.status === "open"
                   ? "bg-green-50 text-green-700"
-                  : ttuStatus[`ttu_${currentStage}`]?.status === "Diajukan"
+                  : ttuStatus[`ttu_${currentStage}`]?.status === "submitted"
                     ? "bg-yellow-50 text-yellow-700"
-                    : ttuStatus[`ttu_${currentStage}`]?.status === "Disetujui"
+                    : ttuStatus[`ttu_${currentStage}`]?.status === "approved"
                       ? "bg-emerald-50 text-emerald-700"
                       : ttuStatus[`ttu_${currentStage}`]?.status === "reviewed"
                         ? "bg-purple-50 text-purple-700"
@@ -222,10 +206,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
             <>
               <p className="text-gray-600 mb-6">
                 Untuk mengunggah TTU 3, silakan gunakan menu{" "}
-                <span className="font-semibold text-blue-700">
-                  Daftar Tinjauan
-                </span>
-                .
+                <span className="font-semibold text-blue-700">Daftar Tinjauan</span>.
               </p>
               {onSwitchToReview && (
                 <button
@@ -239,8 +220,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
             </>
           )}
         </div>
-      ) : ttuStatus &&
-        ttuStatus[`ttu_${currentStage}`]?.status === "Terkunci" ? (
+      ) : ttuStatus && ttuStatus[`ttu_${currentStage}`]?.status === "locked" ? (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-center">
           <AlertCircle className="w-12 h-12 text-slate-400 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">
@@ -323,9 +303,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 </div>
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {isDragging
-                  ? "Lepaskan file di sini"
-                  : "Seret & Lepas File Anda"}
+                {isDragging ? "Lepaskan file di sini" : "Seret & Lepas File Anda"}
               </h3>
               <p className="text-sm text-gray-600 mb-4">
                 atau klik tombol di bawah untuk memilih file
@@ -410,6 +388,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </>
       )}
 
+      {/* Submission History */}
       {submissionHistory && submissionHistory.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <div className="flex items-center gap-2 mb-4">
@@ -446,20 +425,20 @@ const UploadTTU = ({ onSwitchToReview }) => {
                         </span>
                         <span
                           className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                            sub.status === "Disetujui"
+                            sub.status === "approved"
                               ? "bg-green-100 text-green-700"
                               : sub.status === "reviewed"
                                 ? "bg-blue-100 text-blue-700"
-                                : sub.status === "Ditolak"
+                                : sub.status === "rejected"
                                   ? "bg-red-100 text-red-700"
                                   : "bg-yellow-100 text-yellow-700"
                           }`}
                         >
-                          {sub.status === "Disetujui"
+                          {sub.status === "approved"
                             ? "Disetujui"
                             : sub.status === "reviewed"
                               ? "Ditinjau"
-                              : sub.status === "Ditolak"
+                              : sub.status === "rejected"
                                 ? "Ditolak"
                                 : "Diajukan"}
                         </span>
@@ -488,6 +467,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </div>
       )}
 
+      {/* Cancel Confirmation Dialog */}
       {showCancelDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -527,16 +507,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
           </div>
         </div>
       )}
-
-      <ConfirmModal
-        show={notif.show}
-        title={notif.title}
-        message={notif.message}
-        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
-        onClose={() =>
-          setNotif({ show: false, title: "", message: "", reload: false })
-        }
-      />
     </div>
   );
 };

@@ -191,9 +191,7 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <AdminSidebar
         activeMenu={activeMenu}
-        onMenuClick={(menuKey) => {
-          setActiveMenu(menuKey);
-        }}
+        onMenuClick={handleMenuClick}
         onLogout={handleLogout}
         admin={{ name: "Superadmin" }}
       />

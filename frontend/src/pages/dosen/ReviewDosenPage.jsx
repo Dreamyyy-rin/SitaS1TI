@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ConfirmModal from "../../components/shared/ConfirmModal";
 import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import ReviewView from "../../components/dosen/ReviewView";
@@ -16,7 +15,6 @@ export default function ReviewDosenPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
-  const [notif, setNotif] = useState({ show: false, title: "", message: "" });
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -29,14 +27,18 @@ export default function ReviewDosenPage() {
 
     try {
       if (userData) setProfile(JSON.parse(userData));
-    } catch {}
+    } catch {
+      /* ignore */
+    }
 
     const headers = { Authorization: `Bearer ${token}` };
 
+    // Fetch request count
     fetch(`${API}/api/dosen/pembimbing-requests`, { headers })
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
+          // Backend already filters by overall_status = pending, so count all returned data
           const count = (res.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());
@@ -86,21 +88,18 @@ export default function ReviewDosenPage() {
   };
 
   const handlePreviewFile = (mahasiswa, ttuType) => {
+    // Find the latest ttu_3 submission for this mahasiswa
     const ttu3Sub = (mahasiswa.submissions || []).find(
-      (s) => s.ttu_number === "ttu_3",
+      (s) => s.ttu_number === "ttu_3"
     );
     if (ttu3Sub) {
       const token = localStorage.getItem("sita_token");
       window.open(
         `${API}/api/dosen/submissions/${ttu3Sub._id}/download?token=${token}`,
-        "_blank",
+        "_blank"
       );
     } else {
-      setNotif({
-        show: true,
-        title: "File Tidak Ditemukan",
-        message: "File TTU 3 belum diupload",
-      });
+      alert("File TTU 3 belum diupload");
     }
   };
 
@@ -108,13 +107,10 @@ export default function ReviewDosenPage() {
     const token = localStorage.getItem("sita_token");
     const ttu = mahasiswa.ttu_status || {};
 
+    // Reviewer can only approve TTU 3
     const ttu3Status = ttu.ttu_3?.status;
     if (ttu3Status !== "submitted" && ttu3Status !== "reviewed") {
-      setNotif({
-        show: true,
-        title: "TTU Tidak Tersedia",
-        message: "TTU 3 belum disubmit atau sudah di-ACC",
-      });
+      alert("TTU 3 belum disubmit atau sudah di-ACC");
       return;
     }
     const ttuToApprove = "ttu_3";
@@ -130,27 +126,15 @@ export default function ReviewDosenPage() {
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          setNotif({
-            show: true,
-            title: "Berhasil ACC TTU",
-            message: `${ttuToApprove.replace("_", " ").toUpperCase()} untuk ${mahasiswa.nama} berhasil di-ACC`,
-          });
-          setTimeout(() => window.location.reload(), 1500);
+          alert(
+            `${ttuToApprove.replace("_", " ").toUpperCase()} untuk ${mahasiswa.nama} berhasil di-ACC`,
+          );
+          window.location.reload();
         } else {
-          setNotif({
-            show: true,
-            title: "Gagal ACC TTU",
-            message: res.message || "Gagal ACC TTU",
-          });
+          alert(res.message || "Gagal ACC TTU");
         }
       })
-      .catch(() =>
-        setNotif({
-          show: true,
-          title: "Gagal",
-          message: "Gagal menghubungi server",
-        }),
-      );
+      .catch(() => alert("Gagal menghubungi server"));
   };
 
   const handleLogout = () => {
@@ -206,13 +190,6 @@ export default function ReviewDosenPage() {
           )}
         </div>
       </main>
-      <ConfirmModal
-        show={notif.show}
-        title={notif.title}
-        message={notif.message}
-        onClose={() => setNotif({ show: false, title: "", message: "" })}
-        type="error"
-      />
     </div>
   );
 }

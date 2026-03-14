@@ -6,11 +6,9 @@ import ProfileCard from "../../components/mahasiswa/ProfileCard";
 import TimelineCard from "../../components/mahasiswa/TimelineCard";
 import UploadTTUPage from "./UploadTTUPage";
 import PembimbingPage from "./PembimbingPage";
-import PesanPage from "./BimbinganPage";
 import UploadTTU3 from "./UploadTTU3";
 import DataAkunPage from "../shared/DataAkunPage";
 import PanduanPage from "./PanduanPage";
-import ErrorBoundary from "../../components/shared/ErrorBoundary";
 
 export default function MahasiswaDashboard() {
   const navigate = useNavigate();
@@ -127,12 +125,7 @@ export default function MahasiswaDashboard() {
   );
 
   const UploadTTUView = () => (
-    <UploadTTUPage
-      onSwitchToReview={() => {
-        setView("daftar-review");
-        setActiveMenu("daftar-review");
-      }}
-    />
+    <UploadTTUPage onSwitchToReview={() => setView("review-bimbingan")} />
   );
 
   return (
@@ -166,37 +159,12 @@ export default function MahasiswaDashboard() {
                 {error}
               </div>
             )}
-            <ErrorBoundary>
-              {view === "home" && <HomeView />}
-              {view === "upload-ttu" && <UploadTTUView />}
-              {view === "bimbingan" && <PembimbingPage />}
-              {view === "pesan" && <PesanPage />}
-              {view === "daftar-review" && <UploadTTU3 student={student} />}
-              {view === "data-akun" && <DataAkunPage student={student} />}
-              {view === "panduan" && <PanduanPage />}
-              {![
-                "home",
-                "upload-ttu",
-                "bimbingan",
-                "pesan",
-                "daftar-review",
-                "data-akun",
-                "panduan",
-              ].includes(view) && (
-                <div className="text-center p-8">
-                  <p className="text-slate-500">Menu tidak ditemukan: {view}</p>
-                  <button
-                    onClick={() => {
-                      setView("home");
-                      setActiveMenu("home");
-                    }}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-                  >
-                    Kembali ke Dasbor
-                  </button>
-                </div>
-              )}
-            </ErrorBoundary>
+            {view === "home" && <HomeView />}
+            {view === "upload-ttu" && <UploadTTUView />}
+            {view === "bimbingan" && <PembimbingPage />}
+            {view === "daftar-review" && <UploadTTU3 student={student} />}
+            {view === "data-akun" && <DataAkunPage student={student} />}
+            {view === "panduan" && <PanduanPage />}
           </div>
         </main>
       </div>

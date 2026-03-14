@@ -76,15 +76,9 @@ class Mahasiswa(BaseModel):
             return None
     
     @classmethod
-    def get_all(cls, status: str = None) -> List[dict]:
-        """Get semua mahasiswa, bisa filter status (active/inactive/all)"""
-        query = {}
-        if status == "active":
-            query["is_active"] = True
-        elif status == "inactive":
-            query["is_active"] = False
-        # jika status == "all" atau None, tidak filter is_active
-        docs = cls.collection().find(query)
+    def get_all(cls) -> List[dict]:
+        """Get all active mahasiswa"""
+        docs = cls.collection().find({"is_active": True})
         return cls.to_list(docs)
 
     @classmethod

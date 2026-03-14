@@ -46,9 +46,14 @@ const SidebarKaprodi = ({
           key: "mahasiswa-bimbingan",
           label: "Mahasiswa Bimbingan",
           view: "mahasiswa-bimbingan",
-          icon: User,
+          icon: Users,
         },
-        // ...existing code...
+        {
+          key: "review",
+          label: "Tinjauan",
+          view: "review",
+          icon: FileCheck,
+        },
       ],
     },
     {

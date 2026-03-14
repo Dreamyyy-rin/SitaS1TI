@@ -10,8 +10,8 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
       label: "MENU UTAMA",
       items: [
         { key: "dashboard", label: "Dasbor", icon: "dashboard" },
-        { key: "dosen", label: "Manajemen Dosen", icon: "user" },
-        { key: "mahasiswa", label: "Manajemen Mahasiswa", icon: "user" },
+        { key: "dosen", label: "Manajemen Dosen", icon: "user-check" },
+        { key: "mahasiswa", label: "Manajemen Mahasiswa", icon: "users" },
       ],
     },
     {
@@ -135,14 +135,14 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
                       {item.icon === "dashboard" && (
                         <path d="M4 4h6v8H4zM4 16h6v4H4zM14 4h6v4h-6zM14 12h6v8h-6z" />
                       )}
-                      {item.icon === "user" && (
+                      {item.icon === "user-check" && (
                         <>
                           <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
                           <circle cx="8.5" cy="7" r="4" />
                           <polyline points="17 11 19 13 23 9" />
                         </>
                       )}
-                      {item.icon === "user" && (
+                      {item.icon === "users" && (
                         <>
                           <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
                           <circle cx="9" cy="7" r="4" />

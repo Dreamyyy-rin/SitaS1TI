@@ -45,17 +45,9 @@ const UserTable = ({
                   <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">
                     {getInitials(user.name)}
                   </div>
-                  <div className="min-w-0">
-                    <p
-                      className="font-semibold text-slate-800 truncate max-w-[180px]"
-                      title={user.name}
-                    >
-                      {user.name}
-                    </p>
-                    <p
-                      className="text-xs text-slate-400 capitalize truncate max-w-[120px]"
-                      title={user.role}
-                    >
+                  <div>
+                    <p className="font-semibold text-slate-800">{user.name}</p>
+                    <p className="text-xs text-slate-400 capitalize">
                       {user.role}
                     </p>
                   </div>
@@ -70,12 +62,12 @@ const UserTable = ({
               <td className="px-6 py-4 text-center">
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                    user.status === "Aktif"
+                    user.status === "active"
                       ? "bg-emerald-50 text-emerald-700"
                       : "bg-slate-100 text-slate-500"
                   }`}
                 >
-                  {user.status === "Aktif" ? "Aktif" : "Nonaktif"}
+                  {user.status === "active" ? "Aktif" : "Nonaktif"}
                 </span>
               </td>
               <td className="px-6 py-4">

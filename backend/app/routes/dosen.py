@@ -253,9 +253,12 @@ def approve_ttu(ttu_number):
 
     dosen_id = g.current_user.get("user_id")
 
-    if ttu_number in ["ttu_1", "ttu_2", "ttu_3"]:
-        if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id"), mahasiswa.get("reviewer_id")]:
-            return ResponseFormatter.error("Anda bukan pembimbing atau reviewer mahasiswa ini", 403)
+    if ttu_number in ["ttu_1", "ttu_2"]:
+        if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
+            return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
+    else:
+        if dosen_id != mahasiswa.get("reviewer_id"):
+            return ResponseFormatter.error("Anda bukan reviewer mahasiswa ini", 403)
 
     if Mahasiswa.approve_ttu(mahasiswa_id, ttu_number):
         Notification.create(
@@ -413,7 +416,7 @@ def download_file(submission_id):
 @token_required
 @role_required("dosen")
 def get_review_comments(mahasiswa_id):
-    """Get review comments for a mahasiswa, filtered by chat_type"""
+    """Get review comments for a mahasiswa's TTU3 review"""
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
@@ -425,14 +428,7 @@ def get_review_comments(mahasiswa_id):
     if not (is_pembimbing or is_reviewer):
         return ResponseFormatter.error("Anda tidak memiliki akses", 403)
 
-    chat_type = request.args.get("chat_type", "review")
-    if chat_type not in ("bimbingan", "review"):
-        chat_type = "review"
-    # Reviewer can only access review chat, not bimbingan
-    if is_reviewer and not is_pembimbing and chat_type == "bimbingan":
-        return ResponseFormatter.error("Anda tidak memiliki akses ke obrolan bimbingan", 403)
-
-    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id, chat_type=chat_type)
+    comments = ReviewComment.get_by_mahasiswa(mahasiswa_id)
     return ResponseFormatter.success(data=comments, message=f"Total: {len(comments)}")
 
 
@@ -448,10 +444,6 @@ def post_review_comment(mahasiswa_id):
     if not message:
         return ResponseFormatter.error("Pesan tidak boleh kosong", 400)
 
-    chat_type = (data.get("chat_type") or "review").strip()
-    if chat_type not in ("bimbingan", "review"):
-        chat_type = "review"
-
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
@@ -464,10 +456,6 @@ def post_review_comment(mahasiswa_id):
     if not (is_pembimbing or is_reviewer):
         return ResponseFormatter.error("Anda tidak memiliki akses", 403)
 
-    # Reviewer can only post in review chat, not bimbingan
-    if is_reviewer and not is_pembimbing and chat_type == "bimbingan":
-        return ResponseFormatter.error("Anda tidak memiliki akses ke obrolan bimbingan", 403)
-
     sender_role = "reviewer" if is_reviewer else "pembimbing"
 
     comment = ReviewComment.create(
@@ -476,7 +464,6 @@ def post_review_comment(mahasiswa_id):
         sender_name=dosen_nama,
         sender_role=sender_role,
         message=message,
-        chat_type=chat_type,
     )
 
     return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)

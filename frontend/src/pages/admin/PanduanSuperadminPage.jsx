@@ -5,25 +5,25 @@ const PanduanSuperadminPage = () => {
     {
       number: "01",
       title: "Dasbor",
-      description: "Statistik sistem dan navigasi cepat",
+      description: "Statistik dan ringkasan sistem",
       details:
-        "Menampilkan statistik jumlah dosen, mahasiswa, dan pengguna aktif. Gunakan tombol 'Kelola Dosen' dan 'Kelola Mahasiswa' untuk akses cepat ke menu manajemen.",
+        "Dasbor menampilkan ringkasan statistik sistem meliputi Jumlah Dosen, Jumlah Mahasiswa, dan Pengguna Aktif. Anda dapat mengakses menu manajemen secara cepat melalui tombol 'Kelola Dosen' dan 'Kelola Mahasiswa' yang tersedia di dasbor untuk navigasi yang lebih efisien.",
       color: "blue",
     },
     {
       number: "02",
       title: "Manajemen Dosen",
-      description: "Kelola data dosen",
+      description: "Kelola data dan akun dosen",
       details:
-        "Tambah, ubah, nonaktifkan, atau hapus dosen. Cari dosen berdasarkan nama atau NIDN.",
+        "Menu untuk mengelola seluruh data dosen. Anda dapat menambah dosen baru dengan mengisi NIDN, nama, surel, dan kata sandi. Ubah data dosen yang sudah ada termasuk mengatur ulang kata sandi jika diperlukan. Hapus data dengan pilihan nonaktifkan (penonaktifan sementara) atau hapus permanen. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIDN.",
       color: "indigo",
     },
     {
       number: "03",
       title: "Manajemen Mahasiswa",
-      description: "Kelola data mahasiswa",
+      description: "Kelola data dan akun mahasiswa",
       details:
-        "Tambah, ubah, nonaktifkan, atau hapus mahasiswa. Cari mahasiswa berdasarkan nama, NIM, atau program studi.",
+        "Menu untuk mengelola seluruh data mahasiswa. Tambah mahasiswa baru dengan mengisi NIM, nama, program studi, surel, dan kata sandi. Ubah data mahasiswa yang sudah terdaftar termasuk memperbarui kata sandi jika diperlukan. Nonaktifkan atau hapus akun mahasiswa sesuai kebutuhan. Fitur pencarian memudahkan Anda menemukan mahasiswa berdasarkan nama, NIM, atau program studi.",
       color: "green",
     },
   ];

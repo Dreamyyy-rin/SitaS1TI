@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { X, CheckCircle, XCircle } from "lucide-react";
+import { X, FileText, Download, CheckCircle, XCircle, MessageCircle } from "lucide-react";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import MahasiswaBimbinganView from "../../components/dosen/MahasiswaBimbinganView";
-import ConfirmModal from "../../components/shared/ConfirmModal";
+import ReviewChat from "../../components/shared/ReviewChat";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -17,16 +17,16 @@ export default function MahasiswaBimbinganPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [showFileModal, setShowFileModal] = useState(false);
+  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
+  const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedMahasiswaId, setSelectedMahasiswaId] = useState(null);
-  // Hapus deklarasi notif/setNotif duplikat, hanya satu state notif
-  const [notif, setNotif] = useState({
-    show: false,
-    title: "",
-    message: "",
-    reload: false,
-  });
+  const [showChat, setShowChat] = useState(false);
+  const [chatMahasiswaId, setChatMahasiswaId] = useState(null);
+  const [chatMahasiswaName, setChatMahasiswaName] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -95,15 +95,50 @@ export default function MahasiswaBimbinganPage() {
     email: profile?.email || "-",
   };
 
+  const handlePreviewFile = async (mahasiswa, ttuType) => {
+    const token = localStorage.getItem("sita_token");
+    setSelectedMahasiswa(mahasiswa);
+    setShowFileModal(true);
+    setLoadingSubmissions(true);
+
+    try {
+      const res = await fetch(
+        `${API}/api/dosen/mahasiswa/${mahasiswa.id}/submissions`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
+      const data = await res.json();
+      if (data.success) {
+        setSubmissions(data.data || []);
+      } else {
+        setSubmissions([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmissions([]);
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  };
+
+  const handleDownloadFile = (submissionId) => {
+    const token = localStorage.getItem("sita_token");
+    window.open(
+      `${API}/api/dosen/submissions/${submissionId}/download?token=${token}`,
+      "_blank",
+    );
+  };
+
   const handleAcceptMahasiswa = (id) => {
     const mhs = mahasiswaBimbingan.find((m) => m.id === id);
     if (!mhs) return;
 
-    
+    // Determine which TTU to approve based on current status
     let ttuToApprove = null;
     const ttu = mhs.ttu_status || {};
 
-   
+    // Check for submitted or reviewed TTU in order
     if (ttu.ttu_1?.status === "submitted" || ttu.ttu_1?.status === "reviewed") {
       ttuToApprove = "ttu_1";
     } else if (
@@ -119,12 +154,7 @@ export default function MahasiswaBimbinganPage() {
     }
 
     if (!ttuToApprove) {
-      setNotif({
-        show: true,
-        title: "TTU Tidak Tersedia",
-        message: "Tidak ada TTU yang perlu di-ACC saat ini",
-        reload: false,
-      });
+      alert("Tidak ada TTU yang perlu di-ACC saat ini");
       return;
     }
 
@@ -137,7 +167,7 @@ export default function MahasiswaBimbinganPage() {
     const mhs = mahasiswaBimbingan.find((m) => m.id === selectedMahasiswaId);
     if (!mhs) return;
 
-   
+    // Determine which TTU to approve
     let ttuToApprove = null;
     const ttu = mhs.ttu_status || {};
 
@@ -168,29 +198,12 @@ export default function MahasiswaBimbinganPage() {
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          setNotif({
-            show: true,
-            title: "TTU Berhasil Disetujui",
-            message: res.message || "TTU berhasil disetujui",
-            reload: true,
-          });
+          window.location.reload();
         } else {
-          setNotif({
-            show: true,
-            title: "Gagal Menyetujui TTU",
-            message: res.message || "Gagal menyetujui TTU",
-            reload: false,
-          });
+          alert(res.message || "Gagal menyetujui TTU");
         }
       })
-      .catch(() => {
-        setNotif({
-          show: true,
-          title: "Gagal Menghubungi Server",
-          message: "Gagal menghubungi server",
-          reload: false,
-        });
-      })
+      .catch(() => alert("Gagal menghubungi server"))
       .finally(() => {
         setShowAcceptModal(false);
         setSelectedMahasiswaId(null);
@@ -201,7 +214,7 @@ export default function MahasiswaBimbinganPage() {
     const mhs = mahasiswaBimbingan.find((m) => m.id === id);
     if (!mhs) return;
 
-
+    // Determine which TTU to reject
     let ttuToReject = null;
     const ttu = mhs.ttu_status || {};
 
@@ -220,12 +233,7 @@ export default function MahasiswaBimbinganPage() {
     }
 
     if (!ttuToReject) {
-      setNotif({
-        show: true,
-        title: "TTU Tidak Tersedia",
-        message: "Tidak ada TTU yang perlu ditinjau saat ini",
-        reload: false,
-      });
+      alert("Tidak ada TTU yang perlu ditinjau saat ini");
       return;
     }
 
@@ -238,7 +246,7 @@ export default function MahasiswaBimbinganPage() {
     const mhs = mahasiswaBimbingan.find((m) => m.id === selectedMahasiswaId);
     if (!mhs) return;
 
-
+    // Determine which TTU to reject
     let ttuToReject = null;
     const ttu = mhs.ttu_status || {};
 
@@ -272,45 +280,22 @@ export default function MahasiswaBimbinganPage() {
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          setNotif({
-            show: true,
-            title: "TTU Berhasil Ditolak",
-            message: res.message || "TTU berhasil ditolak",
-            reload: true,
-          });
+          window.location.reload();
         } else {
-          setNotif({
-            show: true,
-            title: "Gagal Menolak TTU",
-            message: res.message || "Gagal menolak TTU",
-            reload: false,
-          });
+          alert(res.message || "Gagal menolak TTU");
         }
       })
-      .catch(() => {
-        setNotif({
-          show: true,
-          title: "Gagal Menghubungi Server",
-          message: "Gagal menghubungi server",
-          reload: false,
-        });
-      })
+      .catch(() => alert("Gagal menghubungi server"))
       .finally(() => {
         setShowRejectModal(false);
         setSelectedMahasiswaId(null);
       });
   };
 
-  const handleOpenDetail = (mhs, page = "pesan") => {
-    if (page === "komentar") {
-      navigate(`/dosen-mahasiswa/${mhs.id}/komentar`, {
-        state: { mahasiswa: mhs },
-      });
-    } else {
-      navigate(`/dosen-mahasiswa/${mhs.id}`, {
-        state: { mahasiswa: mhs },
-      });
-    }
+  const handleOpenChat = (mhs) => {
+    setChatMahasiswaId(mhs.id);
+    setChatMahasiswaName(mhs.nama);
+    setShowChat(true);
   };
 
   const handleLogout = () => {
@@ -360,16 +345,126 @@ export default function MahasiswaBimbinganPage() {
           {!isLoading && (
             <MahasiswaBimbinganView
               mahasiswaBimbingan={mahasiswaBimbingan}
+              onPreviewFile={handlePreviewFile}
               onAcceptMahasiswa={handleAcceptMahasiswa}
               onRejectMahasiswa={handleRejectMahasiswa}
-              currentUserId={profile?._id || profile?.user_id}
-              onOpenDetail={handleOpenDetail}
+              onOpenChat={handleOpenChat}
             />
           )}
         </div>
       </main>
 
-      
+      {/* File Preview Modal */}
+      {showFileModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() => setShowFileModal(false)}
+          ></div>
+
+          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800">
+                  Pengumpulan File
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {selectedMahasiswa?.nama} ({selectedMahasiswa?.nim})
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFileModal(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {loadingSubmissions && (
+              <div className="text-center py-8 text-slate-500">
+                Memuat data file...
+              </div>
+            )}
+
+            {!loadingSubmissions && submissions.length === 0 && (
+              <div className="text-center py-12">
+                <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500 text-lg">Belum ada file</p>
+                <p className="text-slate-400 text-sm mt-2">
+                  Mahasiswa belum mengunggah file pengajuan
+                </p>
+              </div>
+            )}
+
+            {!loadingSubmissions && submissions.length > 0 && (
+              <div className="space-y-3">
+                {submissions.map((sub) => (
+                  <div
+                    key={sub._id}
+                    className="border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-5 h-5 text-blue-500" />
+                          <span className="font-semibold text-slate-800 text-sm uppercase">
+                            {sub.ttu_number.replace("_", " ")}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              sub.status === "approved"
+                                ? "bg-green-100 text-green-700"
+                                : sub.status === "reviewed"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : sub.status === "rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {sub.status === "approved"
+                              ? "Disetujui"
+                              : sub.status === "reviewed"
+                                ? "Ditinjau"
+                                : sub.status === "rejected"
+                                  ? "Ditolak"
+                                  : "Diajukan"}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600 mb-1">
+                          <span className="font-medium">File:</span>{" "}
+                          {sub.file_name}
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Upload:{" "}
+                          {new Date(sub.uploaded_at).toLocaleDateString(
+                            "id-ID",
+                            {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleDownloadFile(sub._id)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      >
+                        <Download className="w-4 h-4" />
+                        Lihat
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Accept Confirmation Modal */}
       {showAcceptModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -413,7 +508,7 @@ export default function MahasiswaBimbinganPage() {
         </div>
       )}
 
-  
+      {/* Reject Confirmation Modal */}
       {showRejectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -455,16 +550,42 @@ export default function MahasiswaBimbinganPage() {
           </div>
         </div>
       )}
-      <ConfirmModal
-        show={notif.show}
-        title={notif.title}
-        message={notif.message}
-        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
-        onClose={() => {
-          setNotif({ show: false, title: "", message: "", reload: false });
-          if (notif.reload) window.location.reload();
-        }}
-      />
+
+      {/* Review Chat Modal */}
+      {showChat && chatMahasiswaId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+            onClick={() => setShowChat(false)}
+          ></div>
+          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 transform transition-all max-h-[85vh] flex flex-col">
+            <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-blue-600" />
+                  Diskusi Tinjauan
+                </h3>
+                <p className="text-sm text-slate-500 mt-1">
+                  {chatMahasiswaName}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowChat(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6 pt-2">
+              <ReviewChat
+                role="dosen"
+                mahasiswaId={chatMahasiswaId}
+                currentUserId={profile?._id || profile?.user_id}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

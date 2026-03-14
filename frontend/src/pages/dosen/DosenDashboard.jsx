@@ -34,7 +34,7 @@ export default function DosenDashboard() {
     try {
       if (userData) setProfile(JSON.parse(userData));
     } catch {
-      
+      /* ignore */
     }
 
     const headers = { Authorization: `Bearer ${token}` };
@@ -108,7 +108,9 @@ export default function DosenDashboard() {
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">Dasbor Dosen</h1>
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">
+              Dasbor Dosen
+            </h1>
             {user && (
               <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>
             )}

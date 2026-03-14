@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import ConfirmModal from "../shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -11,15 +10,9 @@ const PlottingReviewerView = ({
   onSavePlotting,
 }) => {
   const [saving, setSaving] = useState(false);
-  const [notif, setNotif] = useState({
-    show: false,
-    title: "",
-    message: "",
-    reload: false,
-  });
 
   const getAvailableReviewers = (mhs) => {
-    
+    // Exclude pembimbing 1 & 2 from reviewer options
     return availableDosen.filter(
       (d) => d._id !== mhs.pembimbing_1_id && d._id !== mhs.pembimbing_2_id,
     );
@@ -31,7 +24,7 @@ const PlottingReviewerView = ({
 
     setSaving(true);
     try {
-      
+      // Save each reviewer assignment
       for (const [mahasiswaId, reviewerId] of Object.entries(
         selectedReviewers,
       )) {
@@ -51,26 +44,16 @@ const PlottingReviewerView = ({
           }),
         });
       }
-      setNotif({
-        show: true,
-        title: "Plotting reviewer berhasil disimpan!",
-        message: "",
-        reload: true,
-      });
+      alert("Plotting reviewer berhasil disimpan!");
       window.location.reload();
     } catch (err) {
-      setNotif({
-        show: true,
-        title: "Gagal menyimpan plotting reviewer",
-        message: "",
-        reload: false,
-      });
+      alert("Gagal menyimpan plotting reviewer");
     } finally {
       setSaving(false);
     }
   };
 
-  
+  // Only show mahasiswa that have pembimbing assigned
   const eligibleMahasiswa = mahasiswaBimbingan.filter((m) => m.pembimbing_1_id);
 
   return (
@@ -179,17 +162,6 @@ const PlottingReviewerView = ({
           </button>
         </div>
       )}
-
-      <ConfirmModal
-        show={notif.show}
-        title={notif.title}
-        message={notif.message}
-        type={notif.title.toLowerCase().includes("gagal") ? "error" : "success"}
-        onClose={() => {
-          setNotif({ show: false, title: "", message: "", reload: false });
-          if (notif.reload) window.location.reload();
-        }}
-      />
     </div>
   );
 };

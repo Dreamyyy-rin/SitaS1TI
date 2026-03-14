@@ -49,9 +49,10 @@ const Landing = () => {
           Selamat Datang di
         </h2>
 
-        <div className="flex flex-row items-center justify-center gap-8 mb-4 mt-4">
-          <div className="group relative w-24 h-24 md:w-28 md:h-28 flex-shrink-0">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 mb-8 mt-4">
+          <div className="group relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
             <div className="absolute inset-0 bg-white rounded-full shadow-xl shadow-slate-200"></div>
+
             <img
               src="/fti.png"
               alt="Logo UKSW"
@@ -67,16 +68,17 @@ const Landing = () => {
               }}
             />
           </div>
-          <h1 className="text-8xl font-bold text-slate-800 leading-none tracking-tighter">
-            SITI
-          </h1>
-        </div>
 
-        <div className="flex flex-col items-center my-6 max-w-fit mx-auto">
-          <div className="h-2 bg-uksw rounded-full w-full mb-2"></div>
-          <p className="text-lg md:text-xl font-bold text-uksw tracking-[0.2em] uppercase">
-            Sistem Informasi Tugas Akhir S1 TI UKSW
-          </p>
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-6xl md:text-7xl font-bold text-slate-800 leading-none tracking-tighter">
+              SITA S1 TI UKSW
+            </h1>
+
+            <div className="h-2 w-full bg-uksw rounded-full my-2"></div>
+            <p className="text-lg md:text-xl font-bold text-uksw tracking-[0.2em] uppercase">
+              Sistem Informasi Tugas Akhir S1 TI UKSW
+            </p>
+          </div>
         </div>
 
         <div className="w-full max-w-3xl overflow-hidden py-3 mb-12 border-y border-slate-200 bg-white/50 backdrop-blur-sm">
@@ -97,6 +99,7 @@ const Landing = () => {
               size={24}
               className="text-uksw group-hover:text-white transition-colors"
             />
+
             <span className="text-lg font-medium text-slate-700 group-hover:text-white transition-colors">
               Masuk sebagai Mahasiswa
             </span>

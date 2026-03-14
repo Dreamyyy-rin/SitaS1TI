@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { FileText, Upload, X, Download, Eye } from "lucide-react";
 
-
 const FileUploadField = ({
   label,
   id,

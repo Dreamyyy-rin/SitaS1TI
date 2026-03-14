@@ -32,7 +32,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
     const token = localStorage.getItem("sita_token");
     if (!token) return;
     try {
-      const res = await fetch(`${API}/api/superadmin/mahasiswa?status=all`, {
+      const res = await fetch(`${API}/api/superadmin/mahasiswa`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -223,7 +223,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
 
   return (
     <div className="space-y-6">
- 
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -243,7 +243,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         </button>
       </div>
 
-     
+      {/* Search Bar */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -278,7 +278,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         </div>
       </div>
 
-     
+      {/* Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200">
         <UserTable
           data={filteredUsers}
@@ -288,7 +288,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         />
       </div>
 
-      
+      {/* Form Modal */}
       <UserFormModal
         isOpen={showModal}
         onClose={() => {
@@ -300,7 +300,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         defaultRole="mahasiswa"
       />
 
-     
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
