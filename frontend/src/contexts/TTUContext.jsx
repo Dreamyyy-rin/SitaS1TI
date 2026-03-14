@@ -21,6 +21,7 @@ export const TTUProvider = ({ children }) => {
 
   const [currentStage, setCurrentStage] = useState(1);
   const [ttuStatus, setTtuStatus] = useState(null);
+  const [mahasiswaId, setMahasiswaId] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [submittedFile, setSubmittedFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -50,6 +51,7 @@ export const TTUProvider = ({ children }) => {
       if (profileResult.success && profileResult.data) {
         const ttu = profileResult.data.ttu_status || {};
         setTtuStatus(ttu);
+        setMahasiswaId(profileResult.data._id || null);
 
         let computedStage = 1;
         if (ttu.ttu_3?.status === "approved") {
@@ -198,6 +200,7 @@ export const TTUProvider = ({ children }) => {
     currentStage,
     setCurrentStage,
     ttuStatus,
+    mahasiswaId,
     submissions,
     submittedFile,
     setSubmittedFile,

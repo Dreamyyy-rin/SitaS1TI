@@ -36,16 +36,15 @@ const PlottingReviewerView = ({
     if (!token) return;
 
     setSaving(true);
+    let hasError = false;
     try {
       // Save each reviewer assignment
       for (const [mahasiswaId, reviewerId] of Object.entries(
         selectedReviewers,
       )) {
         if (!reviewerId) continue;
-        const mhs = mahasiswaBimbingan.find((m) => m.id === mahasiswaId);
-        if (!mhs) continue;
 
-        await fetch(`${API}/api/kaprodi/assign-reviewer`, {
+        const res = await fetch(`${API}/api/kaprodi/assign-reviewer`, {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -56,18 +55,30 @@ const PlottingReviewerView = ({
             reviewer_id: reviewerId,
           }),
         });
+        const result = await res.json().catch(() => ({}));
+        if (!res.ok || result.success === false) {
+          hasError = true;
+          showNotification({
+            type: "error",
+            title: "Gagal",
+            message: result.error || result.message || "Gagal menyimpan salah satu reviewer",
+          });
+          break;
+        }
       }
-      showNotification({
-        type: "success",
-        title: "Berhasil",
-        message: "Plotting reviewer berhasil disimpan!",
-      });
-      setTimeout(() => window.location.reload(), 1200);
+      if (!hasError) {
+        showNotification({
+          type: "success",
+          title: "Berhasil",
+          message: "Plotting reviewer berhasil disimpan!",
+        });
+        setTimeout(() => window.location.reload(), 1200);
+      }
     } catch (err) {
       showNotification({
         type: "error",
         title: "Gagal",
-        message: "Gagal menyimpan plotting reviewer",
+        message: "Gagal menghubungi server",
       });
     } finally {
       setSaving(false);
@@ -154,8 +165,11 @@ const PlottingReviewerView = ({
             <tbody>
               {eligibleMahasiswa.map((mhs, index) => {
                 const reviewers = getAvailableReviewers(mhs);
+                // Prioritaskan nilai yang sudah dipilih user, lalu fallback ke reviewer yang sudah tersimpan
                 const currentReviewerId =
-                  selectedReviewers[mhs.id] || mhs.reviewer_id || "";
+                  mhs.id in selectedReviewers
+                    ? selectedReviewers[mhs.id]
+                    : (mhs.reviewer_id || "");
                 const hasReviewer = !!currentReviewerId;
 
                 return (

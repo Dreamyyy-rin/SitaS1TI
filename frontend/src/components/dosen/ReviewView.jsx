@@ -118,14 +118,6 @@ export default function ReviewView({
               >
                 Lihat File
               </button>
-              {mhs.ttu3Status !== "approved" && (
-                <button
-                  onClick={() => onAcceptReview(mhs)}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium transition-colors"
-                >
-                  Setujui TTU 3
-                </button>
-              )}
             </div>
           </div>
 

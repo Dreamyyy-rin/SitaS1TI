@@ -253,12 +253,9 @@ def approve_ttu(ttu_number):
 
     dosen_id = g.current_user.get("user_id")
 
-    if ttu_number in ["ttu_1", "ttu_2"]:
-        if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
-            return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
-    else:
-        if dosen_id != mahasiswa.get("reviewer_id"):
-            return ResponseFormatter.error("Anda bukan reviewer mahasiswa ini", 403)
+    # Untuk semua TTU (1, 2, 3), yang menyetujui adalah dosen pembimbing
+    if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
+        return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
 
     if Mahasiswa.approve_ttu(mahasiswa_id, ttu_number):
         Notification.create(
@@ -298,13 +295,9 @@ def reject_ttu(ttu_number):
     dosen_id = g.current_user.get("user_id")
     dosen_nama = g.current_user.get("nama")
 
-    # Check authorization
-    if ttu_number in ["ttu_1", "ttu_2"]:
-        if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
-            return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
-    else:
-        if dosen_id != mahasiswa.get("reviewer_id"):
-            return ResponseFormatter.error("Anda bukan reviewer mahasiswa ini", 403)
+    # Untuk semua TTU (1, 2, 3), yang menolak adalah dosen pembimbing
+    if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
+        return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
 
     # Get latest submission for this TTU
     submission = Submission.get_by_mahasiswa_ttu(mahasiswa_id, ttu_number)
@@ -361,11 +354,10 @@ def get_ttu_submission_history(mahasiswa_id, ttu_number):
     
     dosen_id = g.current_user.get("user_id")
     
-    # Check authorization
-    if ttu_number in ["ttu_1", "ttu_2"]:
-        is_authorized = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
-    else:
-        is_authorized = dosen_id == mahasiswa.get("reviewer_id")
+    # Check authorization - hanya pembimbing yang bisa lihat history
+    is_authorized = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
+    # Reviewer juga bisa lihat history submission
+    is_authorized = is_authorized or (dosen_id == mahasiswa.get("reviewer_id"))
     
     if not is_authorized:
         return ResponseFormatter.error("Anda tidak memiliki akses ke data ini", 403)

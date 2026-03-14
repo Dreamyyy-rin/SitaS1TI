@@ -143,14 +143,21 @@ export default function MahasiswaBimbinganView({
                       <button
                         onClick={() => onAcceptMahasiswa(mhs.id)}
                         disabled={
-                          !(mhs.ttu1 || mhs.ttu2 || mhs.ttu3) || mhs.ttu3
+                          !(
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                          ) || (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
                         }
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          mhs.ttu3
+                          (mhs.ttu1 && mhs.ttu2 && mhs.ttu3) ||
+                          !(
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                          )
                             ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                            : mhs.ttu1 || mhs.ttu2 || mhs.ttu3
-                              ? "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
-                              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                            : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
                         }`}
                       >
                         Terima
@@ -158,14 +165,21 @@ export default function MahasiswaBimbinganView({
                       <button
                         onClick={() => onRejectMahasiswa(mhs.id)}
                         disabled={
-                          !(mhs.ttu1 || mhs.ttu2 || mhs.ttu3) || mhs.ttu3
+                          !(
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                          ) || (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
                         }
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                          mhs.ttu3
+                          (mhs.ttu1 && mhs.ttu2 && mhs.ttu3) ||
+                          !(
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
+                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                          )
                             ? "bg-slate-200 text-slate-400 cursor-not-allowed"
-                            : mhs.ttu1 || mhs.ttu2 || mhs.ttu3
-                              ? "bg-red-600 text-white hover:bg-red-700 cursor-pointer"
-                              : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                            : "bg-red-600 text-white hover:bg-red-700 cursor-pointer"
                         }`}
                       >
                         Tolak

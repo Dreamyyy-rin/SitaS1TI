@@ -8,6 +8,7 @@ export default function ReviewChat({
   role = "mahasiswa",
   currentUserId,
   disableAutoScroll = false,
+  title = "Diskusi Bimbingan",
 }) {
   const [comments, setComments] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -136,7 +137,7 @@ export default function ReviewChat({
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col w-full">
       <div className="bg-gradient-to-r from-[#0B2F7F] to-[#1a4fc4] px-5 py-3 flex items-center gap-2 flex-shrink-0">
         <MessageCircle className="w-5 h-5 text-white" />
-        <h3 className="text-white font-semibold text-sm">Diskusi Tinjauan TTU 3</h3>
+        <h3 className="text-white font-semibold text-sm">{title}</h3>
         <span className="text-white/60 text-xs ml-auto">{comments.length} pesan</span>
       </div>
 

@@ -12,10 +12,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
+import ReviewChat from "../shared/ReviewChat";
 
 const UploadTTU = ({ onSwitchToReview }) => {
   const {
     currentStage,
+    mahasiswaId,
     submittedFile,
     submitFile,
     cancelSubmission,
@@ -504,6 +506,18 @@ const UploadTTU = ({ onSwitchToReview }) => {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Chat Bimbingan */}
+      {mahasiswaId && (
+        <div className="w-full">
+          <ReviewChat
+            mahasiswaId={mahasiswaId}
+            role="mahasiswa"
+            currentUserId={mahasiswaId}
+            title="Diskusi Bimbingan"
+          />
         </div>
       )}
 

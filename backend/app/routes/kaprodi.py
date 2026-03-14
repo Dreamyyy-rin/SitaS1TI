@@ -147,13 +147,16 @@ def assign_reviewer():
     from bson import ObjectId
     from datetime import datetime
     db = get_db()
-    result = db["mahasiswa"].update_one(
-        {"_id": ObjectId(mahasiswa_id)},
-        {"$set": {"reviewer_id": reviewer_id, "updated_at": datetime.utcnow()}}
-    )
-    if result.modified_count > 0:
+    try:
+        result = db["mahasiswa"].update_one(
+            {"_id": ObjectId(mahasiswa_id)},
+            {"$set": {"reviewer_id": reviewer_id, "updated_at": datetime.utcnow()}}
+        )
+    except Exception:
+        return ResponseFormatter.error("ID mahasiswa tidak valid", 400)
+    if result.matched_count > 0:
         return ResponseFormatter.success(message="Reviewer berhasil diassign")
-    return ResponseFormatter.error("Gagal assign reviewer", 400)
+    return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
 
 
 @kaprodi_bp.post("/change-pembimbing")
