@@ -196,12 +196,41 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         });
       }
     } else {
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
-        ),
-      );
-      onDataChange?.();
+      try {
+        const res = await fetch(
+          `${API}/api/superadmin/mahasiswa/${deletingUser.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ is_active: false }),
+          },
+        );
+        const data = await res.json();
+        if (data.success) {
+          await fetchMahasiswa();
+          onDataChange?.();
+          setNotification({
+            show: true,
+            message: "Mahasiswa berhasil dinonaktifkan",
+            type: "success",
+          });
+        } else {
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menonaktifkan mahasiswa",
+            type: "error",
+          });
+        }
+      } catch {
+        setNotification({
+          show: true,
+          message: "Gagal menghubungi server",
+          type: "error",
+        });
+      }
     }
 
     setShowDeleteModal(false);

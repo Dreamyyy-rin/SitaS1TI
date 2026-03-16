@@ -198,13 +198,41 @@ const DosenManagementPage = ({ onDataChange }) => {
         });
       }
     } else {
-      // Soft delete - mark inactive locally
-      setUsers((prev) =>
-        prev.map((u) =>
-          u.id === deletingUser.id ? { ...u, status: "inactive" } : u,
-        ),
-      );
-      onDataChange?.();
+      try {
+        const res = await fetch(
+          `${API}/api/superadmin/users/${deletingUser.id}`,
+          {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ is_active: false }),
+          },
+        );
+        const data = await res.json();
+        if (data.success) {
+          await fetchDosen();
+          onDataChange?.();
+          setNotification({
+            show: true,
+            message: "Dosen berhasil dinonaktifkan",
+            type: "success",
+          });
+        } else {
+          setNotification({
+            show: true,
+            message: data.error || "Gagal menonaktifkan dosen",
+            type: "error",
+          });
+        }
+      } catch {
+        setNotification({
+          show: true,
+          message: "Gagal menghubungi server",
+          type: "error",
+        });
+      }
     }
 
     setShowDeleteModal(false);
