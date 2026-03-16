@@ -290,11 +290,13 @@ const Login = () => {
           </div>
         </div>
 
-        <p className="mt-6 text-slate-400 text-sm font-medium text-center font-outfit whitespace-nowrap">
-          © {new Date().getFullYear()} Fakultas Teknologi Informasi Universitas
-          Kristen Satya Wacana Salatiga. <br />
-          Developed by Felicia Wijaya & Oivicko Ekagani Irwanto
-        </p>
+        <div className="mt-6 text-slate-400 text-xs sm:text-sm font-medium text-center font-outfit px-4 max-w-md sm:max-w-3xl mx-auto leading-relaxed break-words">
+          <p className="whitespace-normal sm:whitespace-nowrap">
+            © {new Date().getFullYear()} Fakultas Teknologi Informasi
+            Universitas Kristen Satya Wacana Salatiga.
+          </p>
+          <p>Developed by Felicia Wijaya & Oivicko Ekagani Irwanto</p>
+        </div>
       </div>
     </div>
   );

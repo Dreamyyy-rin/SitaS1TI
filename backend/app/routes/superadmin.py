@@ -69,7 +69,7 @@ def register_user():
 def list_users():
     """List semua users"""
     role_filter = Sanitizer.sanitize_query_value(request.args.get("role"))
-    users = User.get_all(role=role_filter)
+    users = User.get_all(role=role_filter, include_inactive=True)
     
     return ResponseFormatter.success(
         data=users,
@@ -147,7 +147,7 @@ def update_user(user_id):
 @role_required("superadmin")
 def list_mahasiswa():
     """List semua mahasiswa"""
-    mahasiswa_list = Mahasiswa.get_all()
+    mahasiswa_list = Mahasiswa.get_all(include_inactive=True)
     for m in mahasiswa_list:
         m.pop("password_hash", None)
     return ResponseFormatter.success(

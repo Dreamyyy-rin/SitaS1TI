@@ -11,12 +11,10 @@ import PanduanKaprodiView from "../../components/kaprodi/PanduanKaprodiView";
 import RiwayatBimbinganView from "../../components/kaprodi/RiwayatBimbinganView";
 import PlottingReviewerView from "../../components/kaprodi/PlottingReviewerView";
 
-
 const KaprodiDashboard = () => {
-  
   const [notification, setNotification] = useState({
     open: false,
-    type: "info", 
+    type: "info",
     title: "",
     message: "",
     onClose: null,
@@ -175,6 +173,7 @@ const KaprodiDashboard = () => {
               pembimbing1: pembimbing1 || "-",
               pembimbing2: pembimbing2 || "(Tidak ada)",
               tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+              decision: null,
               raw: req,
             };
           });
@@ -194,6 +193,7 @@ const KaprodiDashboard = () => {
             dosenBaru: mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
             alasan: req.alasan || "-",
             tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+            decision: null,
             raw: req,
           }));
           setRequestGantiDosen(normalizedChange);
@@ -361,8 +361,16 @@ const KaprodiDashboard = () => {
       );
       const data = await res.json();
       if (data.success) {
-        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
-        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+        setRequestDosenBaru((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, decision: "approved" } : req,
+          ),
+        );
+        setRequestGantiDosen((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, decision: "approved" } : req,
+          ),
+        );
         const newTotal = Math.max(0, totalRequests - 1);
         setTotalRequests(newTotal);
         localStorage.setItem("kaprodi_total_requests", newTotal.toString());
@@ -460,8 +468,16 @@ const KaprodiDashboard = () => {
           title: "Request Ditolak",
           message: "Request pembimbing ditolak.",
         });
-        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
-        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
+        setRequestDosenBaru((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, decision: "rejected" } : req,
+          ),
+        );
+        setRequestGantiDosen((prev) =>
+          prev.map((req) =>
+            req.id === id ? { ...req, decision: "rejected" } : req,
+          ),
+        );
         const newTotal = Math.max(0, totalRequests - 1);
         setTotalRequests(newTotal);
         localStorage.setItem("kaprodi_total_requests", newTotal.toString());
@@ -590,7 +606,7 @@ const KaprodiDashboard = () => {
         user={userData}
         totalRequests={totalRequests}
       />
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">
@@ -693,10 +709,7 @@ const KaprodiDashboard = () => {
       {/* Notification Modal */}
       {notification.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
-            onClick={closeNotification}
-          ></div>
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"></div>
           <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
             <div className="flex flex-col items-center text-center">
               <div
@@ -730,7 +743,7 @@ const KaprodiDashboard = () => {
                   onClick={closeNotification}
                   className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
                 >
-                  Tutup
+                  OK
                 </button>
               </div>
             </div>

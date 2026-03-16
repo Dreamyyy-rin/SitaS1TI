@@ -7,6 +7,7 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react";
+import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -19,6 +20,14 @@ const TTU3RequirementsPage = () => {
     show: false,
     message: "",
     type: "error",
+  });
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    title: "",
+    message: "",
+    onConfirm: null,
+    confirmText: "",
+    cancelText: "",
   });
 
   const fetchRequirements = async () => {
@@ -43,8 +52,7 @@ const TTU3RequirementsPage = () => {
     fetchRequirements();
   }, []);
 
-  const handleApprove = async (id) => {
-    if (!window.confirm("Setujui berkas persyaratan TTU3 ini?")) return;
+  const handleApproveConfirmed = async (id) => {
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(
@@ -78,8 +86,29 @@ const TTU3RequirementsPage = () => {
     }
   };
 
-  const handleReject = async (id) => {
-    if (!window.confirm("Tolak berkas persyaratan TTU3 ini?")) return;
+  const handleApprove = (id) => {
+    setConfirmDialog({
+      show: true,
+      title: "Setujui Berkas?",
+      message:
+        "Apakah Anda yakin ingin menyetujui berkas persyaratan TTU 3 ini?",
+      onConfirm: async () => {
+        setConfirmDialog({
+          show: false,
+          title: "",
+          message: "",
+          onConfirm: null,
+          confirmText: "",
+          cancelText: "",
+        });
+        await handleApproveConfirmed(id);
+      },
+      confirmText: "Ya, Setujui",
+      cancelText: "Batal",
+    });
+  };
+
+  const handleRejectConfirmed = async (id) => {
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(
@@ -111,6 +140,27 @@ const TTU3RequirementsPage = () => {
         type: "error",
       });
     }
+  };
+
+  const handleReject = (id) => {
+    setConfirmDialog({
+      show: true,
+      title: "Tolak Berkas?",
+      message: "Apakah Anda yakin ingin menolak berkas persyaratan TTU 3 ini?",
+      onConfirm: async () => {
+        setConfirmDialog({
+          show: false,
+          title: "",
+          message: "",
+          onConfirm: null,
+          confirmText: "",
+          cancelText: "",
+        });
+        await handleRejectConfirmed(id);
+      },
+      confirmText: "Ya, Tolak",
+      cancelText: "Batal",
+    });
   };
 
   const filteredRequirements = useMemo(() => {
@@ -401,6 +451,26 @@ const TTU3RequirementsPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        show={confirmDialog.show}
+        type="info"
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onClose={() =>
+          setConfirmDialog({
+            show: false,
+            title: "",
+            message: "",
+            onConfirm: null,
+            confirmText: "",
+            cancelText: "",
+          })
+        }
+        onConfirm={confirmDialog.onConfirm}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+      />
     </div>
   );
 };

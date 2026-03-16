@@ -56,6 +56,7 @@ export default function RequestBimbinganPage() {
           nim: req.mahasiswa?.nim || "-",
           judul: req.judul || "-",
           tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+          decision: null,
         }));
 
         setRequestBimbingan(normalized);
@@ -93,6 +94,14 @@ export default function RequestBimbinganPage() {
       );
       const data = await res.json();
       if (data.success) {
+        setRequestBimbingan((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, decision: "accepted" } : r)),
+        );
+        setRequestCount((prev) => {
+          const next = Math.max(0, prev - 1);
+          localStorage.setItem("dosen_request_count", next.toString());
+          return next;
+        });
         setNotif({
           show: true,
           type: "success",
@@ -100,7 +109,7 @@ export default function RequestBimbinganPage() {
           message:
             "Permintaan berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi menyetujui.",
         });
-        setTimeout(() => window.location.reload(), 1200);
+        return true;
       } else {
         setNotif({
           show: true,
@@ -108,6 +117,7 @@ export default function RequestBimbinganPage() {
           title: "Gagal",
           message: data.message || data.error || "Gagal menerima permintaan",
         });
+        return false;
       }
     } catch {
       setNotif({
@@ -116,6 +126,7 @@ export default function RequestBimbinganPage() {
         title: "Koneksi Gagal",
         message: "Gagal menghubungi server",
       });
+      return false;
     }
   };
 
@@ -133,13 +144,21 @@ export default function RequestBimbinganPage() {
       );
       const data = await res.json();
       if (data.success) {
+        setRequestBimbingan((prev) =>
+          prev.map((r) => (r.id === id ? { ...r, decision: "rejected" } : r)),
+        );
+        setRequestCount((prev) => {
+          const next = Math.max(0, prev - 1);
+          localStorage.setItem("dosen_request_count", next.toString());
+          return next;
+        });
         setNotif({
           show: true,
           type: "success",
           title: "Request Ditolak",
-          message: "✓ Request berhasil ditolak.",
+          message: "Request berhasil ditolak.",
         });
-        setTimeout(() => window.location.reload(), 1200);
+        return true;
       } else {
         setNotif({
           show: true,
@@ -147,6 +166,7 @@ export default function RequestBimbinganPage() {
           title: "Gagal Reject Request",
           message: data.message || data.error || "Gagal reject request",
         });
+        return false;
       }
     } catch {
       setNotif({
@@ -155,6 +175,7 @@ export default function RequestBimbinganPage() {
         title: "Koneksi Gagal",
         message: "Gagal menghubungi server",
       });
+      return false;
     }
   };
 
@@ -172,6 +193,7 @@ export default function RequestBimbinganPage() {
         title={notif.title}
         message={notif.message}
         onClose={() => setNotif({ ...notif, show: false })}
+        closeOnOverlay={false}
       />
       <SidebarDosen
         activeMenu="request-bimbingan"
@@ -188,7 +210,7 @@ export default function RequestBimbinganPage() {
         requestCount={requestCount}
       />
 
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">

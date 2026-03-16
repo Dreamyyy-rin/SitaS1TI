@@ -4,6 +4,7 @@ import { toTitleCase } from "../../utils/textFormatter";
 
 const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   const menuSections = [
@@ -21,7 +22,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           key: "bimbingan",
           label: "Bimbingan",
           view: "bimbingan",
-          icon: "user-tie",
+          icon: "users",
         },
         {
           key: "daftar-review",
@@ -38,7 +39,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
           key: "data-akun",
           label: "Data Akun",
           view: "data-akun",
-          icon: "user-cog",
+          icon: "user",
         },
       ],
     },
@@ -51,6 +52,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
   ];
 
   const handleLogoutClick = () => {
+    setShowProfileMenu(false);
     setShowLogoutDialog(true);
   };
 
@@ -155,7 +157,7 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                     }`}
                   >
                     <svg
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 flex-shrink-0 ${
                         isActive
                           ? "text-[#0B2F7F]"
                           : "text-slate-400 group-hover:text-slate-600"
@@ -182,6 +184,14 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                           <path d="M12 14v8m0-8l-2 3m2-3l2 3" />
                         </>
                       )}
+                      {item.icon === "users" && (
+                        <>
+                          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <path d="M23 21v-2a4 4 0 00-3-3.87" />
+                          <path d="M16 3.13a4 4 0 010 7.75" />
+                        </>
+                      )}
                       {item.icon === "clipboard-list" && (
                         <>
                           <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
@@ -191,6 +201,12 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                         <>
                           <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
                           <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+                        </>
+                      )}
+                      {item.icon === "user" && (
+                        <>
+                          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                          <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </>
                       )}
                       {item.icon === "book" && (
@@ -206,13 +222,52 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
         </nav>
 
         <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-center md:justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
+          {/* Mobile: klik profil untuk munculkan logout */}
+          <div className="relative md:hidden">
+            {showProfileMenu && (
+              <div className="absolute left-full bottom-2 ml-2 w-44 rounded-xl border border-slate-100 bg-white shadow-lg overflow-hidden">
+                <button
+                  onClick={handleLogoutClick}
+                  className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setShowProfileMenu((v) => !v)}
+              className="w-full flex items-center justify-center p-3 rounded-xl cursor-pointer group border border-transparent"
+              aria-haspopup="menu"
+              aria-expanded={showProfileMenu}
+              aria-label="Menu profil"
+            >
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+                <Icon name="user" className="w-6 h-6" />
+              </div>
+            </button>
+          </div>
+
+          {/* Desktop: ikon logout langsung */}
+          <div className="hidden md:flex items-center justify-between p-3 rounded-xl group border border-transparent">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
                 <Icon name="user" className="w-6 h-6" />
               </div>
-              <div className="hidden md:block text-left flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-700 truncate transition-colors overflow-hidden text-ellipsis whitespace-nowrap">
                   {toTitleCase(student?.name) || "Felicia Wijaya"}
                 </p>
                 <p className="text-xs text-slate-500 font-mono truncate overflow-hidden text-ellipsis whitespace-nowrap">
@@ -223,8 +278,9 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
 
             <button
               onClick={handleLogoutClick}
-              className="hidden md:block text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
               title="Keluar"
+              aria-label="Logout"
             >
               <svg
                 className="w-5 h-5"

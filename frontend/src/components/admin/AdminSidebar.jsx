@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   const menuSections = [
@@ -21,6 +22,7 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
   ];
 
   const handleLogoutClick = () => {
+    setShowProfileMenu(false);
     setShowLogoutDialog(true);
   };
 
@@ -164,44 +166,66 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
 
         {/* User section */}
         <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-center md:justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
-              <Icon name="user" className="w-6 h-6" />
-            </div>
+          {/* Mobile: klik profil untuk munculkan logout */}
+          <div className="relative md:hidden">
+            {showProfileMenu && (
+              <div className="absolute left-full bottom-2 ml-2 w-44 rounded-xl border border-slate-100 bg-white shadow-lg overflow-hidden">
+                <button
+                  onClick={handleLogoutClick}
+                  className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4 text-slate-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            )}
 
-            {/* Name + role: hanya desktop */}
-            <div className="hidden md:block text-left overflow-hidden flex-1 ml-3">
-              <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
-                {admin?.name || "Superadmin"}
-              </p>
-              <p className="text-xs text-slate-500 font-mono">Administrator</p>
-            </div>
-
-            {/* Logout button: hanya desktop */}
             <button
-              onClick={handleLogoutClick}
-              className="hidden md:flex text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
-              title="Keluar"
+              type="button"
+              onClick={() => setShowProfileMenu((v) => !v)}
+              className="w-full flex items-center justify-center p-3 rounded-xl cursor-pointer group border border-transparent"
+              aria-haspopup="menu"
+              aria-expanded={showProfileMenu}
+              aria-label="Menu profil"
             >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth={2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+                <Icon name="user" className="w-6 h-6" />
+              </div>
             </button>
+          </div>
 
-            {/* Logout button: hanya mobile (langsung di bawah avatar) */}
+          {/* Desktop: ikon logout langsung */}
+          <div className="hidden md:flex items-center justify-between p-3 rounded-xl group border border-transparent">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+                <Icon name="user" className="w-6 h-6" />
+              </div>
+
+              <div className="text-left flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-700 truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                  {admin?.name || "Superadmin"}
+                </p>
+                <p className="text-xs text-slate-500 font-mono truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                  Administrator
+                </p>
+              </div>
+            </div>
+
             <button
               onClick={handleLogoutClick}
-              className="md:hidden text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 absolute bottom-3 left-1/2 -translate-x-1/2"
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
               title="Keluar"
+              aria-label="Logout"
             >
               <svg
                 className="w-5 h-5"
