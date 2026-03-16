@@ -4,7 +4,7 @@ services:
   mongodb:
     image: mongo:4.4
     container_name: sita-mongodb
-    restart: unless-stopped
+    restart: no
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-changeme}
