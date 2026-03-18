@@ -61,22 +61,12 @@ class User(BaseModel):
             return None
     
     @classmethod
-    def get_all(
-        cls,
-        role: Optional[str] = None,
-        include_inactive: bool = False,
-    ) -> List[dict]:
-        """Get semua users.
-
-        Secara default hanya mengambil user aktif. Set include_inactive=True
-        untuk mengambil aktif + nonaktif.
-        """
-        query = {}
-        if not include_inactive:
-            query["is_active"] = True
+    def get_all(cls, role: Optional[str] = None) -> List[dict]:
+        """Get semua users"""
+        query = {"is_active": True}
         if role:
             query["role"] = role
-
+        
         docs = cls.collection().find(query, {"password_hash": 0})
         return cls.to_list(docs)
     

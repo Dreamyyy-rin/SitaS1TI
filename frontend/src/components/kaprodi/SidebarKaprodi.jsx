@@ -23,7 +23,6 @@ const SidebarKaprodi = ({
   totalRequests = 0,
 }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const navigate = useNavigate();
 
   const menuSections = [
@@ -99,7 +98,6 @@ const SidebarKaprodi = ({
   ];
 
   const handleLogoutClick = () => {
-    setShowProfileMenu(false);
     setShowLogoutDialog(true);
   };
 
@@ -115,24 +113,24 @@ const SidebarKaprodi = ({
 
   return (
     <>
-      <aside className="w-16 md:w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)] transition-all duration-300">
-        <div className="px-2 md:px-8 py-8 flex items-center justify-center md:justify-start gap-4">
+      <aside className="w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)]">
+        <div className="px-8 py-8 flex items-center gap-4">
           <img
             src="/fti.png"
             alt="Logo FTI"
-            className="w-10 h-10 rounded-full object-cover shadow-md border border-white flex-shrink-0"
+            className="w-10 h-10 rounded-full object-cover shadow-md border border-white"
           />
 
-          <h1 className="hidden md:block text-xl font-bold text-slate-800 tracking-tight">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
             SITA <span className="text-[#0B2F7F]">S1 TI</span>
           </h1>
         </div>
 
-        <nav className="flex-1 px-2 md:px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
           {menuSections.map((section, sectionIndex) => (
             <div key={section.label}>
               <div className="px-4 mb-2 mt-4">
-                <span className="hidden md:block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   {section.label}
                 </span>
               </div>
@@ -144,8 +142,7 @@ const SidebarKaprodi = ({
                   <button
                     key={item.key}
                     onClick={() => onMenuClick(item.key, item.view)}
-                    title={item.label}
-                    className={`w-full flex items-center justify-center md:justify-start gap-3 px-2 md:px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group ${
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-left ${
                       isActive
                         ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
@@ -159,11 +156,11 @@ const SidebarKaprodi = ({
                       }`}
                       strokeWidth={2}
                     />
-                    <span className="hidden md:block flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                    <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis">
                       {item.label}
                     </span>
                     {item.badge > 0 && (
-                      <span className="hidden md:inline-flex bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0">
                         {item.badge}
                       </span>
                     )}
@@ -174,48 +171,19 @@ const SidebarKaprodi = ({
           ))}
         </nav>
 
-        <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
-          {/* Mobile: klik profil untuk munculkan logout */}
-          <div className="relative md:hidden">
-            {showProfileMenu && (
-              <div className="absolute left-full bottom-2 ml-2 w-44 rounded-xl border border-slate-100 bg-white shadow-lg overflow-hidden">
-                <button
-                  onClick={handleLogoutClick}
-                  className="w-full px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                >
-                  <LogOut className="w-4 h-4 text-slate-500" strokeWidth={2} />
-                  Logout
-                </button>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowProfileMenu((v) => !v)}
-              className="w-full flex items-center justify-center p-3 rounded-xl cursor-pointer group border border-transparent"
-              aria-haspopup="menu"
-              aria-expanded={showProfileMenu}
-              aria-label="Menu profil"
-            >
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
-                <User className="w-6 h-6" />
-              </div>
-            </button>
-          </div>
-
-          {/* Desktop: ikon logout langsung */}
-          <div className="hidden md:flex items-center justify-between p-3 rounded-xl group border border-transparent">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between p-3 rounded-xl  cursor-pointer group border border-transparent">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">
                 <User className="w-6 h-6" />
               </div>
 
-              <div className="text-left flex-1 min-w-0">
-                <p className="text-sm font-bold text-slate-700 truncate overflow-hidden text-ellipsis whitespace-nowrap">
+              <div className="text-left overflow-hidden">
+                <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
                   {user?.name || "Kaprodi"}
                 </p>
 
-                <p className="text-xs text-slate-500 font-mono truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                <p className="text-xs text-slate-500 font-mono">
                   {user?.nip || "NIP Kaprodi"}
                 </p>
               </div>
@@ -223,9 +191,8 @@ const SidebarKaprodi = ({
 
             <button
               onClick={handleLogoutClick}
-              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 flex-shrink-0"
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
               title="Keluar"
-              aria-label="Logout"
             >
               <LogOut className="w-5 h-5" strokeWidth={2} />
             </button>

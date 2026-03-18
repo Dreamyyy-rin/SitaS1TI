@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useTTU } from "../../contexts/TTUContext";
 import ReviewChat from "../shared/ReviewChat";
-import ConfirmModal from "../shared/ConfirmModal";
 
 const UploadTTU = ({ onSwitchToReview }) => {
   const {
@@ -47,12 +46,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [notification, setNotification] = useState({
-    show: false,
-    title: "",
-    message: "",
-    type: "error",
-  });
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -142,12 +135,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
     setShowCancelDialog(false);
 
     if (!success) {
-      setNotification({
-        show: true,
-        title: "Terjadi Kesalahan",
-        message: "Gagal membatalkan pengajuan. Silakan coba lagi.",
-        type: "error",
-      });
+      alert("Gagal membatalkan pengajuan. Silakan coba lagi.");
     }
   };
 
@@ -208,10 +196,8 @@ const UploadTTU = ({ onSwitchToReview }) => {
                       : ttuStatus[`ttu_${currentStage}`]?.status ===
                           "needs_revision"
                         ? "Perlu Revisi"
-                        : ttuStatus[`ttu_${currentStage}`]?.status === "locked"
-                          ? "Terkunci"
-                          : ttuStatus[`ttu_${currentStage}`]?.status ||
-                            "Terkunci"}
+                        : ttuStatus[`ttu_${currentStage}`]?.status ||
+                          "Terkunci"}
             </span>
           )}
         </div>
@@ -461,55 +447,44 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 return sortedSubs.map((sub, idx) => (
                   <div
                     key={sub._id || `${ttuKey}-${idx}`}
-                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors overflow-hidden"
+                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex flex-col gap-2 mb-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                              <span className="font-medium text-slate-600 text-xs uppercase flex-shrink-0">
-                                {sub.ttu_number.replace("_", " ")}
-                              </span>
-                              <span className="hidden sm:block font-medium text-slate-800 text-sm min-w-0 flex-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                                {sub.file_name}
-                              </span>
-                            </div>
-
-                            <span className="sm:hidden mt-1 font-medium text-slate-800 text-sm block w-full max-w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                              {sub.file_name}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${
-                                (approvedSub && sub._id === approvedSub._id) ||
-                                sub.status === "approved"
-                                  ? "bg-green-100 text-green-700"
-                                  : sub.status === "reviewed"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : sub.status === "rejected"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
-                              }`}
-                            >
-                              {(approvedSub && sub._id === approvedSub._id) ||
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-4 h-4 text-blue-500" />
+                          <span className="font-medium text-slate-600 text-xs uppercase">
+                            {sub.ttu_number.replace("_", " ")}
+                          </span>
+                          <span className="font-medium text-slate-800 text-sm">
+                            {sub.file_name}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              (approvedSub && sub._id === approvedSub._id) ||
                               sub.status === "approved"
-                                ? "Disetujui"
+                                ? "bg-green-100 text-green-700"
                                 : sub.status === "reviewed"
-                                  ? "Ditinjau"
+                                  ? "bg-blue-100 text-blue-700"
                                   : sub.status === "rejected"
-                                    ? "Ditolak"
-                                    : "Diajukan"}
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {(approvedSub && sub._id === approvedSub._id) ||
+                            sub.status === "approved"
+                              ? "Disetujui"
+                              : sub.status === "reviewed"
+                                ? "Ditinjau"
+                                : sub.status === "rejected"
+                                  ? "Ditolak"
+                                  : "Diajukan"}
+                          </span>
+                          {idx === 0 && (
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
+                              Terbaru
                             </span>
-                            {idx === 0 && (
-                              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600 whitespace-nowrap">
-                                Terbaru
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Clock className="w-3 h-3" />
@@ -586,21 +561,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
           </div>
         </div>
       )}
-
-      <ConfirmModal
-        show={notification.show}
-        type={notification.type}
-        title={notification.title}
-        message={notification.message}
-        onClose={() =>
-          setNotification({
-            show: false,
-            title: "",
-            message: "",
-            type: "error",
-          })
-        }
-      />
     </div>
   );
 };

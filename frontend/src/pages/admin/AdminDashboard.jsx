@@ -195,7 +195,7 @@ const AdminDashboard = () => {
         onLogout={handleLogout}
         admin={{ name: "Superadmin" }}
       />
-      <main className="ml-16 md:ml-64 p-4 md:p-8">{renderContent()}</main>
+      <main className="ml-64 p-8">{renderContent()}</main>
     </div>
   );
 };

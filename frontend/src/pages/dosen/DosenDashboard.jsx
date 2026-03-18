@@ -55,7 +55,7 @@ export default function DosenDashboard() {
         if (mhsRes.success) setMahasiswaBimbingan(mhsRes.data || []);
         if (reqRes.success) {
           setRequestBimbingan(reqRes.data || []);
-
+          
           const count = (reqRes.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());
@@ -105,10 +105,12 @@ export default function DosenDashboard() {
         requestCount={requestCount}
       />
 
-      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">Dasbor Dosen</h1>
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">
+              Dasbor Dosen
+            </h1>
             {user && (
               <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>
             )}

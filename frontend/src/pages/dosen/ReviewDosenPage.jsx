@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import ReviewView from "../../components/dosen/ReviewView";
-import ConfirmModal from "../../components/shared/ConfirmModal";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -12,35 +11,10 @@ export default function ReviewDosenPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [mahasiswaBimbingan, setMahasiswaBimbingan] = useState([]);
-  const [modal, setModal] = useState({
-    show: false,
-    type: "info",
-    title: "",
-    message: "",
-    onConfirm: null,
-    confirmText: "",
-    cancelText: "",
-    afterClose: null,
-  });
   const [requestCount, setRequestCount] = useState(() => {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
-
-  const closeModal = () => {
-    const afterClose = modal.afterClose;
-    setModal({
-      show: false,
-      type: "info",
-      title: "",
-      message: "",
-      onConfirm: null,
-      confirmText: "",
-      cancelText: "",
-      afterClose: null,
-    });
-    if (typeof afterClose === "function") afterClose();
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -116,45 +90,27 @@ export default function ReviewDosenPage() {
   const handlePreviewFile = (mahasiswa, ttuType) => {
     // Find the latest ttu_3 submission for this mahasiswa
     const ttu3Sub = (mahasiswa.submissions || []).find(
-      (s) => s.ttu_number === "ttu_3",
+      (s) => s.ttu_number === "ttu_3"
     );
     if (ttu3Sub) {
       const token = localStorage.getItem("sita_token");
       window.open(
         `${API}/api/dosen/submissions/${ttu3Sub._id}/download?token=${token}`,
-        "_blank",
+        "_blank"
       );
     } else {
-      setModal({
-        show: true,
-        type: "error",
-        title: "File Tidak Ditemukan",
-        message: "File TTU 3 belum diunggah.",
-        onConfirm: null,
-        confirmText: "",
-        cancelText: "",
-        afterClose: null,
-      });
+      alert("File TTU 3 belum diupload");
     }
   };
 
-  const approveTTU3 = (mahasiswa) => {
+  const handleAcceptReview = (mahasiswa) => {
     const token = localStorage.getItem("sita_token");
     const ttu = mahasiswa.ttu_status || {};
 
     // Reviewer can only approve TTU 3
     const ttu3Status = ttu.ttu_3?.status;
     if (ttu3Status !== "submitted" && ttu3Status !== "reviewed") {
-      setModal({
-        show: true,
-        type: "info",
-        title: "Tidak Bisa Diproses",
-        message: "TTU 3 belum diajukan atau sudah disetujui.",
-        onConfirm: null,
-        confirmText: "",
-        cancelText: "",
-        afterClose: null,
-      });
+      alert("TTU 3 belum disubmit atau sudah di-ACC");
       return;
     }
     const ttuToApprove = "ttu_3";
@@ -170,57 +126,15 @@ export default function ReviewDosenPage() {
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          setModal({
-            show: true,
-            type: "success",
-            title: "Berhasil",
-            message: `${ttuToApprove.replace("_", " ").toUpperCase()} untuk ${mahasiswa.nama} berhasil disetujui.`,
-            onConfirm: null,
-            confirmText: "",
-            cancelText: "",
-            afterClose: () => window.location.reload(),
-          });
+          alert(
+            `${ttuToApprove.replace("_", " ").toUpperCase()} untuk ${mahasiswa.nama} berhasil di-ACC`,
+          );
+          window.location.reload();
         } else {
-          setModal({
-            show: true,
-            type: "error",
-            title: "Terjadi Kesalahan",
-            message: res.message || "Gagal menyetujui TTU",
-            onConfirm: null,
-            confirmText: "",
-            cancelText: "",
-            afterClose: null,
-          });
+          alert(res.message || "Gagal ACC TTU");
         }
       })
-      .catch(() =>
-        setModal({
-          show: true,
-          type: "error",
-          title: "Terjadi Kesalahan",
-          message: "Gagal menghubungi server.",
-          onConfirm: null,
-          confirmText: "",
-          cancelText: "",
-          afterClose: null,
-        }),
-      );
-  };
-
-  const handleAcceptReview = (mahasiswa) => {
-    setModal({
-      show: true,
-      type: "info",
-      title: "Setujui TTU 3?",
-      message: `Apakah Anda yakin ingin menyetujui TTU 3 untuk ${mahasiswa.nama}?`,
-      onConfirm: () => {
-        closeModal();
-        approveTTU3(mahasiswa);
-      },
-      confirmText: "Ya, Setujui",
-      cancelText: "Tidak",
-      afterClose: null,
-    });
+      .catch(() => alert("Gagal menghubungi server"));
   };
 
   const handleLogout = () => {
@@ -247,7 +161,7 @@ export default function ReviewDosenPage() {
         user={user}
       />
 
-      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">Tinjauan</h1>
@@ -276,17 +190,6 @@ export default function ReviewDosenPage() {
           )}
         </div>
       </main>
-
-      <ConfirmModal
-        show={modal.show}
-        type={modal.type}
-        title={modal.title}
-        message={modal.message}
-        onClose={closeModal}
-        onConfirm={modal.onConfirm}
-        confirmText={modal.confirmText}
-        cancelText={modal.cancelText}
-      />
     </div>
   );
 }

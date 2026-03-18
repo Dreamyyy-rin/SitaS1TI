@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 
 export default function DataAkunPage({ student }) {
-  const isDosen = Boolean(student?.nip);
-
   const [passwordData, setPasswordData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -44,8 +42,7 @@ export default function DataAkunPage({ student }) {
     }
 
     const token = localStorage.getItem("sita_token");
-    const baseUrl =
-      import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
     try {
       const res = await fetch(`${baseUrl}/api/auth/change-password`, {
@@ -78,6 +75,8 @@ export default function DataAkunPage({ student }) {
 
   return (
     <div className="space-y-6 animate-fade-in">
+    
+
       {showSuccess && (
         <div className="bg-green-50 border border-green-200 text-green-800 px-6 py-4 rounded-xl flex items-center gap-3 shadow-sm animate-fade-in">
           <svg
@@ -113,7 +112,7 @@ export default function DataAkunPage({ student }) {
                 d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"
               />
             </svg>
-            {isDosen ? "Profil Dosen" : "Profil Mahasiswa"}
+            Profil Dosen
           </h3>
 
           <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg mb-6">
@@ -133,29 +132,25 @@ export default function DataAkunPage({ student }) {
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider text-blue-200 mb-1">
-                  {isDosen ? "Nama Dosen" : "Nama Mahasiswa"}
+                  Nama Dosen
                 </p>
                 <p className="text-xl font-bold">
-                  {student?.name || (isDosen ? "Dosen" : "Budi Santoso")}
+                  {student?.name || "Budi Santoso"}
                 </p>
               </div>
             </div>
 
             <div className="border-t border-white/20 pt-4 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-blue-200 text-sm">
-                  {isDosen ? "NIP" : "NIM"}
-                </span>
+                <span className="text-blue-200 text-sm">NIM</span>
                 <span className="font-mono font-semibold text-lg">
-                  {isDosen ? student?.nip || "-" : student?.nim || "672021001"}
+                  {student?.nim || "672021001"}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-blue-200 text-sm">Program Studi</span>
                 <span className="font-medium">
-                  {isDosen
-                    ? student?.prodi || "-"
-                    : student?.prodi || "Teknik Informatika"}
+                  {student?.prodi || "Teknik Informatika"}
                 </span>
               </div>
             </div>
@@ -179,8 +174,7 @@ export default function DataAkunPage({ student }) {
               <div className="flex-1">
                 <p className="text-xs text-slate-500 mb-1">Email</p>
                 <p className="text-sm font-medium text-slate-700">
-                  {student?.email ||
-                    (isDosen ? "-" : "budi.santoso@student.uksw.edu")}
+                  {student?.email || "budi.santoso@student.uksw.edu"}
                 </p>
               </div>
             </div>

@@ -21,10 +21,10 @@ const AccessDenied = () => {
             </div>
 
             <h3 className="text-2xl font-bold text-slate-900 mb-3">
-              Daftar Tinjauan Tidak Dapat Diakses
+              Upload Berkas Tidak Dapat Diakses
             </h3>
             <p className="text-slate-600 leading-relaxed mb-6">
-              Selesaikan TTU 2 untuk mengakses daftar tinjauan.
+              Selesaikan TTU 2 untuk mengakses pemberkasan.
             </p>
 
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -35,7 +35,8 @@ const AccessDenied = () => {
                 </p>
                 <p className="text-xs text-amber-700 leading-relaxed">
                   Anda harus menyelesaikan dan mendapat persetujuan dari dosen
-                  pembimbing untuk TTU 2 sebelum dapat mengakses menu daftar tinjauan.
+                  pembimbing untuk TTU 2 sebelum dapat mengakses menu upload
+                  berkas finalisasi.
                 </p>
               </div>
             </div>

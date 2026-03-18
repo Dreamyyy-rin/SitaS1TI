@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ConfirmModal from "../../components/shared/ConfirmModal";
-import { Mail, User, AlertCircle, Send, ChevronDown } from "lucide-react";
+import { Mail, User, AlertCircle, Send } from "lucide-react";
 
 const PembimbingPage = () => {
   const [pembimbing, setPembimbing] = useState({
@@ -12,18 +12,6 @@ const PembimbingPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(null);
-  const getOverallStatusLabel = (status) => {
-    switch (status) {
-      case "pending":
-        return "Menunggu";
-      case "approved":
-        return "Disetujui";
-      case "rejected":
-        return "Ditolak";
-      default:
-        return status ? String(status) : "Menunggu";
-    }
-  };
 
   const [formData, setFormData] = useState({
     newPembimbingId: "",
@@ -302,7 +290,7 @@ const PembimbingPage = () => {
                 <p className="text-xs text-blue-800">
                   Status:{" "}
                   <span className="font-semibold capitalize">
-                    {getOverallStatusLabel(pendingRequest.overall_status)}
+                    {pendingRequest.overall_status || "pending"}
                   </span>
                 </p>
               </div>
@@ -312,7 +300,7 @@ const PembimbingPage = () => {
 
         {!pendingRequest && pembimbing?.pembimbing_1 && (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+            <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-bold text-slate-800">
                   Permintaan Pergantian Pembimbing
@@ -324,7 +312,7 @@ const PembimbingPage = () => {
               {!showRequestForm && (
                 <button
                   onClick={() => setShowRequestForm(true)}
-                  className="w-full sm:w-auto px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   Ajukan Permintaan
                 </button>
@@ -349,23 +337,20 @@ const PembimbingPage = () => {
                   <p className="text-xs text-slate-500 mt-1">
                     Pilih slot pembimbing yang ingin diganti
                   </p>
-                  <div className="relative">
-                    <select
-                      value={formData.slot}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          slot: e.target.value,
-                        })
-                      }
-                      className="w-full appearance-none px-4 py-3 pr-11 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700 bg-white"
-                      required
-                    >
-                      <option value="pembimbing_1">Pembimbing 1</option>
-                      <option value="pembimbing_2">Pembimbing 2</option>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  </div>
+                  <select
+                    value={formData.slot}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        slot: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
+                    required
+                  >
+                    <option value="pembimbing_1">Pembimbing 1</option>
+                    <option value="pembimbing_2">Pembimbing 2</option>
+                  </select>
                 </div>
 
                 <div>
@@ -376,35 +361,32 @@ const PembimbingPage = () => {
                   <p className="text-xs text-slate-500 mt-1">
                     Pilih dosen baru atau biarkan Kaprodi yang menentukan
                   </p>
-                  <div className="relative">
-                    <select
-                      value={formData.newPembimbingId}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          newPembimbingId: e.target.value,
-                        })
-                      }
-                      className="w-full appearance-none px-4 py-3 pr-11 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700 bg-white"
-                      required
-                    >
-                      <option value="">Pilih Dosen</option>
-                      <optgroup label="Dosen yang Tersedia">
-                        {dosenList
-                          .filter(
-                            (d) =>
-                              d._id !== pembimbing?.pembimbing_1?._id &&
-                              d._id !== pembimbing?.pembimbing_2?._id,
-                          )
-                          .map((dosen) => (
-                            <option key={dosen._id} value={dosen._id}>
-                              {dosen.nama}
-                            </option>
-                          ))}
-                      </optgroup>
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  </div>
+                  <select
+                    value={formData.newPembimbingId}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        newPembimbingId: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
+                    required
+                  >
+                    <option value="">Pilih Dosen</option>
+                    <optgroup label="Dosen yang Tersedia">
+                      {dosenList
+                        .filter(
+                          (d) =>
+                            d._id !== pembimbing?.pembimbing_1?._id &&
+                            d._id !== pembimbing?.pembimbing_2?._id,
+                        )
+                        .map((dosen) => (
+                          <option key={dosen._id} value={dosen._id}>
+                            {dosen.nama}
+                          </option>
+                        ))}
+                    </optgroup>
+                  </select>
                 </div>
 
                 <div>
@@ -427,7 +409,7 @@ const PembimbingPage = () => {
                   </p>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -456,7 +438,7 @@ const PembimbingPage = () => {
                         slot: "pembimbing_1",
                       });
                     }}
-                    className="w-full sm:w-auto px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors"
+                    className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition-colors"
                   >
                     Batal
                   </button>

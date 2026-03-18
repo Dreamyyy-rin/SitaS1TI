@@ -555,50 +555,39 @@ const UploadTTU3 = ({ student }) => {
                 {submissionHistory.map((sub, index) => (
                   <div
                     key={sub._id || index}
-                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors overflow-hidden"
+                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <div className="flex flex-col gap-2 mb-2 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                              <span className="hidden sm:block font-medium text-slate-800 text-sm min-w-0 flex-1 max-w-full overflow-hidden text-ellipsis whitespace-nowrap">
-                                {sub.file_name}
-                              </span>
-                            </div>
-
-                            <span className="sm:hidden mt-1 font-medium text-slate-800 text-sm block w-full max-w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                              {sub.file_name}
-                            </span>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span
-                              className={`px-2 py-0.5 text-xs font-semibold rounded-full whitespace-nowrap ${
-                                sub.status === "approved"
-                                  ? "bg-green-100 text-green-700"
-                                  : sub.status === "reviewed"
-                                    ? "bg-blue-100 text-blue-700"
-                                    : sub.status === "rejected"
-                                      ? "bg-red-100 text-red-700"
-                                      : "bg-yellow-100 text-yellow-700"
-                              }`}
-                            >
-                              {sub.status === "approved"
-                                ? "Disetujui"
+                        <div className="flex items-center gap-2 mb-2">
+                          <FileText className="w-4 h-4 text-blue-500" />
+                          <span className="font-medium text-slate-800 text-sm">
+                            {sub.file_name}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                              sub.status === "approved"
+                                ? "bg-green-100 text-green-700"
                                 : sub.status === "reviewed"
-                                  ? "Ditinjau"
+                                  ? "bg-blue-100 text-blue-700"
                                   : sub.status === "rejected"
-                                    ? "Ditolak"
-                                    : "Diajukan"}
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {sub.status === "approved"
+                              ? "Disetujui"
+                              : sub.status === "reviewed"
+                                ? "Ditinjau"
+                                : sub.status === "rejected"
+                                  ? "Ditolak"
+                                  : "Diajukan"}
+                          </span>
+                          {index === 0 && (
+                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600">
+                              Terbaru
                             </span>
-                            {index === 0 && (
-                              <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-blue-50 text-blue-600 whitespace-nowrap">
-                                Terbaru
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-slate-500">
                           <Clock className="w-3 h-3" />

@@ -6,15 +6,6 @@ const RiwayatBimbinganView = ({
   searchQuery,
   onSearchChange,
 }) => {
-  const formatTanggalSelesai = (riwayat) => {
-    const raw =
-      riwayat?.tanggalSelesai ?? riwayat?.ttu_status?.ttu_3?.approved_at;
-    if (!raw) return "-";
-
-    const date = new Date(raw);
-    if (Number.isNaN(date.getTime())) return "-";
-    return date.toLocaleDateString("id-ID");
-  };
 
   const filteredRiwayat = riwayatBimbingan.filter((riwayat) => {
     const query = searchQuery.toLowerCase();
@@ -99,7 +90,7 @@ const RiwayatBimbinganView = ({
                     <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
                   </td>
                   <td className="px-4 py-3 text-sm">
-                    {formatTanggalSelesai(riwayat)}
+                    {riwayat.tanggalSelesai}
                   </td>
                 </tr>
               ))}

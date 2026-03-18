@@ -74,23 +74,13 @@ const RequestDosenView = ({
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => onApprove(req.id)}
-                      disabled={Boolean(req.decision)}
-                      className={`text-white px-4 py-1.5 rounded text-xs font-medium transition-colors ${
-                        req.decision
-                          ? "bg-slate-300 cursor-not-allowed"
-                          : "bg-green-500 hover:bg-green-600"
-                      }`}
+                      className="bg-green-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-green-600 transition-colors"
                     >
                       Setuju
                     </button>
                     <button
                       onClick={() => onReject(req.id)}
-                      disabled={Boolean(req.decision)}
-                      className={`text-white px-4 py-1.5 rounded text-xs font-medium transition-colors ${
-                        req.decision
-                          ? "bg-slate-300 cursor-not-allowed"
-                          : "bg-red-500 hover:bg-red-600"
-                      }`}
+                      className="bg-red-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-red-600 transition-colors"
                     >
                       Tolak
                     </button>
@@ -166,23 +156,13 @@ const RequestDosenView = ({
                   <div className="flex justify-center gap-2">
                     <button
                       onClick={() => onApprove(req.id)}
-                      disabled={Boolean(req.decision)}
-                      className={`text-white px-4 py-1.5 rounded text-xs font-medium transition-colors ${
-                        req.decision
-                          ? "bg-slate-300 cursor-not-allowed"
-                          : "bg-green-500 hover:bg-green-600"
-                      }`}
+                      className="bg-green-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-green-600 transition-colors"
                     >
                       Setuju
                     </button>
                     <button
                       onClick={() => onReject(req.id)}
-                      disabled={Boolean(req.decision)}
-                      className={`text-white px-4 py-1.5 rounded text-xs font-medium transition-colors ${
-                        req.decision
-                          ? "bg-slate-300 cursor-not-allowed"
-                          : "bg-red-500 hover:bg-red-600"
-                      }`}
+                      className="bg-red-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-red-600 transition-colors"
                     >
                       Tolak
                     </button>
