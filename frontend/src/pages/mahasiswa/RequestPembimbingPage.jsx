@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { UserPlus, AlertCircle, Send } from "lucide-react";
+import { UserPlus, AlertCircle, Send, ChevronDown } from "lucide-react";
 
 const RequestPembimbingPage = () => {
   const navigate = useNavigate();
@@ -153,37 +153,59 @@ const RequestPembimbingPage = () => {
                 </p>
                 <div className="text-xs space-y-1">
                   <p className="flex items-center gap-2">
-                    <span className={`inline-block w-2 h-2 rounded-full ${
-                      pendingRequest.status_kaprodi === "approved" ? "bg-green-500" 
-                      : pendingRequest.status_kaprodi === "rejected" ? "bg-red-500" 
-                      : "bg-yellow-500"
-                    }`}></span>
-                    Kaprodi: {pendingRequest.status_kaprodi === "approved" ? "Disetujui" 
-                      : pendingRequest.status_kaprodi === "rejected" ? "Ditolak" 
-                      : "Menunggu"}
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${
+                        pendingRequest.status_kaprodi === "approved"
+                          ? "bg-green-500"
+                          : pendingRequest.status_kaprodi === "rejected"
+                            ? "bg-red-500"
+                            : "bg-yellow-500"
+                      }`}
+                    ></span>
+                    Kaprodi:{" "}
+                    {pendingRequest.status_kaprodi === "approved"
+                      ? "Disetujui"
+                      : pendingRequest.status_kaprodi === "rejected"
+                        ? "Ditolak"
+                        : "Menunggu"}
                   </p>
                   <p className="flex items-center gap-2">
-                    <span className={`inline-block w-2 h-2 rounded-full ${
-                      pendingRequest.status_dosen_1 === "approved" ? "bg-green-500" 
-                      : pendingRequest.status_dosen_1 === "rejected" ? "bg-red-500" 
-                      : "bg-yellow-500"
-                    }`}></span>
-                    Dosen Pembimbing 1: {pendingRequest.status_dosen_1 === "approved" ? "Disetujui" 
-                      : pendingRequest.status_dosen_1 === "rejected" ? "Ditolak" 
-                      : "Menunggu"}
-                  </p>
-                  {pendingRequest.status_dosen_2 !== undefined && pendingRequest.requested_pembimbing_2_id && (
-                    <p className="flex items-center gap-2">
-                      <span className={`inline-block w-2 h-2 rounded-full ${
-                        pendingRequest.status_dosen_2 === "approved" ? "bg-green-500" 
-                        : pendingRequest.status_dosen_2 === "rejected" ? "bg-red-500" 
-                        : "bg-yellow-500"
-                      }`}></span>
-                      Dosen Pembimbing 2: {pendingRequest.status_dosen_2 === "approved" ? "Disetujui" 
-                        : pendingRequest.status_dosen_2 === "rejected" ? "Ditolak" 
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${
+                        pendingRequest.status_dosen_1 === "approved"
+                          ? "bg-green-500"
+                          : pendingRequest.status_dosen_1 === "rejected"
+                            ? "bg-red-500"
+                            : "bg-yellow-500"
+                      }`}
+                    ></span>
+                    Dosen Pembimbing 1:{" "}
+                    {pendingRequest.status_dosen_1 === "approved"
+                      ? "Disetujui"
+                      : pendingRequest.status_dosen_1 === "rejected"
+                        ? "Ditolak"
                         : "Menunggu"}
-                    </p>
-                  )}
+                  </p>
+                  {pendingRequest.status_dosen_2 !== undefined &&
+                    pendingRequest.requested_pembimbing_2_id && (
+                      <p className="flex items-center gap-2">
+                        <span
+                          className={`inline-block w-2 h-2 rounded-full ${
+                            pendingRequest.status_dosen_2 === "approved"
+                              ? "bg-green-500"
+                              : pendingRequest.status_dosen_2 === "rejected"
+                                ? "bg-red-500"
+                                : "bg-yellow-500"
+                          }`}
+                        ></span>
+                        Dosen Pembimbing 2:{" "}
+                        {pendingRequest.status_dosen_2 === "approved"
+                          ? "Disetujui"
+                          : pendingRequest.status_dosen_2 === "rejected"
+                            ? "Ditolak"
+                            : "Menunggu"}
+                      </p>
+                    )}
                 </div>
               </div>
             </div>
@@ -209,48 +231,54 @@ const RequestPembimbingPage = () => {
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Pembimbing 1 <span className="text-red-500">*</span>
                 </label>
-                <select
-                  value={formData.pembimbing_1_id}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pembimbing_1_id: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Pilih Dosen</option>
-                  {dosenList.map((dosen) => (
-                    <option key={dosen._id} value={dosen._id}>
-                      {dosen.nama}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={formData.pembimbing_1_id}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        pembimbing_1_id: e.target.value,
+                      }))
+                    }
+                    className="w-full appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Pilih Dosen</option>
+                    {dosenList.map((dosen) => (
+                      <option key={dosen._id} value={dosen._id}>
+                        {dosen.nama}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
                   Pembimbing 2
                 </label>
-                <select
-                  value={formData.pembimbing_2_id}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      pembimbing_2_id: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Pilih Dosen</option>
-                  {dosenList
-                    .filter((dosen) => dosen._id !== formData.pembimbing_1_id)
-                    .map((dosen) => (
-                      <option key={dosen._id} value={dosen._id}>
-                        {dosen.nama}
-                      </option>
-                    ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={formData.pembimbing_2_id}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        pembimbing_2_id: e.target.value,
+                      }))
+                    }
+                    className="w-full appearance-none pl-4 pr-10 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Pilih Dosen</option>
+                    {dosenList
+                      .filter((dosen) => dosen._id !== formData.pembimbing_1_id)
+                      .map((dosen) => (
+                        <option key={dosen._id} value={dosen._id}>
+                          {dosen.nama}
+                        </option>
+                      ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                </div>
               </div>
 
               <button
