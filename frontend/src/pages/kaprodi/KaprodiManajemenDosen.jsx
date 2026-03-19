@@ -46,29 +46,19 @@ const KaprodiManajemenDosen = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
-              Data Dosen Pembimbing
-            </h2>
-            <p className="text-slate-600">
-              Daftar dosen pembimbing yang dapat dipilih mahasiswa. Pengelolaan
-              dosen dilakukan oleh Superadmin.
-            </p>
-          </div>
-
-          <div className="relative mb-6">
+        <div className="mb-8 space-y-6">
+          <div className="relative">
             <input
               type="text"
               placeholder="Cari berdasarkan nama atau NIP..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0B2F7F] focus:border-transparent"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 pl-10 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#0B2F7F]"
             />
             <svg
-              className="w-5 h-5 text-gray-400 absolute left-3 top-2.5"
+              className="absolute left-3 top-3.5 h-5 w-5 text-slate-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,7 +105,7 @@ const KaprodiManajemenDosen = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50 border-b">

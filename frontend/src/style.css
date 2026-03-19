@@ -1,3 +1,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Suppress Edge's native password reveal button */
+input[type="password"]::-ms-reveal {
+  display: none;
+}

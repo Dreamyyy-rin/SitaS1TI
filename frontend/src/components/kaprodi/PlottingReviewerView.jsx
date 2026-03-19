@@ -92,7 +92,7 @@ const PlottingReviewerView = ({
   const eligibleMahasiswa = mahasiswaBimbingan.filter((m) => m.pembimbing_1_id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Notification Modal */}
       {notification.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -140,7 +140,7 @@ const PlottingReviewerView = ({
           </div>
         </div>
       )}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -249,7 +249,7 @@ const PlottingReviewerView = ({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="bg-[#0B2F7F] text-white px-6 py-2 rounded hover:bg-blue-800 font-semibold disabled:opacity-50"
+            className="rounded-xl bg-[#0B2F7F] px-6 py-2.5 font-semibold text-white shadow-lg shadow-[#0B2F7F]/15 transition-colors hover:bg-blue-800 disabled:opacity-50"
           >
             {saving ? "Menyimpan..." : "Simpan"}
           </button>

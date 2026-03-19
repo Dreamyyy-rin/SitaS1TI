@@ -10,8 +10,8 @@ const RequestDosenView = ({
   onReject,
   actedIds,
 }) => (
-  <div className="space-y-6">
-    <div className="bg-white rounded-lg shadow-md p-6">
+  <div className="space-y-6 animate-fade-in">
+    <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
         Permintaan Dosen Pembimbing
       </h3>
@@ -112,7 +112,7 @@ const RequestDosenView = ({
       )}
     </div>
 
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm">
       <h3 className="text-lg font-semibold text-[#0B2F7F] mb-4">
         Permintaan Ganti Dosen Pembimbing
       </h3>

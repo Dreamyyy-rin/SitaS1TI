@@ -553,6 +553,31 @@ const KaprodiDashboard = () => {
     }
   };
 
+  const getPageDescription = () => {
+    switch (activeMenu) {
+      case "dashboard":
+        return userData
+          ? `Selamat datang, ${userData.nama || "Kaprodi"}`
+          : "Pantau aktivitas dan statistik program studi dari satu tempat.";
+      case "request-pembimbing":
+        return "Tinjau pengajuan pembimbing baru dan pergantian pembimbing dari mahasiswa.";
+      case "plotting":
+        return "Tetapkan dosen peninjau untuk mahasiswa tanpa benturan dengan dosen pembimbing.";
+      case "mahasiswa-bimbingan":
+        return "Pantau progres mahasiswa aktif dan kelola perubahan pembimbing bila diperlukan.";
+      case "riwayat":
+        return "Lihat arsip mahasiswa yang telah menyelesaikan seluruh tahapan TTU.";
+      case "data-dosen":
+        return "Pantau ketersediaan dosen pembimbing beserta status dan beban bimbingannya.";
+      case "data-akun":
+        return "Kelola profil kaprodi dan keamanan akun.";
+      case "panduan":
+        return "Pelajari fungsi setiap menu kaprodi dan alur kerja yang tersedia.";
+      default:
+        return "Pantau aktivitas dan statistik program studi dari satu tempat.";
+    }
+  };
+
   const renderContent = () => {
     switch (activeMenu) {
       case "dashboard":
@@ -628,11 +653,7 @@ const KaprodiDashboard = () => {
             <h1 className="text-3xl font-bold text-[#0B2F7F]">
               {getPageTitle()}
             </h1>
-            {activeMenu === "dashboard" && userData && (
-              <p className="text-gray-600 mt-2">
-                Selamat datang, {userData.nama || "Kaprodi"}
-              </p>
-            )}
+            <p className="text-slate-500 mt-2">{getPageDescription()}</p>
           </div>
           {renderContent()}
         </div>
