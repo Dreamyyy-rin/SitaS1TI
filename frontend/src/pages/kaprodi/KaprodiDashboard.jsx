@@ -11,12 +11,10 @@ import PanduanKaprodiView from "../../components/kaprodi/PanduanKaprodiView";
 import RiwayatBimbinganView from "../../components/kaprodi/RiwayatBimbinganView";
 import PlottingReviewerView from "../../components/kaprodi/PlottingReviewerView";
 
-
 const KaprodiDashboard = () => {
-  
   const [notification, setNotification] = useState({
     open: false,
-    type: "info", 
+    type: "info",
     title: "",
     message: "",
     onClose: null,
@@ -63,6 +61,7 @@ const KaprodiDashboard = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [actedIds, setActedIds] = useState(new Set());
 
   const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -132,6 +131,7 @@ const KaprodiDashboard = () => {
               id: m._id,
               nama: m.nama || "-",
               nim: m.nim || "-",
+              judul: m.judul || "-",
               prodi: m.prodi || "-",
               email: m.email || "-",
               dosen: p1 ? p1.nama : "-",
@@ -141,6 +141,9 @@ const KaprodiDashboard = () => {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
+              tanggalSelesai: ttu.ttu_3?.approved_at
+                ? new Date(ttu.ttu_3.approved_at).toLocaleDateString("id-ID")
+                : "-",
               status:
                 m.onboarding_status === "approved"
                   ? "active"
@@ -179,24 +182,35 @@ const KaprodiDashboard = () => {
             };
           });
           setRequestDosenBaru(normalizedInitial);
-        }
 
-        if (changeRes.success) {
-          const normalizedChange = (changeRes.data || []).map((req) => ({
-            id: req._id,
-            nama: req.mahasiswa?.nama || "-",
-            nim: req.mahasiswa?.nim || "-",
-            judul: req.judul || "-",
-            dosenLama:
-              req.requested_slot === "pembimbing_2"
-                ? mapDosen[req.current_pembimbing_2_id]?.nama || "-"
-                : mapDosen[req.current_pembimbing_1_id]?.nama || "-",
-            dosenBaru: mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
-            alasan: req.alasan || "-",
-            tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
-            raw: req,
-          }));
-          setRequestGantiDosen(normalizedChange);
+          if (changeRes.success) {
+            const normalizedChange = (changeRes.data || []).map((req) => ({
+              id: req._id,
+              nama: req.mahasiswa?.nama || "-",
+              nim: req.mahasiswa?.nim || "-",
+              judul: req.judul || "-",
+              dosenLama:
+                req.requested_slot === "pembimbing_2"
+                  ? mapDosen[req.current_pembimbing_2_id]?.nama || "-"
+                  : mapDosen[req.current_pembimbing_1_id]?.nama || "-",
+              dosenBaru: mapDosen[req.requested_pembimbing_1_id]?.nama || "-",
+              alasan: req.alasan || "-",
+              tanggal: new Date(req.created_at).toLocaleDateString("id-ID"),
+              raw: req,
+            }));
+            setRequestGantiDosen(normalizedChange);
+
+            // Initialize actedIds from requests where kaprodi has already acted
+            const initialActed = new Set([
+              ...normalizedInitial
+                .filter((r) => r.raw?.status_kaprodi !== "pending")
+                .map((r) => r.id),
+              ...normalizedChange
+                .filter((r) => r.raw?.status_kaprodi !== "pending")
+                .map((r) => r.id),
+            ]);
+            setActedIds(initialActed);
+          }
         }
 
         // Update total requests and cache it
@@ -304,6 +318,7 @@ const KaprodiDashboard = () => {
               id: m._id,
               nama: m.nama || "-",
               nim: m.nim || "-",
+              judul: m.judul || "-",
               prodi: m.prodi || "-",
               email: m.email || "-",
               dosen: p1 ? p1.nama : "-",
@@ -313,6 +328,9 @@ const KaprodiDashboard = () => {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
+              tanggalSelesai: ttu.ttu_3?.approved_at
+                ? new Date(ttu.ttu_3.approved_at).toLocaleDateString("id-ID")
+                : "-",
               status:
                 m.onboarding_status === "approved"
                   ? "active"
@@ -361,11 +379,17 @@ const KaprodiDashboard = () => {
       );
       const data = await res.json();
       if (data.success) {
-        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
-        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
-        const newTotal = Math.max(0, totalRequests - 1);
-        setTotalRequests(newTotal);
-        localStorage.setItem("kaprodi_total_requests", newTotal.toString());
+        setActedIds((prev) => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
+        showNotification({
+          type: "success",
+          title: "Permintaan Disetujui",
+          message:
+            "Bimbingan akan disetujui ketika dosen juga sudah menyetujui.",
+        });
 
         const mhsRes = await fetch(`${API}/api/kaprodi/mahasiswa`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -390,6 +414,7 @@ const KaprodiDashboard = () => {
               id: m._id,
               nama: m.nama || "-",
               nim: m.nim || "-",
+              judul: m.judul || "-",
               prodi: m.prodi || "-",
               email: m.email || "-",
               dosen: p1 ? p1.nama : "-",
@@ -399,6 +424,9 @@ const KaprodiDashboard = () => {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
+              tanggalSelesai: ttu.ttu_3?.approved_at
+                ? new Date(ttu.ttu_3.approved_at).toLocaleDateString("id-ID")
+                : "-",
               status:
                 m.onboarding_status === "approved"
                   ? "active"
@@ -455,13 +483,16 @@ const KaprodiDashboard = () => {
       );
       const data = await res.json();
       if (data.success) {
+        setActedIds((prev) => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
         showNotification({
           type: "success",
-          title: "Request Ditolak",
-          message: "Request pembimbing ditolak.",
+          title: "Permintaan Ditolak",
+          message: "Permintaan bimbingan mahasiswa berhasil ditolak.",
         });
-        setRequestDosenBaru((prev) => prev.filter((req) => req.id !== id));
-        setRequestGantiDosen((prev) => prev.filter((req) => req.id !== id));
         const newTotal = Math.max(0, totalRequests - 1);
         setTotalRequests(newTotal);
         localStorage.setItem("kaprodi_total_requests", newTotal.toString());
@@ -541,6 +572,7 @@ const KaprodiDashboard = () => {
             onDosenChange={handleDosenChange}
             onApprove={handleApprove}
             onReject={handleReject}
+            actedIds={actedIds}
           />
         );
       case "plotting":

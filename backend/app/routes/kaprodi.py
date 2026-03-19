@@ -224,10 +224,7 @@ def list_pembimbing_requests():
 
     mahasiswa_list = Mahasiswa.get_by_prodi(prodi)
     mahasiswa_ids = [m.get("_id") for m in mahasiswa_list]
-    requests = [
-        req for req in PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type=request_type)
-        if req.get("status_kaprodi") == "pending"
-    ]
+    requests = list(PembimbingRequest.list_by_mahasiswa_ids(mahasiswa_ids, request_type=request_type))
 
     mahasiswa_map = {m.get("_id"): m for m in mahasiswa_list}
     for req in requests:

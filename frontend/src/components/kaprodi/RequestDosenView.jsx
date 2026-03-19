@@ -8,6 +8,7 @@ const RequestDosenView = ({
   onDosenChange,
   onApprove,
   onReject,
+  actedIds,
 }) => (
   <div className="space-y-6">
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -42,52 +43,65 @@ const RequestDosenView = ({
             </tr>
           </thead>
           <tbody>
-            {requestDosenBaru.map((req) => (
-              <tr key={req.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm">
-                  <div className="font-medium text-gray-800">{req.nama}</div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{req.nim}</td>
-                <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
-                  {req.judul}
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <span className="text-blue-700 font-medium">
-                    {req.pembimbing1}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <span
-                    className={
-                      req.pembimbing2 !== "(Tidak ada)"
-                        ? "text-blue-700 font-medium"
-                        : "text-gray-400 italic"
-                    }
-                  >
-                    {req.pembimbing2}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  {req.tanggal}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => onApprove(req.id)}
-                      className="bg-green-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-green-600 transition-colors"
+            {requestDosenBaru.map((req) => {
+              const disabled = actedIds?.has(req.id);
+              return (
+                <tr key={req.id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm">
+                    <div className="font-medium text-gray-800">{req.nama}</div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{req.nim}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">
+                    {req.judul}
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className="text-blue-700 font-medium">
+                      {req.pembimbing1}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={
+                        req.pembimbing2 !== "(Tidak ada)"
+                          ? "text-blue-700 font-medium"
+                          : "text-gray-400 italic"
+                      }
                     >
-                      Setuju
-                    </button>
-                    <button
-                      onClick={() => onReject(req.id)}
-                      className="bg-red-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-red-600 transition-colors"
-                    >
-                      Tolak
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {req.pembimbing2}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {req.tanggal}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => !disabled && onApprove(req.id)}
+                        disabled={disabled}
+                        className={`px-4 py-1.5 rounded text-xs font-medium text-white transition-colors ${
+                          disabled
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
+                      >
+                        Setuju
+                      </button>
+                      <button
+                        onClick={() => !disabled && onReject(req.id)}
+                        disabled={disabled}
+                        className={`px-4 py-1.5 rounded text-xs font-medium text-white transition-colors ${
+                          disabled
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
+                      >
+                        Tolak
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -130,46 +144,59 @@ const RequestDosenView = ({
             </tr>
           </thead>
           <tbody>
-            {requestGantiDosen.map((req) => (
-              <tr key={req.id} className="border-t hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm">
-                  <div className="font-medium text-gray-800">{req.nama}</div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">{req.nim}</td>
-                <td className="px-4 py-3 text-sm">
-                  <span className="text-red-600">{req.dosenLama}</span>
-                </td>
-                <td className="px-4 py-3 text-sm">
-                  <span className="text-green-600 font-medium">
-                    {req.dosenBaru}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  <div className="whitespace-normal break-words max-w-md">
-                    {req.alasan}
-                  </div>
-                </td>
-                <td className="px-4 py-3 text-sm text-gray-600">
-                  {req.tanggal}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => onApprove(req.id)}
-                      className="bg-green-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-green-600 transition-colors"
-                    >
-                      Setuju
-                    </button>
-                    <button
-                      onClick={() => onReject(req.id)}
-                      className="bg-red-500 text-white px-4 py-1.5 rounded text-xs font-medium hover:bg-red-600 transition-colors"
-                    >
-                      Tolak
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {requestGantiDosen.map((req) => {
+              const disabled = actedIds?.has(req.id);
+              return (
+                <tr key={req.id} className="border-t hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm">
+                    <div className="font-medium text-gray-800">{req.nama}</div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{req.nim}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className="text-red-600">{req.dosenLama}</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm">
+                    <span className="text-green-600 font-medium">
+                      {req.dosenBaru}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    <div className="whitespace-normal break-words max-w-md">
+                      {req.alasan}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {req.tanggal}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => !disabled && onApprove(req.id)}
+                        disabled={disabled}
+                        className={`px-4 py-1.5 rounded text-xs font-medium text-white transition-colors ${
+                          disabled
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-green-500 hover:bg-green-600"
+                        }`}
+                      >
+                        Setuju
+                      </button>
+                      <button
+                        onClick={() => !disabled && onReject(req.id)}
+                        disabled={disabled}
+                        className={`px-4 py-1.5 rounded text-xs font-medium text-white transition-colors ${
+                          disabled
+                            ? "bg-gray-300 cursor-not-allowed"
+                            : "bg-red-500 hover:bg-red-600"
+                        }`}
+                      >
+                        Tolak
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

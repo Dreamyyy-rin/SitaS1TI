@@ -9,6 +9,14 @@ export default function PanduanDosenPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [requestCount, setRequestCount] = useState(0);
+  const mahasiswaBimbinganCount = parseInt(
+    localStorage.getItem("dosen_mahasiswa_upload_count") || "0",
+    10,
+  );
+  const reviewCount = parseInt(
+    localStorage.getItem("dosen_review_count") || "0",
+    10,
+  );
 
   const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -32,13 +40,13 @@ export default function PanduanDosenPage() {
       setIsLoading(false);
     }
 
-    // Fetch request count for sidebar badge
+
     const headers = { Authorization: `Bearer ${token}` };
     fetch(`${API}/api/dosen/pembimbing-requests`, { headers })
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          // Backend already filters by overall_status = pending, so count all returned data
+          
           const count = (res.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());
@@ -64,6 +72,8 @@ export default function PanduanDosenPage() {
       <SidebarDosen
         activeMenu="panduan"
         requestCount={requestCount}
+        mahasiswaBimbinganCount={mahasiswaBimbinganCount}
+        reviewCount={reviewCount}
         onMenuClick={(key) => {
           if (key === "dashboard") navigate("/dosen-dashboard");
           else if (key === "request-bimbingan")

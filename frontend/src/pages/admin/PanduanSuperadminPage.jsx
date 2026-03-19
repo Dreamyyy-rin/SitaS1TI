@@ -7,7 +7,7 @@ const PanduanSuperadminPage = () => {
       title: "Dasbor",
       description: "Statistik dan ringkasan sistem",
       details:
-        "Dasbor menampilkan ringkasan statistik sistem meliputi Jumlah Dosen, Jumlah Mahasiswa, dan Pengguna Aktif. Anda dapat mengakses menu manajemen secara cepat melalui tombol 'Kelola Dosen' dan 'Kelola Mahasiswa' yang tersedia di dasbor untuk navigasi yang lebih efisien.",
+        "Dasbor menampilkan ringkasan statistik sistem meliputi jumlah dosen, jumlah mahasiswa, dan pengguna aktif. Anda dapat mengakses menu manajemen secara cepat melalui tombol Kelola Dosen dan Kelola Mahasiswa yang tersedia di dasbor untuk navigasi yang lebih efisien.",
       color: "blue",
     },
     {
@@ -15,7 +15,7 @@ const PanduanSuperadminPage = () => {
       title: "Manajemen Dosen",
       description: "Kelola data dan akun dosen",
       details:
-        "Menu untuk mengelola seluruh data dosen. Anda dapat menambah dosen baru dengan mengisi NIDN, nama, surel, dan kata sandi. Ubah data dosen yang sudah ada termasuk mengatur ulang kata sandi jika diperlukan. Hapus data dengan pilihan nonaktifkan (penonaktifan sementara) atau hapus permanen. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIDN.",
+        "Menu untuk mengelola seluruh data dosen. Anda dapat menambah dosen baru dengan mengisi NIDN, nama, surel, dan kata sandi. Ubah data dosen yang sudah ada termasuk mengatur ulang kata sandi jika diperlukan. Hapus data dengan pilihan nonaktifkan atau hapus permanen. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIDN.",
       color: "indigo",
     },
     {
@@ -51,21 +51,7 @@ const PanduanSuperadminPage = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-        <div className="flex items-start gap-4">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
-              Panduan Superadmin
-            </h2>
-            <p className="text-slate-600 leading-relaxed">
-              Panduan lengkap penggunaan sistem manajemen SITA S1 TI untuk
-              superadmin. Kelola data dosen dan mahasiswa dengan mudah dan
-              efisien melalui panel administrasi.
-            </p>
-          </div>
-        </div>
-      </div>
-
+      <h2 className="text-2xl font-bold text-slate-800">Panduan Superadmin</h2>
       <div className="space-y-4">
         {steps.map((step, index) => {
           const colors = colorClasses[step.color];

@@ -7,15 +7,15 @@ export default function PanduanPage() {
       title: "Dasbor",
       description: "Cek status dan progres terkini",
       details:
-        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, informasi dosen pembimbing, dan progres timeline. Anda dapat melihat status TTU 1, TTU 2, dan TTU 3 secara langsung dari halaman ini.",
+        "Halaman utama menampilkan ringkasan status tugas akhir Anda, termasuk tahapan TTU yang sedang berjalan, informasi dosen pembimbing, serta progres timeline. Anda dapat melihat status TTU 1, TTU 2, dan TTU 3 secara langsung dari halaman ini.",
       color: "blue",
     },
     {
       number: "02",
       title: "Unggah TTU",
-      description: "Unggah draf dokumen TTU",
+      description: "Unggah dokumen TTU 1 dan TTU 2",
       details:
-        "Unggah dokumen Tugas Talenta Unggul Anda sesuai tahapan (TTU 1, TTU 2). Pastikan format dokumen sesuai ketentuan. Setiap tahapan TTU harus disetujui oleh dosen pembimbing sebelum lanjut ke tahap berikutnya. Setelah TTU 2 disetujui, Anda akan diarahkan ke menu Daftar Tinjauan untuk mengunggah TTU 3.",
+        "Unggah dokumen Tugas Talenta Unggul sesuai tahapan yang sedang berjalan. Pastikan format dokumen sesuai ketentuan yang berlaku. TTU 1 harus disetujui oleh dosen pembimbing sebelum TTU 2 dapat diunggah. Setelah TTU 2 disetujui, Anda dapat mengakses menu Daftar Tinjauan untuk mengunggah TTU 3.",
       color: "green",
     },
     {
@@ -31,7 +31,7 @@ export default function PanduanPage() {
       title: "Daftar Tinjauan",
       description: "Unggah TTU 3 dan diskusi dengan dosen",
       details:
-        "Menu ini tersedia setelah TTU 2 disetujui oleh dosen pembimbing. Unggah file TTU 3 untuk ditinjau oleh dosen peninjau. Anda juga dapat berkomunikasi dengan dosen peninjau dan dosen pembimbing melalui fitur diskusi tinjauan yang tersedia di halaman ini.",
+        "Menu ini dapat diakses setelah TTU 2 disetujui oleh dosen pembimbing. Unggah file TTU 3 untuk ditinjau oleh dosen peninjau yang telah ditentukan kaprodi. Anda juga dapat berkomunikasi dengan dosen peninjau dan dosen pembimbing melalui fitur diskusi tinjauan yang tersedia di halaman ini.",
       color: "orange",
     },
     {
@@ -79,21 +79,12 @@ export default function PanduanPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-        <div className="flex items-start gap-4">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-slate-800 mb-2">
-              Panduan Mahasiswa
-            </h2>
-            <p className="text-slate-600 leading-relaxed">
-              Panduan lengkap penggunaan sistem SITA S1 TI untuk mahasiswa.
-              Ikuti setiap tahapan dengan benar untuk memastikan proses tugas
-              akhir Anda berjalan lancar.
-            </p>
-          </div>
-        </div>
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">Panduan Mahasiswa</h2>
+        <p className="text-slate-500 mt-1">
+          Pelajari cara menggunakan fitur-fitur yang tersedia
+        </p>
       </div>
-
       <div className="space-y-4">
         {steps.map((step, index) => {
           const colors = colorClasses[step.color];
@@ -108,7 +99,6 @@ export default function PanduanPage() {
                 >
                   {step.number}
                 </div>
-
                 <div className="flex-1">
                   <h3 className={`text-xl font-bold ${colors.number} mb-2`}>
                     {step.title}

@@ -178,8 +178,10 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                       )}
                       {item.icon === "user-tie" && (
                         <>
-                          <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          <path d="M12 14v8m0-8l-2 3m2-3l2 3" />
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                         </>
                       )}
                       {item.icon === "clipboard-list" && (
@@ -189,8 +191,8 @@ const SidebarMahasiswa = ({ activeMenu, onMenuClick, onLogout, student }) => {
                       )}
                       {item.icon === "user-cog" && (
                         <>
-                          <path d="M10 9a3 3 0 100-6 3 3 0 000 6z" />
-                          <path d="M6 21v-2a4 4 0 014-4h2.5M19 21v-1m0-4v-1m-2.121.879l.707-.707m2.828 2.828l.707-.707M19 17.5c-.552 0-1-.224-1-.5s.448-.5 1-.5 1 .224 1 .5-.448.5-1 .5z" />
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
                         </>
                       )}
                       {item.icon === "book" && (

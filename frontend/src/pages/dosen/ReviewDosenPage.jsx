@@ -15,6 +15,9 @@ export default function ReviewDosenPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [reviewCount, setReviewCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_review_count") || "0", 10),
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -74,6 +77,11 @@ export default function ReviewDosenPage() {
               submissions: m.submissions || [],
             };
           });
+          const rcnt = mapped.filter(
+            (m) => m.ttu3Status === "submitted",
+          ).length;
+          setReviewCount(rcnt);
+          localStorage.setItem("dosen_review_count", rcnt.toString());
           setMahasiswaBimbingan(mapped);
         }
       })
@@ -90,13 +98,13 @@ export default function ReviewDosenPage() {
   const handlePreviewFile = (mahasiswa, ttuType) => {
     // Find the latest ttu_3 submission for this mahasiswa
     const ttu3Sub = (mahasiswa.submissions || []).find(
-      (s) => s.ttu_number === "ttu_3"
+      (s) => s.ttu_number === "ttu_3",
     );
     if (ttu3Sub) {
       const token = localStorage.getItem("sita_token");
       window.open(
         `${API}/api/dosen/submissions/${ttu3Sub._id}/download?token=${token}`,
-        "_blank"
+        "_blank",
       );
     } else {
       alert("File TTU 3 belum diupload");
@@ -148,6 +156,7 @@ export default function ReviewDosenPage() {
       <SidebarDosen
         activeMenu="review"
         requestCount={requestCount}
+        reviewCount={reviewCount}
         onMenuClick={(key) => {
           if (key === "dashboard") navigate("/dosen-dashboard");
           else if (key === "request-bimbingan")

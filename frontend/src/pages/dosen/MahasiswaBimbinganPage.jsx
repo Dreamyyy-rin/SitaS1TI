@@ -31,6 +31,10 @@ export default function MahasiswaBimbinganPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [mahasiswaBimbinganCount, setMahasiswaBimbinganCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_mahasiswa_upload_count") || "0", 10),
+  );
+  const [newUploadIds, setNewUploadIds] = useState(new Set());
   const [showFileModal, setShowFileModal] = useState(false);
   const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
   const [submissions, setSubmissions] = useState([]);
@@ -90,12 +94,25 @@ export default function MahasiswaBimbinganPage() {
               ttu2: ttu.ttu_2?.status === "approved",
               ttu3: ttu.ttu_3?.status === "approved",
               ttu_status: ttu,
+              hasNewUpload:
+                ttu.ttu_1?.status === "submitted" ||
+                ttu.ttu_2?.status === "submitted" ||
+                ttu.ttu_3?.status === "submitted",
               status:
                 m.onboarding_status === "approved"
                   ? "active"
                   : m.onboarding_status,
             };
           });
+          const uploadIds = new Set(
+            mapped.filter((m) => m.hasNewUpload).map((m) => m.id),
+          );
+          setNewUploadIds(uploadIds);
+          setMahasiswaBimbinganCount(uploadIds.size);
+          localStorage.setItem(
+            "dosen_mahasiswa_upload_count",
+            uploadIds.size.toString(),
+          );
           setMahasiswaBimbingan(mapped);
         }
       })
@@ -148,11 +165,9 @@ export default function MahasiswaBimbinganPage() {
     const mhs = mahasiswaBimbingan.find((m) => m.id === id);
     if (!mhs) return;
 
-  
     let ttuToApprove = null;
     const ttu = mhs.ttu_status || {};
 
-   
     if (ttu.ttu_1?.status === "submitted" || ttu.ttu_1?.status === "reviewed") {
       ttuToApprove = "ttu_1";
     } else if (
@@ -374,6 +389,7 @@ export default function MahasiswaBimbinganPage() {
         onLogout={handleLogout}
         user={user}
         requestCount={requestCount}
+        mahasiswaBimbinganCount={mahasiswaBimbinganCount}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
@@ -404,6 +420,7 @@ export default function MahasiswaBimbinganPage() {
               onAcceptMahasiswa={handleAcceptMahasiswa}
               onRejectMahasiswa={handleRejectMahasiswa}
               onOpenChat={handleOpenChat}
+              newUploadIds={newUploadIds}
             />
           )}
         </div>

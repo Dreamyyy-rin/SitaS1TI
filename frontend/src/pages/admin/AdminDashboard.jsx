@@ -4,7 +4,13 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import DosenManagementPage from "./DosenManagementPage";
 import MahasiswaManagementPage from "./MahasiswaManagementPage";
 import PanduanSuperadminPage from "./PanduanSuperadminPage";
-import { UserCheck, Users, CheckCircle } from "lucide-react";
+import {
+  UserCheck,
+  Users,
+  CheckCircle,
+  GraduationCap,
+  Shield,
+} from "lucide-react";
 
 const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -15,6 +21,8 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({
     totalDosen: 0,
     totalMahasiswa: 0,
+    totalKaprodi: 0,
+    totalAdmin: 0,
     userAktif: 0,
   });
 
@@ -46,6 +54,8 @@ const AdminDashboard = () => {
       setStats({
         totalDosen: dosenList.length,
         totalMahasiswa: mhsList.length,
+        totalKaprodi: allUsers.filter((u) => u.role === "kaprodi").length,
+        totalAdmin: allUsers.filter((u) => u.role === "superadmin").length,
         userAktif: activeUsers,
       });
     });
@@ -71,6 +81,8 @@ const AdminDashboard = () => {
 
   const totalDosen = stats.totalDosen;
   const totalMahasiswa = stats.totalMahasiswa;
+  const totalKaprodi = stats.totalKaprodi;
+  const totalAdmin = stats.totalAdmin;
   const userAktif = stats.userAktif;
 
   const renderContent = () => {
@@ -87,7 +99,7 @@ const AdminDashboard = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -116,6 +128,38 @@ const AdminDashboard = () => {
                   </div>
                   <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
                     <Users className="w-6 h-6 text-green-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Jumlah Kaprodi
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                      {totalKaprodi}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <GraduationCap className="w-6 h-6 text-orange-600" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Jumlah Admin
+                    </p>
+                    <p className="text-3xl font-bold text-gray-900 mt-2">
+                      {totalAdmin}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 bg-rose-100 rounded-lg flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-rose-600" />
                   </div>
                 </div>
               </div>

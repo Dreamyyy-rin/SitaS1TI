@@ -17,6 +17,8 @@ const SidebarDosen = ({
   onLogout,
   user,
   requestCount = 0,
+  mahasiswaBimbinganCount = 0,
+  reviewCount = 0,
 }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const navigate = useNavigate();
@@ -43,12 +45,14 @@ const SidebarDosen = ({
           label: "Mahasiswa Bimbingan",
           view: "mahasiswa-bimbingan",
           icon: Users,
+          badge: mahasiswaBimbinganCount,
         },
         {
           key: "review",
           label: "Tinjauan",
           view: "review",
           icon: FileCheck,
+          badge: reviewCount,
         },
       ],
     },

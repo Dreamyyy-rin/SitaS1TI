@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ConfirmModal from "../../components/shared/ConfirmModal";
+import { CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import RequestBimbinganView from "../../components/dosen/RequestBimbinganView";
@@ -20,6 +21,16 @@ export default function RequestBimbinganPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [mahasiswaBimbinganCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_mahasiswa_upload_count") || "0", 10),
+  );
+  const [reviewCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_review_count") || "0", 10),
+  );
+  const [showApproveModal, setShowApproveModal] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState(null);
+  const [actedIds, setActedIds] = useState(new Set());
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -32,8 +43,9 @@ export default function RequestBimbinganPage() {
 
     const loadData = async () => {
       try {
+        let parsedUser = null;
         if (userData) {
-          const parsedUser = JSON.parse(userData);
+          parsedUser = JSON.parse(userData);
           setProfile(parsedUser);
         }
 
@@ -50,6 +62,7 @@ export default function RequestBimbinganPage() {
           throw new Error(result.error || "Gagal memuat request");
         }
 
+        const dosenId = parsedUser?._id;
         const normalized = (result.data || []).map((req) => ({
           id: req._id,
           nama: req.mahasiswa?.nama || "-",
@@ -59,7 +72,6 @@ export default function RequestBimbinganPage() {
         }));
 
         setRequestBimbingan(normalized);
-        // Backend already filters by overall_status = pending, so count all returned data
         const count = (result.data || []).length;
         setRequestCount(count);
         localStorage.setItem("dosen_request_count", count.toString());
@@ -79,28 +91,42 @@ export default function RequestBimbinganPage() {
     email: profile?.email || "-",
   };
 
-  const handleAcceptRequest = async (id) => {
+  const handleAcceptRequest = (id) => {
+    setSelectedRequestId(id);
+    setShowApproveModal(true);
+  };
+
+  const handleRejectRequest = (id) => {
+    setSelectedRequestId(id);
+    setShowRejectModal(true);
+  };
+
+  const confirmApprove = async () => {
+    const id = selectedRequestId;
+    setShowApproveModal(false);
+    setSelectedRequestId(null);
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(
         `${baseUrl}/api/dosen/pembimbing-requests/${id}/approve`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await res.json();
       if (data.success) {
+        setActedIds((prev) => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
         setNotif({
           show: true,
           type: "success",
-          title: "Request Disetujui",
+          title: "Permintaan Disetujui",
           message:
-            "Permintaan berhasil disetujui. Mahasiswa dapat masuk dashboard setelah Kaprodi menyetujui.",
+            "Permintaan berhasil disetujui. Bimbingan akan disetujui ketika kaprodi juga sudah menyetujui.",
         });
-        setTimeout(() => window.location.reload(), 1200);
       } else {
         setNotif({
           show: true,
@@ -119,33 +145,37 @@ export default function RequestBimbinganPage() {
     }
   };
 
-  const handleRejectRequest = async (id) => {
+  const confirmReject = async () => {
+    const id = selectedRequestId;
+    setShowRejectModal(false);
+    setSelectedRequestId(null);
     const baseUrl =
       import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
     const token = localStorage.getItem("sita_token");
     try {
       const res = await fetch(
         `${baseUrl}/api/dosen/pembimbing-requests/${id}/reject`,
-        {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        },
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await res.json();
       if (data.success) {
+        setActedIds((prev) => {
+          const next = new Set(prev);
+          next.add(id);
+          return next;
+        });
         setNotif({
           show: true,
           type: "success",
-          title: "Request Ditolak",
-          message: "✓ Request berhasil ditolak.",
+          title: "Permintaan Ditolak",
+          message: "Permintaan bimbingan berhasil ditolak.",
         });
-        setTimeout(() => window.location.reload(), 1200);
       } else {
         setNotif({
           show: true,
           type: "error",
-          title: "Gagal Reject Request",
-          message: data.message || data.error || "Gagal reject request",
+          title: "Gagal Tolak",
+          message: data.message || data.error || "Gagal menolak permintaan",
         });
       }
     } catch {
@@ -186,6 +216,8 @@ export default function RequestBimbinganPage() {
         onLogout={handleLogout}
         user={user}
         requestCount={requestCount}
+        mahasiswaBimbinganCount={mahasiswaBimbinganCount}
+        reviewCount={reviewCount}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
@@ -214,10 +246,89 @@ export default function RequestBimbinganPage() {
               requestBimbingan={requestBimbingan}
               onAccept={handleAcceptRequest}
               onReject={handleRejectRequest}
+              actedIds={actedIds}
             />
           )}
         </div>
       </main>
+
+      {/* Approve Confirmation Modal */}
+      {showApproveModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() => setShowApproveModal(false)}
+          ></div>
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-green-50/50">
+                <CheckCircle
+                  className="w-8 h-8 text-green-500"
+                  strokeWidth={2}
+                />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Setujui Permintaan Bimbingan?
+              </h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Permintaan ini akan menunggu persetujuan kaprodi sebelum
+                dikonfirmasi.
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={() => setShowApproveModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmApprove}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all"
+                >
+                  Ya, Setujui
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Reject Confirmation Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            onClick={() => setShowRejectModal(false)}
+          ></div>
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-red-50/50">
+                <XCircle className="w-8 h-8 text-red-500" strokeWidth={2} />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-2">
+                Tolak Permintaan Bimbingan?
+              </h3>
+              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+                Mahasiswa akan mendapat notifikasi bahwa permintaannya ditolak.
+              </p>
+              <div className="flex items-center gap-3 w-full">
+                <button
+                  onClick={() => setShowRejectModal(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={confirmReject}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all"
+                >
+                  Ya, Tolak
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

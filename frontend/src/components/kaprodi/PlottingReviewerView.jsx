@@ -61,7 +61,10 @@ const PlottingReviewerView = ({
           showNotification({
             type: "error",
             title: "Gagal",
-            message: result.error || result.message || "Gagal menyimpan salah satu reviewer",
+            message:
+              result.error ||
+              result.message ||
+              "Gagal menyimpan salah satu reviewer",
           });
           break;
         }
@@ -149,6 +152,9 @@ const PlottingReviewerView = ({
                   Mahasiswa
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Judul
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                   Dosen Pembimbing 1
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
@@ -169,7 +175,7 @@ const PlottingReviewerView = ({
                 const currentReviewerId =
                   mhs.id in selectedReviewers
                     ? selectedReviewers[mhs.id]
-                    : (mhs.reviewer_id || "");
+                    : mhs.reviewer_id || "";
                 const hasReviewer = !!currentReviewerId;
 
                 return (
@@ -182,6 +188,11 @@ const PlottingReviewerView = ({
                         </p>
                         <p className="text-xs text-slate-500">{mhs.nim}</p>
                       </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm max-w-xs">
+                      <span className="line-clamp-2" title={mhs.judul}>
+                        {mhs.judul || "-"}
+                      </span>
                     </td>
                     <td className="px-4 py-3 text-sm">{mhs.dosen || "-"}</td>
                     <td className="px-4 py-3 text-sm">

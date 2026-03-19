@@ -1,6 +1,11 @@
 import React from "react";
 
-const RequestBimbinganCard = ({ request, onAccept, onReject }) => {
+const RequestBimbinganCard = ({
+  request,
+  onAccept,
+  onReject,
+  disabled = false,
+}) => {
   return (
     <tr className="border-t hover:bg-gray-50">
       <td className="px-4 py-3 text-sm">
@@ -14,14 +19,24 @@ const RequestBimbinganCard = ({ request, onAccept, onReject }) => {
       <td className="px-4 py-3 text-center">
         <div className="flex justify-center gap-2">
           <button
-            onClick={() => onAccept(request.id)}
-            className="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600"
+            onClick={() => !disabled && onAccept(request.id)}
+            disabled={disabled}
+            className={`px-3 py-1 rounded text-xs text-white transition-colors ${
+              disabled
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-green-500 hover:bg-green-600"
+            }`}
           >
             Terima
           </button>
           <button
-            onClick={() => onReject(request.id)}
-            className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
+            onClick={() => !disabled && onReject(request.id)}
+            disabled={disabled}
+            className={`px-3 py-1 rounded text-xs text-white transition-colors ${
+              disabled
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-red-500 hover:bg-red-600"
+            }`}
           >
             Tolak
           </button>

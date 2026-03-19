@@ -21,6 +21,12 @@ export default function DosenDashboard() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+  const [mahasiswaBimbinganCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_mahasiswa_upload_count") || "0", 10),
+  );
+  const [reviewCount] = useState(() =>
+    parseInt(localStorage.getItem("dosen_review_count") || "0", 10),
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -55,7 +61,7 @@ export default function DosenDashboard() {
         if (mhsRes.success) setMahasiswaBimbingan(mhsRes.data || []);
         if (reqRes.success) {
           setRequestBimbingan(reqRes.data || []);
-          
+
           const count = (reqRes.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());
@@ -103,14 +109,14 @@ export default function DosenDashboard() {
         onLogout={handleLogout}
         user={user}
         requestCount={requestCount}
+        mahasiswaBimbinganCount={mahasiswaBimbinganCount}
+        reviewCount={reviewCount}
       />
 
       <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-[#0B2F7F]">
-              Dasbor Dosen
-            </h1>
+            <h1 className="text-3xl font-bold text-[#0B2F7F]">Dasbor Dosen</h1>
             {user && (
               <p className="text-gray-600 mt-2">Selamat datang, {user.name}</p>
             )}

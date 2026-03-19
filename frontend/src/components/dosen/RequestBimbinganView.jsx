@@ -6,6 +6,7 @@ export default function RequestBimbinganView({
   requestBimbingan = [],
   onAccept,
   onReject,
+  actedIds,
 }) {
   return (
     <div className="space-y-6">
@@ -38,6 +39,7 @@ export default function RequestBimbinganView({
                   request={req}
                   onAccept={onAccept}
                   onReject={onReject}
+                  disabled={actedIds?.has(req.id)}
                 />
               ))}
             </tbody>

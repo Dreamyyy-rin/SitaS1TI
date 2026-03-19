@@ -26,6 +26,7 @@ const UploadTTU3 = ({ student }) => {
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [isApproved, setIsApproved] = useState(false);
   const fileInputRef = useRef(null);
 
   const token = localStorage.getItem("sita_token");
@@ -54,6 +55,7 @@ const UploadTTU3 = ({ student }) => {
         const ttu = profileResult.data.ttu_status || {};
         const ttu3Status = ttu.ttu_3?.status;
         setCurrentUserId(profileResult.data._id);
+        setIsApproved(ttu3Status === "approved");
         if (ttu3Status === "submitted" || ttu3Status === "reviewed") {
           const ttu3Sub = (subsResult.data || []).find(
             (s) => s.ttu_number === "ttu_3",
@@ -411,14 +413,16 @@ const UploadTTU3 = ({ student }) => {
           <>
             <div
               className={`bg-white rounded-xl shadow-sm border-2 border-dashed transition-all ${
-                isDragging
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-300 hover:border-gray-400"
+                isApproved
+                  ? "border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed"
+                  : isDragging
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-300 hover:border-gray-400"
               }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
+              onDragEnter={isApproved ? undefined : handleDragEnter}
+              onDragLeave={isApproved ? undefined : handleDragLeave}
+              onDragOver={isApproved ? undefined : handleDragOver}
+              onDrop={isApproved ? undefined : handleDrop}
             >
               <div className="p-12 text-center">
                 <div className="flex justify-center mb-4">
@@ -448,10 +452,16 @@ const UploadTTU3 = ({ student }) => {
                   onChange={handleFileInputChange}
                   className="hidden"
                   accept=".pdf,.doc,.docx,.ppt,.pptx"
+                  disabled={isApproved}
                 />
                 <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
+                  onClick={() => !isApproved && fileInputRef.current?.click()}
+                  disabled={isApproved}
+                  className={`inline-flex items-center gap-2 px-6 py-3 font-medium rounded-lg transition-colors shadow-sm ${
+                    isApproved
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
                 >
                   <FileText className="w-4 h-4" />
                   Pilih File

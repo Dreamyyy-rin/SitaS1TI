@@ -173,6 +173,9 @@ const MahasiswaBimbinganView = ({
                   NIM
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Judul
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
                   Dosen Pembimbing
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
@@ -199,6 +202,11 @@ const MahasiswaBimbinganView = ({
                     {mhs.nama}
                   </td>
                   <td className="px-4 py-3 text-sm">{mhs.nim}</td>
+                  <td className="px-4 py-3 text-sm max-w-xs">
+                    <span className="line-clamp-2" title={mhs.judul}>
+                      {mhs.judul || "-"}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-sm">
                     {mhs.dosen}
                     {mhs.dosen2 && mhs.dosen2 !== "-" ? `, ${mhs.dosen2}` : ""}

@@ -7,6 +7,7 @@ export default function MahasiswaBimbinganView({
   onAcceptMahasiswa,
   onRejectMahasiswa,
   onOpenChat,
+  newUploadIds,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -80,7 +81,14 @@ export default function MahasiswaBimbinganView({
               {filteredMahasiswa.map((mhs) => (
                 <tr key={mhs.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-semibold">
-                    {mhs.nama}
+                    <div className="flex items-center gap-2">
+                      {mhs.nama}
+                      {newUploadIds?.has(mhs.id) && (
+                        <span className="px-1.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700">
+                          Baru
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-sm">{mhs.nim}</td>
                   <td className="px-4 py-3 text-sm">{mhs.judul}</td>
@@ -125,7 +133,7 @@ export default function MahasiswaBimbinganView({
                           </button>
                         )}
                       </div>
-                      
+
                       {(mhs.ttu1_accepted ||
                         mhs.ttu2_accepted ||
                         mhs.ttu3_accepted ||
@@ -144,17 +152,30 @@ export default function MahasiswaBimbinganView({
                         onClick={() => onAcceptMahasiswa(mhs.id)}
                         disabled={
                           !(
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
-                          ) || (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_1?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_2?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_3?.status,
+                            )
+                          ) ||
+                          (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
                         }
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           (mhs.ttu1 && mhs.ttu2 && mhs.ttu3) ||
                           !(
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_1?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_2?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_3?.status,
+                            )
                           )
                             ? "bg-slate-200 text-slate-400 cursor-not-allowed"
                             : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
@@ -166,17 +187,30 @@ export default function MahasiswaBimbinganView({
                         onClick={() => onRejectMahasiswa(mhs.id)}
                         disabled={
                           !(
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
-                          ) || (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_1?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_2?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_3?.status,
+                            )
+                          ) ||
+                          (mhs.ttu1 && mhs.ttu2 && mhs.ttu3)
                         }
                         className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                           (mhs.ttu1 && mhs.ttu2 && mhs.ttu3) ||
                           !(
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_1?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_2?.status) ||
-                            ["submitted", "reviewed"].includes(mhs.ttu_status?.ttu_3?.status)
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_1?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_2?.status,
+                            ) ||
+                            ["submitted", "reviewed"].includes(
+                              mhs.ttu_status?.ttu_3?.status,
+                            )
                           )
                             ? "bg-slate-200 text-slate-400 cursor-not-allowed"
                             : "bg-red-600 text-white hover:bg-red-700 cursor-pointer"

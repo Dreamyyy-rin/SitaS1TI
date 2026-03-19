@@ -15,7 +15,7 @@ export default function ReviewChat({
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Refs untuk kontrol scroll
+  
   const scrollContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
@@ -47,7 +47,7 @@ export default function ReviewChat({
     }
   };
 
-  // Polling Effect
+  
   useEffect(() => {
     loadComments();
     didInitialScroll.current = false;
@@ -55,17 +55,17 @@ export default function ReviewChat({
     return () => clearInterval(pollRef.current);
   }, [mahasiswaId]);
 
-  // Smart Auto-Scroll Effect (Hanya container, bukan page)
+ 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    // Logika: Scroll jika data pertama masuk ATAU jumlah pesan bertambah
+   
     if (comments.length > 0) {
       const isNewMessage = comments.length > lastCountRef.current;
       
       if (!didInitialScroll.current || (isNewMessage && !disableAutoScroll)) {
-        // Menggunakan scrollTo pada container agar page tidak ikut melompat
+        
         setTimeout(() => {
           container.scrollTo({
             top: container.scrollHeight,

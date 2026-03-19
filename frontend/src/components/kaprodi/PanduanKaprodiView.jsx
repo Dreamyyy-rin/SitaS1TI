@@ -13,69 +13,45 @@ const PanduanKaprodiView = () => {
     {
       number: "02",
       title: "Permintaan Pembimbing",
-      description: "Kelola permintaan bimbingan dari mahasiswa ke dosen",
+      description: "Kelola permintaan bimbingan dan pergantian dosen dari mahasiswa",
       details:
-        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh dosen tertentu. Tinjau judul yang diajukan mahasiswa. Setujui atau tolak permintaan sesuai pertimbangan akademik. Mahasiswa baru dapat masuk ke dasbor setelah disetujui oleh Kaprodi dan dosen pembimbing yang bersangkutan.",
+        "Terdapat dua jenis permintaan yang dapat ditangani di sini. Pertama, Permintaan Dosen Pembimbing yaitu pengajuan dosen pembimbing baru dari mahasiswa beserta judul yang diajukan. Kedua, Permintaan Ganti Dosen Pembimbing yaitu permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap permintaan sesuai pertimbangan akademik. Angka notifikasi menunjukkan jumlah permintaan yang menunggu keputusan.",
       color: "purple",
     },
     {
       number: "03",
       title: "Mahasiswa Bimbingan",
-      description: "Lihat progres dan ganti pembimbing mahasiswa",
+      description: "Lihat progres dan kelola pembimbing mahasiswa",
       details:
-        "Pantau progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Kaprodi dapat langsung mengganti dosen pembimbing mahasiswa tanpa melalui proses permintaan menggunakan tombol 'Ganti Pembimbing'.",
+        "Pantau progres tugas akhir setiap mahasiswa yang dibimbing oleh dosen di program studi. Lihat status TTU 1, TTU 2, dan TTU 3 serta judul tugas akhir setiap mahasiswa. Kaprodi dapat langsung mengganti dosen pembimbing tanpa melalui proses permintaan menggunakan tombol Ganti Pembimbing.",
       color: "green",
     },
     {
       number: "04",
-      title: "Tinjauan",
-      description: "Tinjau berkas TTU mahasiswa",
+      title: "Penempatan Peninjau",
+      description: "Tetapkan dosen peninjau untuk mahasiswa TTU 3",
       details:
-        "Lihat berkas TTU yang telah diunggah mahasiswa. Pantau status tinjauan dan persetujuan dari dosen reviewer. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM.",
-      color: "orange",
-    },
-    {
-      number: "05",
-      title: "Permintaan Dosen",
-      description: "Kelola pengajuan dan perubahan dosen pembimbing",
-      details:
-        "Terdapat dua jenis permintaan: (1) Permintaan Dosen Pembimbing — pengajuan dosen pembimbing baru dari mahasiswa, dan (2) Permintaan Ganti Dosen Pembimbing — permohonan pergantian dosen pembimbing beserta alasannya. Setujui atau tolak setiap permintaan sesuai pertimbangan akademik.",
+        "Pilih dosen peninjau untuk setiap mahasiswa yang akan mengikuti TTU 3. Sistem secara otomatis tidak menampilkan dosen pembimbing pada pilihan peninjau sehingga tidak ada konflik kepentingan. Pastikan peninjau memiliki keahlian yang sesuai dengan topik penelitian mahasiswa. Lihat pula judul tugas akhir mahasiswa sebagai acuan penempatan.",
       color: "indigo",
     },
     {
-      number: "06",
-      title: "Penentuan Peninjau",
-      description: "Tetapkan dosen peninjau (reviewer) untuk mahasiswa",
-      details:
-        "Pilih dosen peninjau untuk setiap mahasiswa yang akan mengikuti TTU 3. Sistem secara otomatis tidak menampilkan dosen pembimbing pada pilihan peninjau. Pastikan peninjau memiliki keahlian yang sesuai dengan topik penelitian mahasiswa.",
-      color: "slate",
-    },
-    {
-      number: "07",
+      number: "05",
       title: "Riwayat Bimbingan",
-      description: "Arsip mahasiswa yang telah menyelesaikan bimbingan",
+      description: "Arsip mahasiswa yang telah menyelesaikan seluruh tahapan TTU",
       details:
-        "Lihat data historis mahasiswa yang telah menyelesaikan seluruh tahapan TTU. Informasi meliputi nama mahasiswa, judul tugas akhir, dosen pembimbing, dan tanggal penyelesaian. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM. Berguna untuk evaluasi dan pelaporan program studi.",
+        "Lihat data historis mahasiswa yang telah menyelesaikan TTU 1, TTU 2, dan TTU 3. Informasi meliputi nama mahasiswa, NIM, judul tugas akhir, dosen pembimbing, dan tanggal penyelesaian. Gunakan fitur pencarian untuk menemukan mahasiswa berdasarkan nama atau NIM. Berguna untuk evaluasi dan pelaporan program studi.",
       color: "teal",
     },
     {
-      number: "08",
+      number: "06",
       title: "Manajemen Dosen",
       description: "Lihat data dosen pembimbing program studi",
       details:
-        "Lihat daftar dosen pembimbing dengan informasi lengkap (nama, NIP, email, status). Monitor jumlah mahasiswa bimbingan aktif setiap dosen. Status 'Aktif' menandakan dosen tersebut dapat dipilih sebagai pembimbing oleh mahasiswa. Pengelolaan data dosen (tambah/hapus/ubah status) dilakukan oleh Superadmin. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP.",
+        "Lihat daftar dosen pembimbing dengan informasi lengkap meliputi nama, NIP, email, dan status. Monitor jumlah mahasiswa bimbingan aktif setiap dosen. Status Aktif menandakan dosen tersebut dapat dipilih sebagai pembimbing oleh mahasiswa. Pengelolaan data dosen seperti tambah, hapus, dan ubah status dilakukan oleh Superadmin. Gunakan fitur pencarian untuk menemukan dosen berdasarkan nama atau NIP.",
       color: "red",
     },
     {
-      number: "09",
-      title: "Batas Waktu TTU",
-      description: "Atur jadwal batas waktu untuk setiap tahap TTU",
-      details:
-        "Tentukan tanggal batas waktu untuk TTU 1 (Ujian Proposal), TTU 2 (Ujian Hasil), dan TTU 3 (Ujian Review). Sistem akan menampilkan status batas waktu (terlewat, mendekati, atau masih lama). Lihat ringkasan semua batas waktu dalam satu tabel.",
-      color: "cyan",
-    },
-    {
-      number: "10",
+      number: "07",
       title: "Data Akun",
       description: "Kelola informasi akun Kaprodi",
       details:
@@ -106,26 +82,12 @@ const PanduanKaprodiView = () => {
       number: "text-purple-600",
       gradient: "from-purple-500 to-purple-600",
     },
-    orange: {
-      bg: "bg-orange-50",
-      border: "border-orange-200",
-      icon: "text-orange-600",
-      number: "text-orange-600",
-      gradient: "from-orange-500 to-orange-600",
-    },
     indigo: {
       bg: "bg-indigo-50",
       border: "border-indigo-200",
       icon: "text-indigo-600",
       number: "text-indigo-600",
       gradient: "from-indigo-500 to-indigo-600",
-    },
-    slate: {
-      bg: "bg-slate-50",
-      border: "border-slate-200",
-      icon: "text-slate-600",
-      number: "text-slate-600",
-      gradient: "from-slate-500 to-slate-600",
     },
     teal: {
       bg: "bg-teal-50",
@@ -140,13 +102,6 @@ const PanduanKaprodiView = () => {
       icon: "text-red-600",
       number: "text-red-600",
       gradient: "from-red-500 to-red-600",
-    },
-    cyan: {
-      bg: "bg-cyan-50",
-      border: "border-cyan-200",
-      icon: "text-cyan-600",
-      number: "text-cyan-600",
-      gradient: "from-cyan-500 to-cyan-600",
     },
     pink: {
       bg: "bg-pink-50",

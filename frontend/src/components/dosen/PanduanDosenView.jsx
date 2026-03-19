@@ -15,7 +15,7 @@ export default function PanduanDosenView() {
       title: "Permintaan Bimbingan",
       description: "Terima atau tolak permintaan bimbingan dari mahasiswa",
       details:
-        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh Anda. Tinjau judul yang diajukan mahasiswa. Terima permintaan jika topik sesuai dengan keahlian Anda. Mahasiswa akan otomatis menjadi mahasiswa bimbingan setelah mendapat persetujuan dari Anda dan Kaprodi.",
+        "Lihat daftar mahasiswa yang mengajukan permintaan untuk dibimbing oleh Anda..",
       color: "purple",
     },
     {
@@ -23,15 +23,15 @@ export default function PanduanDosenView() {
       title: "Mahasiswa Bimbingan",
       description: "Lihat progres mahasiswa yang sedang Anda bimbing",
       details:
-        "Pantau progres tugas akhir setiap mahasiswa bimbingan. Lihat status TTU 1, TTU 2, dan TTU 3 untuk setiap mahasiswa. Lihat file yang telah diunggah mahasiswa. Gunakan tombol Terima/Tolak untuk menyetujui atau menolak TTU. Anda juga dapat membuka diskusi tinjauan untuk berkomunikasi dengan mahasiswa dan dosen peninjau.",
+        "Pantau progres tugas akhir setiap mahasiswa bimbingan Anda.",
       color: "green",
     },
     {
       number: "04",
       title: "Tinjauan",
-      description: "Tinjau berkas TTU 3 mahasiswa sebagai peninjau",
+      description: "Tinjau berkas TTU 3 mahasiswa sebagai dosen peninjau",
       details:
-        "Halaman ini muncul jika Anda ditunjuk sebagai dosen peninjau. Lihat berkas TTU 3 yang telah diunggah mahasiswa. Berikan komentar dan umpan balik melalui fitur diskusi tinjauan. Gunakan tombol 'Setujui TTU 3' untuk menyetujui berkas jika sudah memenuhi syarat.",
+        "Daftar Mahasiswa yang perlu Anda tinjau akan muncul di halaman ini jika Anda ditunjuk sebagai dosen peninjau/reviewer oleh Kaprodi. Silahkan gunakan fitur komentar untuk memberikan masukan kepada mahasiswa terkait.",
       color: "orange",
     },
     {
@@ -39,7 +39,7 @@ export default function PanduanDosenView() {
       title: "Data Akun",
       description: "Kelola informasi akun dosen",
       details:
-        "Lihat dan ubah informasi profil dosen seperti nama, email, dan nomor telepon. Perbarui kata sandi untuk keamanan akun. Perubahan yang dilakukan akan tersimpan dan dapat diubah kembali kapan saja.",
+        "Lihat dan ubah informasi profil dosen, seperti nama, NIDN, program studi, dan email. Pastikan data yang tercatat sudah benar dan sesuai dengan data resmi kampus.",
       color: "cyan",
     },
   ];
@@ -48,35 +48,30 @@ export default function PanduanDosenView() {
     blue: {
       bg: "bg-blue-50",
       border: "border-blue-200",
-      icon: "text-blue-600",
       number: "text-blue-600",
       gradient: "from-blue-500 to-blue-600",
     },
     green: {
       bg: "bg-green-50",
       border: "border-green-200",
-      icon: "text-green-600",
       number: "text-green-600",
       gradient: "from-green-500 to-green-600",
     },
     purple: {
       bg: "bg-purple-50",
       border: "border-purple-200",
-      icon: "text-purple-600",
       number: "text-purple-600",
       gradient: "from-purple-500 to-purple-600",
     },
     orange: {
       bg: "bg-orange-50",
       border: "border-orange-200",
-      icon: "text-orange-600",
       number: "text-orange-600",
       gradient: "from-orange-500 to-orange-600",
     },
     cyan: {
       bg: "bg-cyan-50",
       border: "border-cyan-200",
-      icon: "text-cyan-600",
       number: "text-cyan-600",
       gradient: "from-cyan-500 to-cyan-600",
     },

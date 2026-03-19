@@ -9,6 +9,14 @@ export default function DataAkunDosenPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [requestCount, setRequestCount] = useState(0);
+  const mahasiswaBimbinganCount = parseInt(
+    localStorage.getItem("dosen_mahasiswa_upload_count") || "0",
+    10,
+  );
+  const reviewCount = parseInt(
+    localStorage.getItem("dosen_review_count") || "0",
+    10,
+  );
 
   const API = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
@@ -64,6 +72,8 @@ export default function DataAkunDosenPage() {
       <SidebarDosen
         activeMenu="data-akun"
         requestCount={requestCount}
+        mahasiswaBimbinganCount={mahasiswaBimbinganCount}
+        reviewCount={reviewCount}
         onMenuClick={(key) => {
           if (key === "dashboard") navigate("/dosen-dashboard");
           else if (key === "request-bimbingan")

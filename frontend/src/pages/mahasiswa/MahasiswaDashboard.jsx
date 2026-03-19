@@ -93,7 +93,6 @@ export default function MahasiswaDashboard() {
       return fallback;
     }
 
-    
     const ttu = profile.ttu_status || {};
     let stage = "TTU 1";
     if (ttu.ttu_3?.status === "approved") {
@@ -106,7 +105,6 @@ export default function MahasiswaDashboard() {
       stage = "TTU 1";
     }
 
-    
     const supervisorName = pembimbing?.pembimbing_1?.nama || "Belum ditetapkan";
 
     return {
@@ -126,7 +124,10 @@ export default function MahasiswaDashboard() {
 
   const HomeView = () => (
     <div className="space-y-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-slate-800">Dasbor</h2>
+      <div>
+        <h2 className="text-2xl font-bold text-slate-800">Dasbor</h2>
+        <p className="text-slate-500 mt-1">Selamat datang, {student.name}</p>
+      </div>
 
       <ProfileCard student={student} />
       <TimelineCard student={student} />
@@ -178,7 +179,9 @@ export default function MahasiswaDashboard() {
             {view === "upload-ttu" && <UploadTTUView />}
             {view === "bimbingan" && <PembimbingPage />}
             {view === "daftar-review" && <UploadTTU3 student={student} />}
-            {view === "data-akun" && <DataAkunPage student={student} />}
+            {view === "data-akun" && (
+              <DataAkunPage student={student} role="mahasiswa" />
+            )}
             {view === "panduan" && <PanduanPage />}
           </div>
         </main>
