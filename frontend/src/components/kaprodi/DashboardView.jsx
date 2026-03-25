@@ -8,7 +8,9 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Permintaan</p>
-            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">{stats.total_request ?? 0}</p>
+            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
+              {stats.total_request ?? 0}
+            </p>
           </div>
           <div className="bg-blue-100 p-3 rounded-full">
             <Clock className="w-6 h-6 text-[#0B2F7F]" />
@@ -20,7 +22,9 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-500 text-sm">Mahasiswa Aktif</p>
-            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">{stats.total_mahasiswa ?? 0}</p>
+            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
+              {stats.total_mahasiswa ?? 0}
+            </p>
           </div>
           <div className="bg-green-100 p-3 rounded-full">
             <Users className="w-6 h-6 text-green-600" />
@@ -32,7 +36,9 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-500 text-sm">TTU Selesai</p>
-            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">{stats.ttu_selesai ?? 0}</p>
+            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
+              {stats.ttu_selesai ?? 0}
+            </p>
           </div>
           <div className="bg-purple-100 p-3 rounded-full">
             <CheckCircle className="w-6 h-6 text-purple-600" />
@@ -44,7 +50,9 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
         <div className="flex items-center justify-between">
           <div>
             <p className="text-gray-500 text-sm">Total Dosen</p>
-            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">{stats.total_dosen ?? 0}</p>
+            <p className="text-2xl font-bold text-[#0B2F7F] mt-1">
+              {stats.total_dosen ?? 0}
+            </p>
           </div>
           <div className="bg-yellow-100 p-3 rounded-full">
             <FileText className="w-6 h-6 text-yellow-600" />
@@ -71,8 +79,10 @@ const DashboardView = ({ stats = {}, recentActivities = [] }) => (
                   activity.type === "request"
                     ? "bg-blue-500"
                     : activity.type === "change"
-                      ? "bg-yellow-500"
-                      : "bg-green-500"
+                      ? "bg-orange-500"
+                      : activity.type === "upload"
+                        ? "bg-yellow-500"
+                        : "bg-green-500"
                 }`}
               ></div>
               <div className="flex-1">

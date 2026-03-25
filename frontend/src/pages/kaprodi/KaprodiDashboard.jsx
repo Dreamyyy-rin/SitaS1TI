@@ -219,24 +219,37 @@ const KaprodiDashboard = () => {
         setTotalRequests(total);
         localStorage.setItem("kaprodi_total_requests", total.toString());
 
-        // Build recent activities from requests
-        const allRequests = [
-          ...(initialRes.data || []).map((r) => ({ ...r, _type: "request" })),
-          ...(changeRes.data || []).map((r) => ({ ...r, _type: "change" })),
-        ]
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-          .slice(0, 5);
+        
+        const allRequestActivities = [
+          ...(initialRes.data || []).map((r) => ({
+            id: `req-${r._id}`,
+            type: "request",
+            message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request dosen pembimbing`,
+            time: new Date(r.created_at).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }),
+            _date: new Date(r.created_at),
+          })),
+          ...(changeRes.data || []).map((r) => ({
+            id: `chg-${r._id}`,
+            type: "change",
+            message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan ganti dosen pembimbing`,
+            time: new Date(r.created_at).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            }),
+            _date: new Date(r.created_at),
+          })),
+        ];
 
         setRecentActivities(
-          allRequests.map((r, i) => ({
-            id: `act-${i}`,
-            type: r._type,
-            message:
-              r._type === "change"
-                ? `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan ganti dosen pembimbing`
-                : `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request dosen pembimbing`,
-            time: new Date(r.created_at).toLocaleDateString("id-ID"),
-          })),
+          allRequestActivities
+            .sort((a, b) => b._date - a._date)
+            .slice(0, 8)
+            .map(({ _date, ...rest }) => rest),
         );
       } catch (err) {
         console.error("Failed to load data", err);
@@ -647,7 +660,7 @@ const KaprodiDashboard = () => {
         user={userData}
         totalRequests={totalRequests}
       />
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">

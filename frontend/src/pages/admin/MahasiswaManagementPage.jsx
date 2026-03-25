@@ -252,11 +252,10 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Users className="w-7 h-7 text-green-600" />
+          <h1 className="text-2xl font-bold text-gray-900">
             Manajemen Mahasiswa
           </h1>
           <p className="text-gray-600 mt-1">
@@ -272,7 +271,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
         </button>
       </div>
 
-      {/* Search Bar */}
+      
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -287,19 +286,19 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600">Jumlah Mahasiswa</p>
+        <div className="grid grid-cols-3 gap-4 items-center">
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Jumlah Mahasiswa</p>
             <p className="text-2xl font-bold text-gray-900">{users.length}</p>
           </div>
-          <div>
-            <p className="text-sm text-gray-600">Mahasiswa Aktif</p>
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Mahasiswa Aktif</p>
             <p className="text-2xl font-bold text-green-600">
               {users.filter((u) => u.status === "active").length}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-gray-600">Mahasiswa Nonaktif</p>
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Mahasiswa Nonaktif</p>
             <p className="text-2xl font-bold text-gray-400">
               {users.filter((u) => u.status === "inactive").length}
             </p>
@@ -308,7 +307,7 @@ const MahasiswaManagementPage = ({ onDataChange }) => {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
         <UserTable
           data={filteredUsers}
           onEdit={handleEditUser}

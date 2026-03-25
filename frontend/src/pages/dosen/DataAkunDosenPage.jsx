@@ -87,7 +87,7 @@ export default function DataAkunDosenPage() {
         user={user}
       />
 
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           {isLoading && (
             <div className="rounded-2xl border border-slate-100 bg-white p-6 text-slate-500">

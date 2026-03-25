@@ -40,13 +40,11 @@ export default function PanduanDosenPage() {
       setIsLoading(false);
     }
 
-
     const headers = { Authorization: `Bearer ${token}` };
     fetch(`${API}/api/dosen/pembimbing-requests`, { headers })
       .then((r) => r.json())
       .then((res) => {
         if (res.success) {
-          
           const count = (res.data || []).length;
           setRequestCount(count);
           localStorage.setItem("dosen_request_count", count.toString());
@@ -87,7 +85,7 @@ export default function PanduanDosenPage() {
         user={user}
       />
 
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">Panduan</h1>

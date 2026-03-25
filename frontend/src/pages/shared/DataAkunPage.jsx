@@ -133,7 +133,7 @@ export default function DataAkunPage({ student, role = "dosen" }) {
 
           <div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg mb-6">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
+              <div className="w-20 h-20 flex-shrink-0 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border-2 border-white/30">
                 <svg
                   className="w-12 h-12 text-white"
                   fill="currentColor"
@@ -157,15 +157,19 @@ export default function DataAkunPage({ student, role = "dosen" }) {
             </div>
 
             <div className="border-t border-white/20 pt-4 space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-blue-200 text-sm">NIM</span>
-                <span className="font-mono font-semibold text-lg">
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-blue-200 text-sm whitespace-nowrap shrink-0">
+                  NIM
+                </span>
+                <span className="font-mono font-semibold text-lg text-right">
                   {student?.nim || "672021001"}
                 </span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-blue-200 text-sm">Program Studi</span>
-                <span className="font-medium">
+              <div className="flex justify-between items-center gap-3">
+                <span className="text-blue-200 text-sm whitespace-nowrap shrink-0">
+                  Program Studi
+                </span>
+                <span className="font-medium text-right">
                   {student?.prodi || "Teknik Informatika"}
                 </span>
               </div>

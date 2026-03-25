@@ -77,16 +77,48 @@ export default function DosenDashboard() {
     email: profile?.email || "-",
   };
 
-  const recentActivities = [
-    ...requestBimbingan.slice(0, 5).map((r, i) => ({
-      id: `req-${i}`,
-      type: "request",
-      message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request pembimbing`,
-      time: r.created_at
-        ? new Date(r.created_at).toLocaleDateString("id-ID")
-        : "-",
-    })),
-  ];
+  // Build activities from pending requests
+  const requestActivities = requestBimbingan.map((r, i) => ({
+    id: `req-${i}`,
+    type: "request",
+    message: `${r.mahasiswa?.nama || "Mahasiswa"} mengajukan request pembimbing`,
+    time: r.created_at
+      ? new Date(r.created_at).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : "-",
+    _date: r.created_at ? new Date(r.created_at) : new Date(0),
+  }));
+
+  // Build activities from TTU submissions (always available via ttu_status)
+  const ttuActivities = mahasiswaBimbingan.flatMap((m) => {
+    const acts = [];
+    const ttu = m.ttu_status || {};
+    const labels = { ttu_1: "TTU 1", ttu_2: "TTU 2", ttu_3: "TTU 3" };
+    Object.entries(labels).forEach(([key, label]) => {
+      if (ttu[key]?.submitted_at) {
+        acts.push({
+          id: `ttu-${m._id}-${key}`,
+          type: "upload",
+          message: `${m.nama || "Mahasiswa"} mengunggah ${label}`,
+          time: new Date(ttu[key].submitted_at).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          }),
+          _date: new Date(ttu[key].submitted_at),
+        });
+      }
+    });
+    return acts;
+  });
+
+  const recentActivities = [...requestActivities, ...ttuActivities]
+    .sort((a, b) => b._date - a._date)
+    .slice(0, 8)
+    .map(({ _date, ...rest }) => rest);
 
   const handleLogout = () => {
     localStorage.removeItem("sita_token");
@@ -113,7 +145,7 @@ export default function DosenDashboard() {
         reviewCount={reviewCount}
       />
 
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">Dasbor Dosen</h1>

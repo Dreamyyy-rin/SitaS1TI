@@ -125,7 +125,7 @@ export default function MahasiswaDashboard() {
   const HomeView = () => (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h2 className="text-2xl font-bold text-slate-800">Dasbor</h2>
+        <h2 className="text-2xl font-bold text-slate-800">Dasbor Mahasiswa</h2>
         <p className="text-slate-500 mt-1">Selamat datang, {student.name}</p>
       </div>
 

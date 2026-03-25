@@ -392,7 +392,7 @@ export default function MahasiswaBimbinganPage() {
         mahasiswaBimbinganCount={mahasiswaBimbinganCount}
       />
 
-      <main className="flex-1 ml-64 p-8 overflow-y-auto h-screen">
+      <main className="flex-1 ml-16 md:ml-64 p-4 md:p-8 overflow-y-auto h-screen">
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">
@@ -476,10 +476,10 @@ export default function MahasiswaBimbinganPage() {
                     className="border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-5 h-5 text-blue-500" />
-                          <span className="font-semibold text-slate-800 text-sm uppercase">
+                          <FileText className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                          <span className="font-semibold text-slate-800 text-sm uppercase whitespace-nowrap">
                             {sub.ttu_number.replace("_", " ")}
                           </span>
                           <span
@@ -502,7 +502,7 @@ export default function MahasiswaBimbinganPage() {
                                   : "Diajukan"}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-600 mb-1">
+                        <p className="text-sm text-slate-600 mb-1 truncate">
                           <span className="font-medium">File:</span>{" "}
                           {sub.file_name}
                         </p>

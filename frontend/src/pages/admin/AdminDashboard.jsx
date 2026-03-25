@@ -92,7 +92,7 @@ const AdminDashboard = () => {
           <div className="space-y-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Dashboard Superadmin
+                Dasbor Superadmin
               </h1>
               <p className="text-gray-600 mt-1">
                 Selamat datang di panel manajemen pengguna
@@ -239,7 +239,7 @@ const AdminDashboard = () => {
         onLogout={handleLogout}
         admin={{ name: "Superadmin" }}
       />
-      <main className="ml-64 p-8">{renderContent()}</main>
+      <main className="ml-16 md:ml-64 p-4 md:p-8">{renderContent()}</main>
     </div>
   );
 };

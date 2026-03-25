@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showMobilePopup, setShowMobilePopup] = useState(false);
   const navigate = useNavigate();
 
   const menuSections = [
@@ -162,26 +163,15 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
           ))}
         </nav>
 
-        {/* User section */}
-        <div className="p-2 md:p-4 border-t border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-center md:justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
-            {/* Avatar */}
-            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
-              <Icon name="user" className="w-6 h-6" />
-            </div>
-
-            {/* Name + role: hanya desktop */}
-            <div className="hidden md:block text-left overflow-hidden flex-1 ml-3">
-              <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
-                {admin?.name || "Superadmin"}
-              </p>
-              <p className="text-xs text-slate-500 font-mono">Administrator</p>
-            </div>
-
-            {/* Logout button: hanya desktop */}
+        {/* User section - Mobile: avatar toggles logout popup */}
+        <div className="md:hidden p-2 border-t border-slate-100 bg-slate-50/50 flex justify-center relative">
+          {showMobilePopup && (
             <button
-              onClick={handleLogoutClick}
-              className="hidden md:flex text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
+              onClick={() => {
+                setShowMobilePopup(false);
+                handleLogoutClick();
+              }}
+              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 border-2 border-white shadow-md hover:bg-red-100 transition-all"
               title="Keluar"
             >
               <svg
@@ -196,11 +186,35 @@ const AdminSidebar = ({ activeMenu, onMenuClick, onLogout, admin }) => {
                 <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
             </button>
+          )}
+          <button
+            onClick={() => setShowMobilePopup(!showMobilePopup)}
+            className={`w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm transition-colors ${
+              showMobilePopup
+                ? "ring-2 ring-[#0B2F7F]/30 bg-slate-300"
+                : "hover:bg-slate-300"
+            }`}
+            title="Profil"
+          >
+            <Icon name="user" className="w-6 h-6" />
+          </button>
+        </div>
 
-            {/* Logout button: hanya mobile (langsung di bawah avatar) */}
+        {/* User section - Desktop: full profile + logout button */}
+        <div className="hidden md:flex p-4 border-t border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between p-3 rounded-xl cursor-pointer group border border-transparent w-full">
+            <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm flex-shrink-0">
+              <Icon name="user" className="w-6 h-6" />
+            </div>
+            <div className="text-left overflow-hidden flex-1 ml-3">
+              <p className="text-sm font-bold text-slate-700 truncate group-hover:text-[#0B2F7F] transition-colors">
+                {admin?.name || "Superadmin"}
+              </p>
+              <p className="text-xs text-slate-500 font-mono">Administrator</p>
+            </div>
             <button
               onClick={handleLogoutClick}
-              className="md:hidden text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50 absolute bottom-3 left-1/2 -translate-x-1/2"
+              className="text-slate-400 hover:text-red-500 transition-colors p-1 rounded-md hover:bg-red-50"
               title="Keluar"
             >
               <svg

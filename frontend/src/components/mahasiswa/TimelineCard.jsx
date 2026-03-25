@@ -98,7 +98,7 @@ const TimelineCard = ({ student }) => {
 
                 {isCurrent && (
                   <div className="absolute -top-10 animate-bounce">
-                    <span className="bg-[#0B2F7F] text-white text-xs px-2 py-1 rounded shadow-md">
+                    <span className="bg-[#0B2F7F] text-white text-xs px-2 py-1 rounded shadow-md whitespace-nowrap">
                       Posisi Saat Ini
                     </span>
                   </div>

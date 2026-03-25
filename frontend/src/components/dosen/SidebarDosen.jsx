@@ -21,6 +21,7 @@ const SidebarDosen = ({
   reviewCount = 0,
 }) => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [showMobilePopup, setShowMobilePopup] = useState(false);
   const navigate = useNavigate();
 
   const menuSections = [
@@ -95,26 +96,27 @@ const SidebarDosen = ({
 
   return (
     <>
-      <aside className="w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)]">
-        <div className="px-8 py-8 flex items-center gap-4">
+      <aside className="w-16 md:w-64 bg-white h-screen flex flex-col font-sans border-r border-slate-100 fixed left-0 top-0 z-10 shadow-[2px_0_20px_rgba(0,0,0,0.02)] transition-all duration-200">
+        <div className="px-2 md:px-8 py-8 flex items-center justify-center md:justify-start gap-4">
           <img
             src="/fti.png"
             alt="Logo FTI"
-            className="w-10 h-10 rounded-full object-cover shadow-md border border-white"
+            className="w-10 h-10 rounded-full object-cover shadow-md border border-white flex-shrink-0"
           />
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight">
+          <h1 className="hidden md:block text-xl font-bold text-slate-800 tracking-tight">
             SITA <span className="text-[#0B2F7F]">S1 TI</span>
           </h1>
         </div>
 
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-2 md:px-4 space-y-1 overflow-y-auto">
           {menuSections.map((section) => (
             <div key={section.label}>
-              <div className="px-4 mb-2 mt-4">
+              <div className="hidden md:block px-4 mb-2 mt-4">
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
                   {section.label}
                 </span>
               </div>
+              <div className="block md:hidden mt-3" />
 
               {section.items.map((item) => {
                 const IconComponent = item.icon;
@@ -123,23 +125,25 @@ const SidebarDosen = ({
                   <button
                     key={item.key}
                     onClick={() => onMenuClick(item.key, item.view)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-left ${
+                    className={`w-full flex items-center justify-center md:justify-start gap-3 px-0 md:px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-left ${
                       isActive
                         ? "bg-[#0B2F7F]/10 text-[#0B2F7F]"
                         : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
                     }`}
                   >
                     <IconComponent
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 flex-shrink-0 ${
                         isActive
                           ? "text-[#0B2F7F]"
                           : "text-slate-400 group-hover:text-slate-600"
                       }`}
                       strokeWidth={2}
                     />
-                    <span className="flex-1 text-left">{item.label}</span>
+                    <span className="hidden md:block flex-1 text-left">
+                      {item.label}
+                    </span>
                     {item.badge > 0 && (
-                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      <span className="hidden md:inline bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                         {item.badge}
                       </span>
                     )}
@@ -150,7 +154,35 @@ const SidebarDosen = ({
           ))}
         </nav>
 
-        <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+        {/* Mobile: avatar toggles logout popup */}
+        <div className="md:hidden p-2 border-t border-slate-100 bg-slate-50/50 flex justify-center relative">
+          {showMobilePopup && (
+            <button
+              onClick={() => {
+                setShowMobilePopup(false);
+                handleLogoutClick();
+              }}
+              className="absolute bottom-14 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 border-2 border-white shadow-md hover:bg-red-100 transition-all"
+              title="Keluar"
+            >
+              <LogOut className="w-5 h-5" strokeWidth={2} />
+            </button>
+          )}
+          <button
+            onClick={() => setShowMobilePopup(!showMobilePopup)}
+            className={`w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm transition-colors ${
+              showMobilePopup
+                ? "ring-2 ring-[#0B2F7F]/30 bg-slate-300"
+                : "hover:bg-slate-300"
+            }`}
+            title="Profil"
+          >
+            <User className="w-6 h-6" />
+          </button>
+        </div>
+
+        {/* Desktop: full profile + logout button */}
+        <div className="hidden md:block p-4 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center justify-between p-3 rounded-xl cursor-pointer group border border-transparent">
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 border-2 border-white shadow-sm">

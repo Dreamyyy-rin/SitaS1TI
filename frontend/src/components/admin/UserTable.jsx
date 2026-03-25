@@ -17,7 +17,7 @@ const UserTable = ({
   idLabel = "NIP/NIM",
 }) => {
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
+    <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-sm">
       <table className="min-w-full">
         <thead className="bg-slate-50">
           <tr className="text-center text-xs font-semibold uppercase tracking-wider text-slate-400">

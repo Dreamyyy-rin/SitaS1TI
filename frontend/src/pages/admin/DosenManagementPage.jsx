@@ -255,10 +255,7 @@ const DosenManagementPage = ({ onDataChange }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <UserCheck className="w-7 h-7 text-blue-600" />
-            Manajemen Dosen
-          </h1>
+          <h1 className="text-2xl font-bold text-gray-900">Manajemen Dosen</h1>
           <p className="text-gray-600 mt-1">
             Kelola data dosen dengan mudah dan efisien
           </p>
@@ -286,19 +283,19 @@ const DosenManagementPage = ({ onDataChange }) => {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600">Jumlah Dosen</p>
+        <div className="grid grid-cols-3 gap-4 items-center">
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Jumlah Dosen</p>
             <p className="text-2xl font-bold text-gray-900">{users.length}</p>
           </div>
-          <div>
-            <p className="text-sm text-gray-600">Dosen Aktif</p>
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Dosen Aktif</p>
             <p className="text-2xl font-bold text-green-600">
               {users.filter((u) => u.status === "active").length}
             </p>
           </div>
-          <div>
-            <p className="text-sm text-gray-600">Dosen Nonaktif</p>
+          <div className="text-center">
+            <p className="text-xs text-gray-600 mb-1">Dosen Nonaktif</p>
             <p className="text-2xl font-bold text-gray-400">
               {users.filter((u) => u.status === "inactive").length}
             </p>
@@ -306,7 +303,7 @@ const DosenManagementPage = ({ onDataChange }) => {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
         <UserTable
           data={filteredUsers}
           onEdit={handleEditUser}

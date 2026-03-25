@@ -222,7 +222,7 @@ const PembimbingPage = () => {
                     key={item.label}
                     className="flex items-start gap-6 border-b border-slate-100 pb-6 last:border-b-0 last:pb-0"
                   >
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-orange-900/20 border-4 border-white">
+                    <div className="w-20 h-20 flex-shrink-0 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-orange-900/20 border-4 border-white">
                       {item.data
                         ? item.data.nama
                             .split(" ")
@@ -337,20 +337,37 @@ const PembimbingPage = () => {
                   <p className="text-xs text-slate-500 mt-1">
                     Pilih slot pembimbing yang ingin diganti
                   </p>
-                  <select
-                    value={formData.slot}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        slot: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
-                    required
-                  >
-                    <option value="pembimbing_1">Pembimbing 1</option>
-                    <option value="pembimbing_2">Pembimbing 2</option>
-                  </select>
+                  <div className="relative mt-2">
+                    <select
+                      value={formData.slot}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          slot: e.target.value,
+                        })
+                      }
+                      className="w-full appearance-none px-4 py-3 pr-10 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
+                      required
+                    >
+                      <option value="pembimbing_1">Pembimbing 1</option>
+                      <option value="pembimbing_2">Pembimbing 2</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                      <svg
+                        className="w-4 h-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -361,32 +378,49 @@ const PembimbingPage = () => {
                   <p className="text-xs text-slate-500 mt-1">
                     Pilih dosen baru atau biarkan Kaprodi yang menentukan
                   </p>
-                  <select
-                    value={formData.newPembimbingId}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        newPembimbingId: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
-                    required
-                  >
-                    <option value="">Pilih Dosen</option>
-                    <optgroup label="Dosen yang Tersedia">
-                      {dosenList
-                        .filter(
-                          (d) =>
-                            d._id !== pembimbing?.pembimbing_1?._id &&
-                            d._id !== pembimbing?.pembimbing_2?._id,
-                        )
-                        .map((dosen) => (
-                          <option key={dosen._id} value={dosen._id}>
-                            {dosen.nama}
-                          </option>
-                        ))}
-                    </optgroup>
-                  </select>
+                  <div className="relative mt-2">
+                    <select
+                      value={formData.newPembimbingId}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          newPembimbingId: e.target.value,
+                        })
+                      }
+                      className="w-full appearance-none px-4 py-3 pr-10 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-slate-700"
+                      required
+                    >
+                      <option value="">Pilih Dosen</option>
+                      <optgroup label="Dosen yang Tersedia">
+                        {dosenList
+                          .filter(
+                            (d) =>
+                              d._id !== pembimbing?.pembimbing_1?._id &&
+                              d._id !== pembimbing?.pembimbing_2?._id,
+                          )
+                          .map((dosen) => (
+                            <option key={dosen._id} value={dosen._id}>
+                              {dosen.nama}
+                            </option>
+                          ))}
+                      </optgroup>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                      <svg
+                        className="w-4 h-4 text-slate-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
 
                 <div>
