@@ -633,7 +633,7 @@ export default function MahasiswaBimbinganPage() {
               <div>
                 <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-blue-600" />
-                  Diskusi Tinjauan
+                  Diskusi
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {chatMahasiswaName}

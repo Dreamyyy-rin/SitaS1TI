@@ -459,3 +459,30 @@ def post_review_comment(mahasiswa_id):
     )
 
     return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)
+
+@dosen_bp.put("/mahasiswa/<mahasiswa_id>/update-title")
+@token_required
+@role_required("dosen")
+def update_mahasiswa_title(mahasiswa_id):
+    """Update judul tugas akhir mahasiswa oleh dosen pembimbing"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+    
+    new_title = (data.get("judul") or "").strip()
+    if not new_title:
+        return ResponseFormatter.error("Judul tidak boleh kosong", 400)
+    
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+    
+    dosen_id = g.current_user.get("user_id")
+    
+    # Validasi: Hanya dosen pembimbing (1 atau 2) yang boleh edit judulnya
+    if dosen_id not in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]:
+        return ResponseFormatter.error("Anda bukan pembimbing mahasiswa ini", 403)
+    
+    if Mahasiswa.update_judul(mahasiswa_id, new_title):
+        return ResponseFormatter.success(message="Judul berhasil diperbarui")
+    
+    return ResponseFormatter.error("Gagal memperbarui judul", 400)

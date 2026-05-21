@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Tambahan impor navigate
 import { Users, CheckCircle, Clock, MessageCircle } from "lucide-react";
 
 export default function MahasiswaBimbinganView({
@@ -10,6 +11,7 @@ export default function MahasiswaBimbinganView({
   newUploadIds,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate(); // Inisialisasi navigasi
 
   const filteredMahasiswa = mahasiswaBimbingan.filter((mhs) => {
     const query = searchQuery.toLowerCase();
@@ -82,7 +84,19 @@ export default function MahasiswaBimbinganView({
                 <tr key={mhs.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-semibold">
                     <div className="flex items-center gap-2">
-                      {mhs.nama}
+                      {/* Bagian ini diubah menjadi tombol yang bisa diklik */}
+                      <button
+                        onClick={() =>
+                          navigate(`/dosen-mahasiswa-bimbingan/${mhs.id}`, {
+                            state: { mahasiswa: mhs },
+                          })
+                        }
+                        className="text-left text-slate-700 hover:text-[#0B2F7F] hover:underline focus:outline-none transition-colors"
+                        title="Klik untuk melihat detail mahasiswa"
+                      >
+                        {mhs.nama}
+                      </button>
+
                       {newUploadIds?.has(mhs.id) && (
                         <span className="px-1.5 py-0.5 text-xs font-bold rounded-full bg-blue-100 text-blue-700">
                           Baru
@@ -91,7 +105,9 @@ export default function MahasiswaBimbinganView({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm">{mhs.nim}</td>
-                  <td className="px-4 py-3 text-sm">{mhs.judul}</td>
+                  <td className="px-4 py-3 text-sm max-w-[250px] whitespace-normal break-words">
+                    {mhs.judul}
+                  </td>
                   <td className="px-4 py-3 text-center">
                     {mhs.ttu1 ? (
                       <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
@@ -122,16 +138,6 @@ export default function MahasiswaBimbinganView({
                         >
                           Lihat File
                         </button>
-                        {onOpenChat && (
-                          <button
-                            onClick={() => onOpenChat(mhs)}
-                            className="text-purple-600 hover:text-purple-800 font-medium text-sm flex items-center gap-1"
-                            title="Diskusi Tinjauan"
-                          >
-                            <MessageCircle className="w-4 h-4" />
-                            Obrolan
-                          </button>
-                        )}
                       </div>
 
                       {(mhs.ttu1_accepted ||

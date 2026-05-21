@@ -25,7 +25,7 @@ const PlottingReviewerView = ({
     setNotification((prev) => ({ ...prev, open: false }));
 
   const getAvailableReviewers = (mhs) => {
-    // Exclude pembimbing 1 & 2 from reviewer options
+    //exclude pembimbing mhs tsb
     return availableDosen.filter(
       (d) => d._id !== mhs.pembimbing_1_id && d._id !== mhs.pembimbing_2_id,
     );
@@ -38,7 +38,7 @@ const PlottingReviewerView = ({
     setSaving(true);
     let hasError = false;
     try {
-      // Save each reviewer assignment
+      //save reviewer
       for (const [mahasiswaId, reviewerId] of Object.entries(
         selectedReviewers,
       )) {
@@ -62,9 +62,7 @@ const PlottingReviewerView = ({
             type: "error",
             title: "Gagal",
             message:
-              result.error ||
-              result.message ||
-              "Gagal menyimpan salah satu reviewer",
+              result.error || result.message || "Gagal menyimpan reviewer",
           });
           break;
         }
@@ -75,7 +73,9 @@ const PlottingReviewerView = ({
           title: "Berhasil",
           message: "Plotting reviewer berhasil disimpan!",
         });
-        setTimeout(() => window.location.reload(), 1200);
+        if (onSavePlotting) {
+          setTimeout(() => onSavePlotting(), 1200);
+        }
       }
     } catch (err) {
       showNotification({
@@ -88,12 +88,11 @@ const PlottingReviewerView = ({
     }
   };
 
-  // Only show mahasiswa that have pembimbing assigned
+  //menampilkan mhs yang ada pembimbing
   const eligibleMahasiswa = mahasiswaBimbingan.filter((m) => m.pembimbing_1_id);
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Notification Modal */}
       {notification.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -171,7 +170,7 @@ const PlottingReviewerView = ({
             <tbody>
               {eligibleMahasiswa.map((mhs, index) => {
                 const reviewers = getAvailableReviewers(mhs);
-                // Prioritaskan nilai yang sudah dipilih user, lalu fallback ke reviewer yang sudah tersimpan
+                //prioritaskan nilai yang sudah dipilih user, lalu fallback ke reviewer yang sudah tersimpan
                 const currentReviewerId =
                   mhs.id in selectedReviewers
                     ? selectedReviewers[mhs.id]

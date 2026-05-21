@@ -239,3 +239,17 @@ class Mahasiswa(BaseModel):
             {"$set": update_fields}
         )
         return result.modified_count > 0
+    
+    @classmethod
+    def update_judul(cls, mahasiswa_id: str, judul: str) -> bool:
+        """Update judul tugas akhir mahasiswa"""
+        result = cls.collection().update_one(
+            {"_id": ObjectId(mahasiswa_id)},
+            {
+                "$set": {
+                    "judul": judul,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        return result.modified_count > 0

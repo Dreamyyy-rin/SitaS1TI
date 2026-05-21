@@ -8,6 +8,7 @@ import RequestPembimbingPage from "./pages/mahasiswa/RequestPembimbingPage.jsx";
 import DosenDashboard from "./pages/dosen/DosenDashboard.jsx";
 import RequestBimbinganPage from "./pages/dosen/RequestBimbinganPage.jsx";
 import MahasiswaBimbinganPage from "./pages/dosen/MahasiswaBimbinganPage.jsx";
+import MahasiswaBimbinganDetailPage from "./pages/dosen/MahasiswaBimbinganDetailPage.jsx"; // <-- 1. Tambahan Import Halaman Detail
 import ReviewDosenPage from "./pages/dosen/ReviewDosenPage.jsx";
 import PanduanDosenPage from "./pages/dosen/PanduanDosenPage.jsx";
 import DataAkunDosenPage from "./pages/dosen/DataAkunDosenPage.jsx";
@@ -55,6 +56,13 @@ function App() {
             <MahasiswaBimbinganPage />
           </ProtectedRoute>
         } />
+        
+        <Route path="/dosen-mahasiswa-bimbingan/:mahasiswaId" element={
+          <ProtectedRoute allowedRoles={["dosen"]}>
+            <MahasiswaBimbinganDetailPage />
+          </ProtectedRoute>
+        } />
+
         <Route path="/dosen-review" element={
           <ProtectedRoute allowedRoles={["dosen"]}>
             <ReviewDosenPage />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { FiEdit2 } from "react-icons/fi"; // Import icon edit pensil
 import SidebarDosen from "../../components/dosen/SidebarDosen";
 import ReviewChat from "../../components/shared/ReviewChat";
 
@@ -20,6 +21,11 @@ export default function MahasiswaBimbinganDetailPage() {
     const cached = localStorage.getItem("dosen_request_count");
     return cached ? parseInt(cached, 10) : 0;
   });
+
+  // --- State untuk Edit Judul ---
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -67,10 +73,54 @@ export default function MahasiswaBimbinganDetailPage() {
     fetchMahasiswa.finally(() => setIsLoading(false));
   }, [mahasiswaId, navigate]);
 
+  // --- Sinkronisasi state form edit dengan data judul ---
+  useEffect(() => {
+    if (mahasiswa?.judul) {
+      setNewTitle(mahasiswa.judul);
+    }
+  }, [mahasiswa?.judul]);
+
   const handleLogout = () => {
     localStorage.removeItem("sita_token");
     localStorage.removeItem("sita_user");
     navigate("/login?role=dosen");
+  };
+
+  // --- Handler untuk menyimpan Edit Judul ---
+  const handleEditTitle = () => setIsEditingTitle(true);
+  const handleTitleChange = (e) => setNewTitle(e.target.value);
+  const handleSaveTitle = async () => {
+    if (!newTitle || newTitle === mahasiswa.judul) {
+      setIsEditingTitle(false);
+      setNewTitle(mahasiswa.judul);
+      return;
+    }
+
+    setIsSavingTitle(true);
+    try {
+      const token = localStorage.getItem("sita_token");
+
+      const response = await fetch(`${API}/api/dosen/mahasiswa/${mahasiswaId}/update-title`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ judul: newTitle }),
+      });
+
+      if (!response.ok) throw new Error("Gagal memperbarui judul");
+
+      // Update state mahasiswa lokal agar UI langsung berubah
+      setMahasiswa((prev) => ({ ...prev, judul: newTitle }));
+    } catch (err) {
+      console.error(err);
+      setNewTitle(mahasiswa.judul); // Kembalikan judul asli jika gagal
+      alert("Terjadi kesalahan saat menyimpan judul.");
+    } finally {
+      setIsSavingTitle(false);
+      setIsEditingTitle(false);
+    }
   };
 
   const user = {
@@ -122,25 +172,64 @@ export default function MahasiswaBimbinganDetailPage() {
               {/* Student info card */}
               <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div className="space-y-1">
+                  <div className="space-y-1 w-full md:w-2/3">
                     <h1 className="text-2xl font-bold text-[#0B2F7F]">
                       {mahasiswa.nama}
                     </h1>
                     <p className="text-slate-500 text-sm">
                       NIM: {mahasiswa.nim} &bull; {mahasiswa.prodi}
                     </p>
-                    <p className="text-slate-700 text-sm mt-1">
-                      <span className="font-medium">Judul:</span>{" "}
-                      {mahasiswa.judul}
-                    </p>
+                    
+                    {/* --- Area UI Edit Judul --- */}
+                    <div className="text-slate-700 text-sm mt-2 flex flex-col md:flex-row md:items-center gap-2">
+                      <span className="font-medium whitespace-nowrap">Judul:</span>
+                      <div className="flex-1 w-full flex items-center">
+                        {isEditingTitle ? (
+                          <input
+                            className="w-full px-2 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B2F7F] disabled:bg-slate-100 disabled:text-slate-500 text-sm"
+                            value={newTitle}
+                            onChange={handleTitleChange}
+                            onBlur={handleSaveTitle}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") handleSaveTitle();
+                              if (e.key === "Escape") {
+                                setIsEditingTitle(false);
+                                setNewTitle(mahasiswa.judul);
+                              }
+                            }}
+                            autoFocus
+                            disabled={isSavingTitle}
+                          />
+                        ) : (
+                          <div className="flex items-center group w-full">
+                            <span className="line-clamp-2">{mahasiswa.judul}</span>
+                            <button
+                              type="button"
+                              onClick={handleEditTitle}
+                              className="ml-2 p-1 text-slate-400 hover:text-[#0B2F7F] opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                              aria-label="Edit Title"
+                            >
+                              <FiEdit2 size={14} />
+                            </button>
+                          </div>
+                        )}
+                        {isSavingTitle && (
+                          <span className="ml-2 text-xs text-slate-400 animate-pulse whitespace-nowrap">
+                            Menyimpan...
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
                     {mahasiswa.reviewer && (
-                      <p className="text-slate-500 text-xs">
+                      <p className="text-slate-500 text-xs mt-1">
                         Reviewer: {mahasiswa.reviewer}
                       </p>
                     )}
                   </div>
+                  
                   {/* TTU status badges */}
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2 flex-shrink-0 mt-4 md:mt-0">
                     {["ttu_1", "ttu_2", "ttu_3"].map((key) => {
                       const st = mahasiswa.ttu_status?.[key]?.status;
                       return (

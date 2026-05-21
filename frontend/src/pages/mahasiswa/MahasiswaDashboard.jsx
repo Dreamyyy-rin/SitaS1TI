@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { X, CheckCircle } from "lucide-react";
+import { FiEdit2 } from "react-icons/fi"; // Pastikan sudah menjalankan: npm install react-icons
 import SidebarMahasiswa from "../../components/mahasiswa/SidebarMahasiswa";
 import { TTUProvider } from "../../contexts/TTUContext";
 import ProfileCard from "../../components/mahasiswa/ProfileCard";
@@ -21,6 +22,11 @@ export default function MahasiswaDashboard() {
     pembimbing_1: null,
     pembimbing_2: null,
   });
+
+  // State untuk Edit Title
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [isSavingTitle, setIsSavingTitle] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("sita_token");
@@ -46,6 +52,7 @@ export default function MahasiswaDashboard() {
         }
         const loadedProfile = result.data || null;
         setProfile(loadedProfile);
+
         if (loadedProfile && loadedProfile.onboarding_status !== "approved") {
           navigate("/mahasiswa/request-pembimbing");
         }
@@ -87,6 +94,7 @@ export default function MahasiswaDashboard() {
       email: "-",
       stage: "TTU 1",
       supervisor: "Belum ditetapkan",
+      title: "Belum ada judul",
     };
 
     if (!profile) {
@@ -113,20 +121,114 @@ export default function MahasiswaDashboard() {
       nim: profile.nim || fallback.nim,
       prodi: profile.prodi || fallback.prodi,
       email: profile.email || fallback.email,
+      title: profile.judul || fallback.title, // Asumsi ada field judul di database
       stage,
       supervisor: supervisorName,
       ttu_status: ttu,
     };
   }, [profile, pembimbing]);
 
+  // Sinkronisasi state form edit dengan data title dari backend
+  useEffect(() => {
+    if (student?.title) {
+      setNewTitle(student.title);
+    }
+  }, [student?.title]);
+
   const [view, setView] = useState("home");
   const [activeMenu, setActiveMenu] = useState("home");
+
+  // Handler untuk Edit Title
+  const handleEditTitle = () => setIsEditingTitle(true);
+  const handleTitleChange = (e) => setNewTitle(e.target.value);
+  const handleSaveTitle = async () => {
+    if (!newTitle || newTitle === student.title) {
+      setIsEditingTitle(false);
+      setNewTitle(student.title);
+      return;
+    }
+
+    setIsSavingTitle(true);
+    try {
+      const baseUrl =
+        import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+      const token = localStorage.getItem("sita_token");
+
+      // Sesuaikan endpoint ini dengan rute API update judul Anda
+      const response = await fetch(`${baseUrl}/api/mahasiswa/update-title`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ judul: newTitle }),
+      });
+
+      if (!response.ok) throw new Error("Gagal memperbarui judul");
+
+      // Update state profil lokal agar UI langsung berubah
+      setProfile((prev) => ({ ...prev, judul: newTitle }));
+    } catch (err) {
+      console.error(err);
+      setNewTitle(student.title); // Revert jika gagal
+      alert("Terjadi kesalahan saat menyimpan judul.");
+    } finally {
+      setIsSavingTitle(false);
+      setIsEditingTitle(false);
+    }
+  };
 
   const HomeView = () => (
     <div className="space-y-6 animate-fade-in">
       <div>
         <h2 className="text-2xl font-bold text-slate-800">Dasbor Mahasiswa</h2>
         <p className="text-slate-500 mt-1">Selamat datang, {student.name}</p>
+
+        {/* Section Edit Title */}
+        <div className="mt-4 flex flex-col md:flex-row md:items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm gap-3">
+          <span className="font-semibold text-slate-700 whitespace-nowrap">
+            Judul Tugas Akhir:
+          </span>
+
+          <div className="flex-1 w-full flex items-center">
+            {isEditingTitle ? (
+              <input
+                className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0B2F7F] disabled:bg-slate-100 disabled:text-slate-500"
+                value={newTitle}
+                onChange={handleTitleChange}
+                onBlur={handleSaveTitle}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSaveTitle();
+                  if (e.key === "Escape") {
+                    setIsEditingTitle(false);
+                    setNewTitle(student.title);
+                  }
+                }}
+                autoFocus
+                disabled={isSavingTitle}
+              />
+            ) : (
+              <div className="flex items-center group w-full">
+                <span className="text-slate-600 line-clamp-2">
+                  {student.title}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleEditTitle}
+                  className="ml-2 p-1 text-slate-400 hover:text-[#0B2F7F] opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                  aria-label="Edit Title"
+                >
+                  <FiEdit2 size={16} />
+                </button>
+              </div>
+            )}
+            {isSavingTitle && (
+              <span className="ml-3 text-sm text-slate-400 animate-pulse whitespace-nowrap">
+                Menyimpan...
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <ProfileCard student={student} />

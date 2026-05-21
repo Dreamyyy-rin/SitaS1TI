@@ -495,3 +495,23 @@ def post_review_comment():
     )
 
     return ResponseFormatter.success(data=comment, message="Komentar dikirim", status_code=201)
+
+
+@mahasiswa_bp.put("/update-title")
+@token_required
+@role_required("mahasiswa")
+def update_title():
+    """Update judul tugas akhir oleh mahasiswa"""
+    data = request.get_json(force=True) or {}
+    data = Sanitizer.sanitize_dict(data)
+    
+    new_title = (data.get("judul") or "").strip()
+    if not new_title:
+        return ResponseFormatter.error("Judul tidak boleh kosong", 400)
+    
+    mahasiswa_id = g.current_user.get("mahasiswa_id")
+    
+    if Mahasiswa.update_judul(mahasiswa_id, new_title):
+        return ResponseFormatter.success(message="Judul berhasil diperbarui")
+    
+    return ResponseFormatter.error("Gagal memperbarui judul", 400)
