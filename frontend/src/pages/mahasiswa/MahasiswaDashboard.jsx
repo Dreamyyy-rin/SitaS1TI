@@ -309,11 +309,10 @@ export default function MahasiswaDashboard() {
               </div>
 
               <h2 className="text-2xl font-bold text-slate-800 mb-2">
-                Selamat! 🎉
+                Selamat!
               </h2>
               <p className="text-slate-600 mb-6 leading-relaxed">
-                Tugas Talenta Unggul 3 Anda telah disetujui. Anda telah berhasil
-                menyelesaikan seluruh Tugas Talenta Unggul!
+                Anda telah berhasil menyelesaikan seluruh Tugas Talenta Unggul!
               </p>
 
               <div className="bg-[#0B2F7F]/5 border border-[#0B2F7F]/10 rounded-2xl p-5 mb-6 text-left">

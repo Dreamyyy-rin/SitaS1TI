@@ -335,12 +335,12 @@ def upload_ttu3_requirement():
 @token_required
 @role_required("mahasiswa")
 def ttu3_requirement_status():
-    """Status berkas persyaratan TTU3"""
+    """Status persyaratan TTU 3"""
     mahasiswa_id = g.current_user.get("mahasiswa_id")
     requirement = TTU3Requirement.get_by_mahasiswa(mahasiswa_id)
     return ResponseFormatter.success(
         data=requirement,
-        message="Status persyaratan TTU3"
+        message="Status persyaratan TTU 3"
     )
 
 
@@ -459,12 +459,23 @@ def download_submission_file(submission_id):
     )
 
 
+def _is_ttu3_submitted(mahasiswa: dict) -> bool:
+    status = (mahasiswa.get("ttu_status") or {}).get("ttu_3", {}).get("status")
+    return status in ["submitted", "reviewed", "approved"]
+
+
 @mahasiswa_bp.get("/review-comments")
 @token_required
 @role_required("mahasiswa")
 def get_review_comments():
     """Get review comments for this mahasiswa's TTU3"""
     mahasiswa_id = g.current_user.get("mahasiswa_id")
+    mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
+    if not mahasiswa:
+        return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+   
+
     comments = ReviewComment.get_by_mahasiswa(mahasiswa_id)
     return ResponseFormatter.success(data=comments, message=f"Total: {len(comments)}")
 
@@ -485,6 +496,8 @@ def post_review_comment():
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    
 
     comment = ReviewComment.create(
         mahasiswa_id=mahasiswa_id,

@@ -404,6 +404,11 @@ def download_file(submission_id):
     return resp
 
 
+def _is_ttu3_submitted(mahasiswa: dict) -> bool:
+    status = (mahasiswa.get("ttu_status") or {}).get("ttu_3", {}).get("status")
+    return status is not None
+
+
 @dosen_bp.get("/mahasiswa/<mahasiswa_id>/review-comments")
 @token_required
 @role_required("dosen")
@@ -412,6 +417,14 @@ def get_review_comments(mahasiswa_id):
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    if not _is_ttu3_submitted(mahasiswa):
+        return ResponseFormatter.error(
+            "Fitur tersedia setelah mahasiswa mengunggah TTU 3",
+            403,
+        )
+    
+    
 
     dosen_id = g.current_user.get("user_id")
     is_pembimbing = dosen_id in [mahasiswa.get("pembimbing_1_id"), mahasiswa.get("pembimbing_2_id")]
@@ -439,6 +452,12 @@ def post_review_comment(mahasiswa_id):
     mahasiswa = Mahasiswa.find_by_id(mahasiswa_id)
     if not mahasiswa:
         return ResponseFormatter.error("Mahasiswa tidak ditemukan", 404)
+
+    if not _is_ttu3_submitted(mahasiswa):
+        return ResponseFormatter.error(
+            "Room bimbingan tersedia setelah mahasiswa mengunggah TTU 3",
+            403,
+        )
 
     dosen_id = g.current_user.get("user_id")
     dosen_nama = g.current_user.get("nama", "Dosen")

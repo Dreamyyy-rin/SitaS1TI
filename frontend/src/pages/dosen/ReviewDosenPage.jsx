@@ -96,10 +96,9 @@ export default function ReviewDosenPage() {
   };
 
   const handlePreviewFile = (mahasiswa, ttuType) => {
-    // Find the latest ttu_3 submission for this mahasiswa
-    const ttu3Sub = (mahasiswa.submissions || []).find(
-      (s) => s.ttu_number === "ttu_3",
-    );
+    const ttu3Sub = (mahasiswa.submissions || [])
+      .filter((s) => s.ttu_number === "ttu_3")
+      .sort((a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at))[0];
     if (ttu3Sub) {
       const token = localStorage.getItem("sita_token");
       window.open(
@@ -115,7 +114,6 @@ export default function ReviewDosenPage() {
     const token = localStorage.getItem("sita_token");
     const ttu = mahasiswa.ttu_status || {};
 
-    // Reviewer can only approve TTU 3
     const ttu3Status = ttu.ttu_3?.status;
     if (ttu3Status !== "submitted" && ttu3Status !== "reviewed") {
       alert("TTU 3 belum disubmit atau sudah di-ACC");
@@ -174,9 +172,7 @@ export default function ReviewDosenPage() {
         <div className="max-w-7xl mx-auto pb-10">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-[#0B2F7F]">Tinjauan</h1>
-            <p className="text-gray-600 mt-2">
-              Tinjauan TTU mahasiswa bimbingan Anda
-            </p>
+            <p className="text-gray-600 mt-2">Tinjau TTU mahasiswa</p>
           </div>
 
           {isLoading && (

@@ -35,10 +35,10 @@ export default function MahasiswaBimbinganPage() {
     parseInt(localStorage.getItem("dosen_mahasiswa_upload_count") || "0", 10),
   );
   const [newUploadIds, setNewUploadIds] = useState(new Set());
-  const [showFileModal, setShowFileModal] = useState(false);
-  const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
   const [submissions, setSubmissions] = useState([]);
+  const [reviewComments, setReviewComments] = useState([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [loadingReviewComments, setLoadingReviewComments] = useState(false);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedMahasiswaId, setSelectedMahasiswaId] = useState(null);
@@ -124,33 +124,6 @@ export default function MahasiswaBimbinganPage() {
     name: profile?.nama || "Dosen",
     nip: profile?.nip || profile?.nidn || "-",
     email: profile?.email || "-",
-  };
-
-  const handlePreviewFile = async (mahasiswa, ttuType) => {
-    const token = localStorage.getItem("sita_token");
-    setSelectedMahasiswa(mahasiswa);
-    setShowFileModal(true);
-    setLoadingSubmissions(true);
-
-    try {
-      const res = await fetch(
-        `${API}/api/dosen/mahasiswa/${mahasiswa.id}/submissions`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
-      const data = await res.json();
-      if (data.success) {
-        setSubmissions(data.data || []);
-      } else {
-        setSubmissions([]);
-      }
-    } catch (err) {
-      console.error(err);
-      setSubmissions([]);
-    } finally {
-      setLoadingSubmissions(false);
-    }
   };
 
   const handleDownloadFile = (submissionId) => {
@@ -355,10 +328,75 @@ export default function MahasiswaBimbinganPage() {
       });
   };
 
-  const handleOpenChat = (mhs) => {
+  const getSubmissionNotes = (submission, allNotes, allSubmissions) => {
+    const notes = allNotes.filter(
+      (comment) =>
+        comment.sender_role === "pembimbing" ||
+        comment.sender_role === "reviewer",
+    );
+
+    const sortedSubmissions = [...allSubmissions].sort(
+      (a, b) => new Date(a.uploaded_at) - new Date(b.uploaded_at),
+    );
+
+    const currentIndex = sortedSubmissions.findIndex(
+      (item) => item._id === submission._id,
+    );
+
+    if (currentIndex === -1) return [];
+
+    const startTime = new Date(submission.uploaded_at).getTime();
+    const nextSubmission = sortedSubmissions[currentIndex + 1];
+    const endTime = nextSubmission
+      ? new Date(nextSubmission.uploaded_at).getTime()
+      : Infinity;
+
+    return notes.filter((note) => {
+      const noteTime = new Date(note.created_at).getTime();
+      return noteTime >= startTime && noteTime < endTime;
+    });
+  };
+
+  const handleOpenChat = async (mhs) => {
+    const token = localStorage.getItem("sita_token");
     setChatMahasiswaId(mhs.id);
     setChatMahasiswaName(mhs.nama);
     setShowChat(true);
+    setLoadingSubmissions(true);
+    setLoadingReviewComments(true);
+
+    try {
+      const [subRes, commentRes] = await Promise.all([
+        fetch(`${API}/api/dosen/mahasiswa/${mhs.id}/submissions`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${API}/api/dosen/mahasiswa/${mhs.id}/review-comments`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const subData = await subRes.json().catch(() => ({}));
+      const commentData = await commentRes.json().catch(() => ({}));
+
+      if (subData.success) {
+        setSubmissions(subData.data || []);
+      } else {
+        setSubmissions([]);
+      }
+
+      if (commentData.success) {
+        setReviewComments(commentData.data || []);
+      } else {
+        setReviewComments([]);
+      }
+    } catch (err) {
+      console.error(err);
+      setSubmissions([]);
+      setReviewComments([]);
+    } finally {
+      setLoadingSubmissions(false);
+      setLoadingReviewComments(false);
+    }
   };
 
   const handleLogout = () => {
@@ -416,7 +454,6 @@ export default function MahasiswaBimbinganPage() {
           {!isLoading && (
             <MahasiswaBimbinganView
               mahasiswaBimbingan={mahasiswaBimbingan}
-              onPreviewFile={handlePreviewFile}
               onAcceptMahasiswa={handleAcceptMahasiswa}
               onRejectMahasiswa={handleRejectMahasiswa}
               onOpenChat={handleOpenChat}
@@ -425,117 +462,6 @@ export default function MahasiswaBimbinganPage() {
           )}
         </div>
       </main>
-
-      {/* File Preview Modal */}
-      {showFileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
-            onClick={() => setShowFileModal(false)}
-          ></div>
-
-          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-xl font-bold text-slate-800">
-                  Pengumpulan File
-                </h3>
-                <p className="text-sm text-slate-500 mt-1">
-                  {selectedMahasiswa?.nama} ({selectedMahasiswa?.nim})
-                </p>
-              </div>
-              <button
-                onClick={() => setShowFileModal(false)}
-                className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-100"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {loadingSubmissions && (
-              <div className="text-center py-8 text-slate-500">
-                Memuat data file...
-              </div>
-            )}
-
-            {!loadingSubmissions && submissions.length === 0 && (
-              <div className="text-center py-12">
-                <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                <p className="text-slate-500 text-lg">Belum ada file</p>
-                <p className="text-slate-400 text-sm mt-2">
-                  Mahasiswa belum mengunggah file pengajuan
-                </p>
-              </div>
-            )}
-
-            {!loadingSubmissions && submissions.length > 0 && (
-              <div className="space-y-3">
-                {submissions.map((sub) => (
-                  <div
-                    key={sub._id}
-                    className="border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
-                          <FileText className="w-5 h-5 text-blue-500 flex-shrink-0" />
-                          <span className="font-semibold text-slate-800 text-sm uppercase whitespace-nowrap">
-                            {sub.ttu_number.replace("_", " ")}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
-                              sub.status === "approved"
-                                ? "bg-green-100 text-green-700"
-                                : sub.status === "reviewed"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : sub.status === "rejected"
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {sub.status === "approved"
-                              ? "Disetujui"
-                              : sub.status === "reviewed"
-                                ? "Ditinjau"
-                                : sub.status === "rejected"
-                                  ? "Ditolak"
-                                  : "Diajukan"}
-                          </span>
-                        </div>
-                        <p className="text-sm text-slate-600 mb-1 truncate">
-                          <span className="font-medium">File:</span>{" "}
-                          {sub.file_name}
-                        </p>
-                        <p className="text-xs text-slate-400">
-                          Upload:{" "}
-                          {new Date(sub.uploaded_at).toLocaleDateString(
-                            "id-ID",
-                            {
-                              day: "numeric",
-                              month: "long",
-                              year: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleDownloadFile(sub._id)}
-                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                      >
-                        <Download className="w-4 h-4" />
-                        Lihat
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {showAcceptModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -628,12 +554,12 @@ export default function MahasiswaBimbinganPage() {
             className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
             onClick={() => setShowChat(false)}
           ></div>
-          <div className="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-100 transform transition-all max-h-[85vh] flex flex-col">
+          <div className="relative bg-white w-full max-w-5xl rounded-2xl shadow-2xl border border-slate-100 transform transition-all max-h-[85vh] overflow-hidden flex flex-col">
             <div className="flex items-center justify-between p-6 pb-4 border-b border-slate-100">
               <div>
                 <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-blue-600" />
-                  Diskusi
+                  Bimbingan
                 </h3>
                 <p className="text-sm text-slate-500 mt-1">
                   {chatMahasiswaName}
@@ -646,12 +572,156 @@ export default function MahasiswaBimbinganPage() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-6 pt-2">
-              <ReviewChat
-                role="dosen"
-                mahasiswaId={chatMahasiswaId}
-                currentUserId={profile?._id || profile?.user_id}
-              />
+
+            <div className="grid grid-cols-1 lg:grid-cols-[320px_minmax(0,1fr)] gap-4 p-6 overflow-hidden flex-1">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 overflow-y-auto">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-800">
+                      File Pengajuan
+                    </h4>
+                    <p className="text-xs text-slate-500">
+                      Tampilkan file TTU dan status pengajuan.
+                    </p>
+                  </div>
+                </div>
+
+                {loadingSubmissions ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-slate-500 text-sm">
+                    <div className="animate-spin w-5 h-5 border-2 border-slate-300 border-t-blue-500 rounded-full mb-3"></div>
+                    Memuat file...
+                  </div>
+                ) : submissions.length === 0 ? (
+                  <div className="text-center py-12 text-slate-500">
+                    <FileText className="w-10 h-10 mx-auto mb-3 text-slate-300" />
+                    <p className="font-medium">Belum ada pengajuan file</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Mahasiswa belum mengunggah dokumen TTU.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {submissions.map((sub) => {
+                      const notes = getSubmissionNotes(
+                        sub,
+                        reviewComments,
+                        submissions,
+                      );
+
+                      return (
+                        <div
+                          key={sub._id}
+                          className="rounded-2xl border border-slate-200 bg-white p-4"
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 mb-2">
+                                <FileText className="w-4 h-4 text-blue-500" />
+                                <span className="text-sm font-semibold text-slate-800 uppercase tracking-wide">
+                                  {sub.ttu_number.replace("_", " ")}
+                                </span>
+                              </div>
+                              <p className="text-sm text-slate-600 truncate">
+                                {sub.file_name}
+                              </p>
+                              <p className="text-xs text-slate-400 mt-2">
+                                Unggah:{" "}
+                                {new Date(sub.uploaded_at).toLocaleDateString(
+                                  "id-ID",
+                                  {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  },
+                                )}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => handleDownloadFile(sub._id)}
+                              className="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+                            >
+                              <Download className="w-4 h-4" />
+                              Unduh
+                            </button>
+                          </div>
+                          <div
+                            className={`mt-3 text-[11px] inline-flex px-2 py-1 rounded-full font-semibold uppercase tracking-[0.02em] ${
+                              sub.status === "approved"
+                                ? "bg-green-100 text-green-700"
+                                : sub.status === "reviewed"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : sub.status === "rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {sub.status === "approved"
+                              ? "Disetujui"
+                              : sub.status === "reviewed"
+                                ? "Ditinjau"
+                                : sub.status === "rejected"
+                                  ? "Ditolak"
+                                  : "Diajukan"}
+                          </div>
+
+                          <div className="mt-4 border-t border-slate-200 pt-4">
+                            <p className="text-sm font-semibold text-slate-800 mb-2">
+                              Catatan
+                            </p>
+                            {loadingReviewComments ? (
+                              <p className="text-sm text-slate-500">
+                                Memuat catatan...
+                              </p>
+                            ) : notes.length > 0 ? (
+                              <ul className="space-y-2 text-sm text-slate-700">
+                                {notes.map((note) => (
+                                  <li
+                                    key={note._id}
+                                    className="leading-relaxed"
+                                  >
+                                    {note.message}
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : (
+                              <p className="text-sm text-slate-500">
+                                Belum ada catatan dosen.
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col overflow-hidden">
+                <ReviewChat
+                  role="dosen"
+                  mahasiswaId={chatMahasiswaId}
+                  currentUserId={profile?._id || profile?.user_id}
+                  onCommentsUpdated={() => {
+                    if (!chatMahasiswaId) return;
+                    const token = localStorage.getItem("sita_token");
+                    fetch(
+                      `${API}/api/dosen/mahasiswa/${chatMahasiswaId}/review-comments`,
+                      {
+                        headers: { Authorization: `Bearer ${token}` },
+                      },
+                    )
+                      .then((r) => r.json())
+                      .then((res) => {
+                        if (res.success) {
+                          setReviewComments(res.data || []);
+                        }
+                      })
+                      .catch(() => {});
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

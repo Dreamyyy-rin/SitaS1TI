@@ -4,7 +4,6 @@ import { Users, CheckCircle, Clock, MessageCircle } from "lucide-react";
 
 export default function MahasiswaBimbinganView({
   mahasiswaBimbingan = [],
-  onPreviewFile,
   onAcceptMahasiswa,
   onRejectMahasiswa,
   onOpenChat,
@@ -72,7 +71,7 @@ export default function MahasiswaBimbinganView({
                   TTU 3
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
-                  File
+                  Bimbingan
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">
                   Aksi
@@ -84,7 +83,6 @@ export default function MahasiswaBimbinganView({
                 <tr key={mhs.id} className="border-t hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-semibold">
                     <div className="flex items-center gap-2">
-                      {/* Bagian ini diubah menjadi tombol yang bisa diklik */}
                       <button
                         onClick={() =>
                           navigate(`/dosen-mahasiswa-bimbingan/${mhs.id}`, {
@@ -130,27 +128,12 @@ export default function MahasiswaBimbinganView({
                     )}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <div className="flex flex-col items-center gap-1 justify-center">
-                      <div className="flex gap-2 justify-center">
-                        <button
-                          onClick={() => onPreviewFile(mhs, "TTU")}
-                          className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
-                        >
-                          Lihat File
-                        </button>
-                      </div>
-
-                      {(mhs.ttu1_accepted ||
-                        mhs.ttu2_accepted ||
-                        mhs.ttu3_accepted ||
-                        mhs.ttu1Status === "approved" ||
-                        mhs.ttu2Status === "approved" ||
-                        mhs.ttu3Status === "approved") && (
-                        <span className="inline-block mt-1 px-2 py-0.5 text-xs font-bold rounded-full bg-green-100 text-green-700">
-                          Diterima
-                        </span>
-                      )}
-                    </div>
+                    <button
+                      onClick={() => onOpenChat(mhs)}
+                      className="text-blue-600 hover:text-blue-800 font-medium text-sm underline"
+                    >
+                      Bimbingan
+                    </button>
                   </td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex gap-2 justify-center">

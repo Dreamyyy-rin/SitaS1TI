@@ -8,14 +8,15 @@ export default function ReviewChat({
   role = "mahasiswa",
   currentUserId,
   disableAutoScroll = false,
-  title = "Diskusi Bimbingan",
+  showNotes = false,
+  title = "Bimbingan",
+  onCommentsUpdated,
 }) {
   const [comments, setComments] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
-  
-  
+
   const scrollContainerRef = useRef(null);
   const chatEndRef = useRef(null);
   const pollRef = useRef(null);
@@ -25,20 +26,27 @@ export default function ReviewChat({
   const token = localStorage.getItem("sita_token");
 
   const getEndpoint = () => {
-    if (role === "mahasiswa") {
-      return `${API}/api/mahasiswa/review-comments`;
-    }
+  if (role === "dosen") {
     return `${API}/api/dosen/mahasiswa/${mahasiswaId}/review-comments`;
-  };
+  }
+  return `${API}/api/mahasiswa/review-comments`;
+};
 
   const loadComments = async () => {
     try {
-      const res = await fetch(getEndpoint(), {
+      const endpoint = getEndpoint();
+      if (!endpoint) return;
+
+      const res = await fetch(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       const result = await res.json().catch(() => ({}));
+
       if (result.success) {
         setComments(result.data || []);
+      } else {
+        setComments([]); // 🔥 jangan silent error
       }
     } catch (err) {
       console.error("Failed to load comments:", err);
@@ -47,25 +55,31 @@ export default function ReviewChat({
     }
   };
 
-  
+  useEffect(() => {
+    if (!mahasiswaId) return;
+
+    loadComments();
+    didInitialScroll.current = false;
+    pollRef.current = setInterval(loadComments, 10000);
+
+    return () => clearInterval(pollRef.current);
+  }, [mahasiswaId, role]);
+
   useEffect(() => {
     loadComments();
     didInitialScroll.current = false;
     pollRef.current = setInterval(loadComments, 10000);
     return () => clearInterval(pollRef.current);
-  }, [mahasiswaId]);
+  }, [mahasiswaId, role]);
 
- 
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-   
     if (comments.length > 0) {
       const isNewMessage = comments.length > lastCountRef.current;
-      
+
       if (!didInitialScroll.current || (isNewMessage && !disableAutoScroll)) {
-        
         setTimeout(() => {
           container.scrollTo({
             top: container.scrollHeight,
@@ -95,6 +109,9 @@ export default function ReviewChat({
       if (result.success) {
         setNewMessage("");
         await loadComments();
+        if (typeof onCommentsUpdated === "function") {
+          onCommentsUpdated();
+        }
       }
     } catch {
       console.error("Gagal menghubungi server");
@@ -116,9 +133,15 @@ export default function ReviewChat({
       pembimbing: "bg-blue-100 text-blue-700",
       mahasiswa: "bg-green-100 text-green-700",
     };
-    const label = { reviewer: "Peninjau", pembimbing: "Pembimbing", mahasiswa: "Mahasiswa" };
+    const label = {
+      reviewer: "Peninjau",
+      pembimbing: "Pembimbing",
+      mahasiswa: "Mahasiswa",
+    };
     return senderRole in badges ? (
-      <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${badges[senderRole]}`}>
+      <span
+        className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${badges[senderRole]}`}
+      >
         {label[senderRole]}
       </span>
     ) : null;
@@ -133,13 +156,79 @@ export default function ReviewChat({
     return colors[senderRole] || "bg-gray-50 border-gray-200";
   };
 
+  const notes = comments.filter(
+    (comment) =>
+      comment.sender_role === "pembimbing" ||
+      comment.sender_role === "reviewer",
+  );
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col w-full">
       <div className="bg-gradient-to-r from-[#0B2F7F] to-[#1a4fc4] px-5 py-3 flex items-center gap-2 flex-shrink-0">
-        <MessageCircle className="w-5 h-5 text-white" />
         <h3 className="text-white font-semibold text-sm">{title}</h3>
-        <span className="text-white/60 text-xs ml-auto">{comments.length} pesan</span>
+        <span className="text-white/60 text-xs ml-auto">
+          {comments.length} pesan
+        </span>
       </div>
+
+      {showNotes && (
+        <div className="border-b border-slate-200 bg-slate-50 px-4 py-4">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <div>
+              <p className="text-sm font-semibold text-slate-800">Catatan</p>
+              <p className="text-xs text-slate-500">
+                Chat yang dikirimkan oleh dosen.
+              </p>
+            </div>
+            <span className="text-xs text-slate-500">
+              {notes.length} catatan
+            </span>
+          </div>
+          {notes.length > 0 ? (
+            <div className="space-y-3">
+              {notes.map((comment) => (
+                <div
+                  key={comment._id}
+                  className="rounded-2xl border border-slate-200 bg-white p-3"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2 text-xs text-slate-500">
+                    <span>
+                      {comment.sender_role === "reviewer"
+                        ? "Reviewer"
+                        : "Pembimbing"}
+                    </span>
+                    <span>
+                      {new Date(comment.created_at).toLocaleDateString(
+                        "id-ID",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
+                      {" • "}
+                      {new Date(comment.created_at).toLocaleTimeString(
+                        "id-ID",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        },
+                      )}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-slate-700">
+                    {comment.message}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">
+              Belum ada catatan dari dosen.
+            </p>
+          )}
+        </div>
+      )}
 
       <div
         ref={scrollContainerRef}
@@ -158,22 +247,43 @@ export default function ReviewChat({
           </div>
         ) : (
           comments.map((comment) => {
-            const isOwn = comment.sender_id === currentUserId;
+            const isOwn = String(comment.sender_id) === String(currentUserId);
             return (
-              <div key={comment._id} className={`flex ${isOwn ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[85%] rounded-xl px-4 py-2.5 border ${
-                  isOwn ? "bg-[#0B2F7F] text-white border-[#0B2F7F] rounded-br-sm" 
-                  : `${getRoleColor(comment.sender_role)} rounded-bl-sm`
-                }`}>
+              <div
+                key={comment._id}
+                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-[85%] rounded-xl px-4 py-2.5 border ${
+                    isOwn
+                      ? "bg-[#0B2F7F] text-white border-[#0B2F7F] rounded-br-sm"
+                      : `${getRoleColor(comment.sender_role)} rounded-bl-sm`
+                  }`}
+                >
                   {!isOwn && (
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-bold text-slate-700">{comment.sender_name}</span>
+                      <span className="text-xs font-bold text-slate-700">
+                        {comment.sender_name}
+                      </span>
                       {getRoleBadge(comment.sender_role)}
                     </div>
                   )}
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.message}</p>
-                  <p className={`text-[10px] mt-1 ${isOwn ? "text-white/50" : "text-slate-400"}`}>
-                    {new Date(comment.created_at).toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' })}
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                    {comment.message}
+                  </p>
+                  <p
+                    className={`text-[10px] mt-1 ${isOwn ? "text-white/50" : "text-slate-400"}`}
+                  >
+                    {new Date(comment.created_at).toLocaleDateString("id-ID", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                    {" • "}
+                    {new Date(comment.created_at).toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </div>
               </div>
@@ -195,7 +305,7 @@ export default function ReviewChat({
           />
           <button
             onClick={handleSend}
-            disabled={!newMessage.trim() || sending}
+            disabled={sending}
             className="flex items-center justify-center w-10 h-10 bg-[#0B2F7F] text-white rounded-xl hover:bg-[#0a2666] disabled:bg-slate-300 transition-colors"
           >
             <Send className="w-4 h-4" />

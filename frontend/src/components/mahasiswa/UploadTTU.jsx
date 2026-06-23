@@ -14,7 +14,7 @@ import {
 import { useTTU } from "../../contexts/TTUContext";
 import ReviewChat from "../shared/ReviewChat";
 
-const UploadTTU = ({ onSwitchToReview }) => {
+const UploadTTUView = ({ onSwitchToReview }) => {
   const {
     currentStage,
     mahasiswaId,
@@ -29,20 +29,20 @@ const UploadTTU = ({ onSwitchToReview }) => {
     loadSubmissionHistory,
   } = useTTU();
 
-  // Ambil file terbaru dari submissionHistory untuk currentStage
   const latestSubmittedFile = React.useMemo(() => {
     if (!submissionHistory || submissionHistory.length === 0) return null;
     const stageKey = `ttu_${currentStage}`;
-    // Filter hanya submission untuk stage ini dan statusnya submitted/reviewed
+
     const filtered = submissionHistory.filter(
       (s) =>
         s.ttu_number === stageKey &&
         (s.status === "submitted" || s.status === "reviewed"),
     );
     if (filtered.length === 0) return null;
-    // Ambil yang terbaru (diasumsikan sudah urut, atau ambil yang paling akhir)
+
     return filtered[filtered.length - 1];
   }, [submissionHistory, currentStage]);
+
   const [selectedFile, setSelectedFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
@@ -109,7 +109,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
     if (selectedFile && selectedFile.file) {
       const fileURL = URL.createObjectURL(selectedFile.file);
       window.open(fileURL, "_blank");
-
       setTimeout(() => URL.revokeObjectURL(fileURL), 100);
     }
   };
@@ -152,7 +151,11 @@ const UploadTTU = ({ onSwitchToReview }) => {
   };
 
   return (
-    <div className="space-y-6">
+    // Menggunakan tata letak space-y Menurun (Vertikal) penuh
+    <div className="w-full space-y-6 pb-12 overflow-y-auto max-h-[calc(100vh-80px)] pr-2">
+      {/* ========================================= */}
+      {/* TAHAP 1: ATAS - Form & Header Status      */}
+      {/* ========================================= */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">
           Upload Tugas Talenta Unggul {currentStage <= 2 ? currentStage : 2}
@@ -164,7 +167,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </p>
         <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
           <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium">
-            <span className="w-2 h-2 bg-blue-500 rounded-full "></span>
+            <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
             TTU {currentStage <= 2 ? currentStage : 2} dari 3
           </span>
           {ttuStatus && (
@@ -196,9 +199,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                       : ttuStatus[`ttu_${currentStage}`]?.status ===
                           "needs_revision"
                         ? "Perlu Revisi"
-                        : ttuStatus[`ttu_${currentStage}`]?.status === "locked"
-                          ? "Terkunci"
-                          : "Terkunci"}
+                        : "Terkunci"}
             </span>
           )}
         </div>
@@ -211,7 +212,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </div>
       )}
 
-      {/* Stage 3 - TTU3 should be uploaded from Daftar Review */}
+      {/* Area Aksi Upload Berdasarkan Kondisi */}
       {currentStage >= 3 ? (
         <div className="bg-white rounded-xl shadow-sm border border-green-200 p-8 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -291,10 +292,6 @@ const UploadTTU = ({ onSwitchToReview }) => {
             <Trash2 className="w-4 h-4" />
             Batalkan Pengajuan
           </button>
-          <p className="text-xs text-gray-500 text-center mt-2">
-            Membatalkan pengajuan akan memungkinkan Anda untuk mengunggah file
-            baru
-          </p>
         </div>
       ) : (
         <>
@@ -312,14 +309,10 @@ const UploadTTU = ({ onSwitchToReview }) => {
             <div className="p-12 text-center">
               <div className="flex justify-center mb-4">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${
-                    isDragging ? "bg-blue-100" : "bg-gray-100"
-                  }`}
+                  className={`w-16 h-16 rounded-full flex items-center justify-center transition-colors ${isDragging ? "bg-blue-100" : "bg-gray-100"}`}
                 >
                   <UploadCloud
-                    className={`w-8 h-8 ${
-                      isDragging ? "text-blue-600" : "text-gray-400"
-                    }`}
+                    className={`w-8 h-8 ${isDragging ? "text-blue-600" : "text-gray-400"}`}
                   />
                 </div>
               </div>
@@ -346,7 +339,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 Pilih File
               </button>
               <p className="text-xs text-gray-500 mt-4">
-                Format yang didukung: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)
+                Format yang didukung: PDF, DOC, DOCX (Max 10MB)
               </p>
             </div>
           </div>
@@ -367,13 +360,12 @@ const UploadTTU = ({ onSwitchToReview }) => {
                     </p>
                     <p className="text-xs text-gray-600">
                       {formatFileSize(selectedFile.size)} •{" "}
-                      {selectedFile.type || "Tipe tidak dikenal"}
+                      {selectedFile.type || "Tipe data berkas"}
                     </p>
                   </div>
                   <button
                     onClick={handleRemoveFile}
                     className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-colors"
-                    title="Hapus file"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -385,8 +377,7 @@ const UploadTTU = ({ onSwitchToReview }) => {
                   onClick={handlePreview}
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
                 >
-                  <Eye className="w-4 h-4" />
-                  Pratinjau
+                  <Eye className="w-4 h-4" /> Pratinjau
                 </button>
                 <button
                   onClick={handleSubmit}
@@ -394,14 +385,11 @@ const UploadTTU = ({ onSwitchToReview }) => {
                   className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm disabled:bg-slate-300"
                 >
                   {isUploading ? (
-                    <>
-                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
-                      Mengunggah...
-                    </>
+                    "Mengunggah..."
                   ) : (
                     <>
-                      <UploadCloud className="w-4 h-4" />
-                      Kirim
+                      {" "}
+                      <UploadCloud className="w-4 h-4" /> Kirim{" "}
                     </>
                   )}
                 </button>
@@ -425,11 +413,10 @@ const UploadTTU = ({ onSwitchToReview }) => {
 
           {loadingHistory ? (
             <div className="text-center py-8 text-slate-500">
-              <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full mx-auto mb-3"></div>
               Memuat riwayat...
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               {["ttu_1", "ttu_2", "ttu_3"].map((ttuKey) => {
                 const submissions = submissionHistory.filter(
                   (s) => s.ttu_number === ttuKey,
@@ -439,25 +426,25 @@ const UploadTTU = ({ onSwitchToReview }) => {
                 const approvedSub = submissions.find(
                   (s) => s.status === "approved",
                 );
-
                 const sortedSubs = [...submissions].sort(
                   (a, b) => new Date(b.uploaded_at) - new Date(a.uploaded_at),
                 );
+
                 return sortedSubs.map((sub, idx) => (
                   <div
                     key={sub._id || `${ttuKey}-${idx}`}
-                    className="border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors"
+                    className="border border-slate-200 rounded-xl p-5 bg-white hover:shadow-md transition-all"
                   >
-                    {/* Row 1: TTU label + badges */}
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                    {/* Header Card Riwayat */}
+                    <div className="flex items-center gap-2 flex-wrap mb-3">
                       <div className="flex items-center gap-1.5">
-                        <FileText className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                        <span className="font-semibold text-slate-600 text-xs uppercase tracking-wide">
+                        <FileText className="w-4 h-4 text-blue-500" />
+                        <span className="font-bold text-slate-600 text-xs uppercase tracking-wide">
                           {sub.ttu_number.replace("_", " ").toUpperCase()}
                         </span>
                       </div>
                       <span
-                        className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
+                        className={`px-2.5 py-0.5 text-xs font-semibold rounded-full ${
                           (approvedSub && sub._id === approvedSub._id) ||
                           sub.status === "approved"
                             ? "bg-green-100 text-green-700"
@@ -483,13 +470,14 @@ const UploadTTU = ({ onSwitchToReview }) => {
                         </span>
                       )}
                     </div>
-                    {/* Row 2: filename */}
-                    <p className="text-sm font-medium text-slate-800 truncate mb-1">
+
+                    {/* Informasi Detail Berkas */}
+                    <p className="text-base font-semibold text-slate-800 truncate mb-1">
                       {sub.file_name}
                     </p>
-                    {/* Row 3: date */}
-                    <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                      <Clock className="w-3 h-3 flex-shrink-0" />
+
+                    <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+                      <Clock className="w-3.5 h-3.5" />
                       <span>
                         {new Date(sub.uploaded_at).toLocaleDateString("id-ID", {
                           day: "numeric",
@@ -508,14 +496,13 @@ const UploadTTU = ({ onSwitchToReview }) => {
         </div>
       )}
 
-      {/* Chat Bimbingan */}
       {mahasiswaId && (
-        <div className="w-full">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col w-full h-full">
           <ReviewChat
             mahasiswaId={mahasiswaId}
             role="mahasiswa"
             currentUserId={mahasiswaId}
-            title="Diskusi Bimbingan"
+            title="Bimbingan"
           />
         </div>
       )}
@@ -524,34 +511,30 @@ const UploadTTU = ({ onSwitchToReview }) => {
       {showCancelDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm transition-all"
+            className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
             onClick={handleCloseCancelDialog}
           ></div>
-
-          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100 transform transition-all scale-100">
+          <div className="relative bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 border border-slate-100">
             <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4 ring-4 ring-orange-50/50">
+              <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mb-4">
                 <AlertCircle className="w-8 h-8 text-orange-500" />
               </div>
-
               <h3 className="text-lg font-bold text-slate-800 mb-2">
                 Batalkan Pengajuan?
               </h3>
-
-              <p className="text-sm text-slate-500 mb-6 leading-relaxed">
+              <p className="text-sm text-slate-500 mb-6">
                 Anda dapat mengunggah file baru setelah pembatalan.
               </p>
-
               <div className="flex items-center gap-3 w-full">
                 <button
                   onClick={handleCloseCancelDialog}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 hover:text-slate-900 transition-colors"
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50"
                 >
                   Tidak
                 </button>
                 <button
                   onClick={handleConfirmCancel}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 shadow-lg shadow-orange-600/20 transition-all transform active:scale-95"
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 shadow-lg"
                 >
                   Ya, Batalkan
                 </button>
@@ -564,4 +547,4 @@ const UploadTTU = ({ onSwitchToReview }) => {
   );
 };
 
-export default UploadTTU;
+export default UploadTTUView;
